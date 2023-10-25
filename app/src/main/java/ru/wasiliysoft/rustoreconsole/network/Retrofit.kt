@@ -18,10 +18,11 @@ object RetrofitClient {
             val interceptor = Interceptor() {
                 val newRequest = it.request()
                     .newBuilder().header("authorization", token).build()
-                Log.d(
-                    "RetrofitClient",
-                    "${it.request().url} headers: ${newRequest.header("authorization")}"
-                )
+//                Log.d(
+//                    "RetrofitClient",
+//                    "${it.request().url} headers: ${newRequest.header("authorization")}"
+//                )
+                Log.d("RetrofitClient", "${it.request().url}")
                 it.proceed(newRequest)
             }
 
