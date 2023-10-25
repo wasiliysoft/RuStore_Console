@@ -32,17 +32,20 @@ fun PurchaseItem(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Column(horizontalAlignment = Alignment.Start) {
+            Column(
+                horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)
+            ) {
                 Text(text = purchase.applicationName)
                 Text(text = purchase.paymentInfo.paymentId.toString())
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(text = purchase.amountCurrent.toString())
                 val date = LocalDateTime.parse(
-                    purchase.paymentInfo.paymentDate,
+                    purchase.paymentInfo.paymentDate + ":00",
                     DateTimeFormatter.ISO_OFFSET_DATE_TIME
                 )
-                Text(text = date.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)))
+                Text(text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
+                Text(text = date.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)))
             }
         }
     }

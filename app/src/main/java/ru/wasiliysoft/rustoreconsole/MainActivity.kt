@@ -1,7 +1,6 @@
 package ru.wasiliysoft.rustoreconsole
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 
@@ -19,7 +17,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             RuStoreConsoleTheme {
                 // A surface container using the 'background' color from the theme
@@ -27,12 +24,19 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val token = remember { ph.token }
-                    if (token.isEmpty()) {
+                    if (ph.token.isEmpty()) {
                         LoginScreen(onTokedReceived = ::onTokenReceived)
                     } else {
-                        Log.d("MainActivity", "token not empty")
-                        val list = vm.getPurchases(2063488048).observeAsState(emptyList())
+                        val appId = listOf(
+                            2063486239, // microlab
+                            2063486363, // sven
+                            2063486368, // edifier
+                            2063486369, // dialog
+                            2063487352, // bbk
+                            2063487890, // dexp
+                            2063488048, // irf
+                        )
+                        val list = vm.getPurchases(appId).observeAsState(emptyList())
                         PurchasesScreen(purchases = list)
                     }
                 }
