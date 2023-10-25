@@ -23,7 +23,19 @@ data class Purchase(
     val applicationName: String,
     @SerializedName("payment_info")
     val paymentInfo: PaymentInfo
-)
+) {
+    companion object {
+        fun demo(paymentId: Long = 13) = Purchase(
+            amountCurrent = 1000,
+            applicationName = "Test app name",
+            paymentInfo = PaymentInfo(
+                paymentId = paymentId,
+                paymentDate = "20.12.2023T12:35:40+03"
+            )
+        )
+    }
+}
+
 
 data class PaymentInfo(
     @SerializedName("payment_id")
