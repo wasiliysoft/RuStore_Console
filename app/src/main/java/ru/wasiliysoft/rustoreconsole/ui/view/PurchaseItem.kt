@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.Purchase
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @Composable
 fun PurchaseItem(
@@ -35,7 +38,11 @@ fun PurchaseItem(
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(text = purchase.amountCurrent.toString())
-                Text(text = purchase.paymentInfo.paymentDate)
+                val date = LocalDateTime.parse(
+                    purchase.paymentInfo.paymentDate,
+                    DateTimeFormatter.ISO_OFFSET_DATE_TIME
+                )
+                Text(text = date.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)))
             }
         }
     }

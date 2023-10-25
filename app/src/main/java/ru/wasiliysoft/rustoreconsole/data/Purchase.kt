@@ -30,7 +30,7 @@ data class Purchase(
             applicationName = "Test app name",
             paymentInfo = PaymentInfo(
                 paymentId = paymentId,
-                paymentDate = "20.12.2023T12:35:40+03"
+                paymentDate = "2023-10-22T12:35:40+03"
             )
         )
     }
