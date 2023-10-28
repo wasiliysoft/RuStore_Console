@@ -1,7 +1,7 @@
 package ru.wasiliysoft.rustoreconsole
 
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,26 +34,27 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (ph.token.isEmpty()) {
-                        LoginScreen(onTokedReceived = ::onTokenReceived)
-                    } else {
-                        val state = vm.purchases
-                            .observeAsState(LoadingResult.Loading("Инициализация"))
-                        PurchasesScreen(uiSate = state, onRefresh = ::onRefresh)
-                        onRefresh()
-                    }
+                    val state = vm.purchases
+                        .observeAsState(LoadingResult.Loading("Инициализация"))
+                    PurchasesScreen(uiSate = state, onRefresh = ::onRefresh)
+                    onRefresh()
                 }
+            }
+        }
+        vm.purchases.observe(this) {
+            if (it is LoadingResult.Error && it.exception.message.toString().trim() == "HTTP 401") {
+                onFailureAuth()
             }
         }
     }
 
-    private fun onRefresh() {
-        vm.loadPurchases()
+    private fun onFailureAuth() {
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 
-    private fun onTokenReceived(token: String) {
-        Toast.makeText(this, "Auth success", Toast.LENGTH_SHORT).show()
-        ph.token = token
+    private fun onRefresh() {
+        vm.loadPurchases()
     }
 }
 
