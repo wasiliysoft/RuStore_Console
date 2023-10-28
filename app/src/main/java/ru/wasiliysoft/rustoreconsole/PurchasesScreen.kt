@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -59,8 +60,10 @@ fun PurchasesScreen(
                 }
             }
         }
-        OutlinedButton(onClick = onRefresh, Modifier.padding(16.dp)) {
-            Text(text = "Обновить")
+        Surface(tonalElevation = 2.dp, shadowElevation = 2.dp, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = onRefresh, Modifier.padding(16.dp)) {
+                Text(text = "Обновить")
+            }
         }
     }
 }

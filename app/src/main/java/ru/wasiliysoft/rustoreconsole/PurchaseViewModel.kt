@@ -15,7 +15,7 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
 class PurchaseViewModel(
     token: String,
-    val appId: List<Long>
+    private val appId: List<Long>
 ) : ViewModel() {
     private val api = RetrofitClient.getPurchasesAPI(token)
     private val mutex = Mutex()
@@ -25,23 +25,28 @@ class PurchaseViewModel(
 
     fun loadPurchases() {
         viewModelScope.launch(Dispatchers.IO) {
-            _purchases.postValue(LoadingResult.Loading("Загружаем"))
+            _purchases.postValue(LoadingResult.Loading("Загружаем..."))
             val list = mutableListOf<Purchase>()
-            appId.map {
-                viewModelScope.launch {
-                    try {
-                        val purchases = api.getPurchases(it).body.list
-                        mutex.withLock {
-                            list.addAll(purchases)
+            val exceptionList = mutableListOf<Exception>()
+            appId.chunked(3).forEach { idList ->
+                idList.map {
+                    launch {
+                        try {
+                            val purchases = api.getPurchases(it).body.list
+                            mutex.withLock { list.addAll(purchases) }
+                        } catch (e: Exception) {
+                            exceptionList.add(e)
+                            e.printStackTrace()
                         }
-                    } catch (e: Exception) {
-                        _purchases.postValue(LoadingResult.Error(e))
-                        e.printStackTrace()
                     }
-                }
-            }.joinAll()
-            list.sortByDescending { it.paymentInfo.paymentId }
-            _purchases.postValue(LoadingResult.Success(list))
+                }.joinAll()
+            }
+            if (exceptionList.isNotEmpty()) {
+                _purchases.postValue(LoadingResult.Error(exceptionList.first()))
+            } else {
+                list.sortByDescending { it.paymentInfo.paymentId }
+                _purchases.postValue(LoadingResult.Success(list))
+            }
         }
     }
 }
