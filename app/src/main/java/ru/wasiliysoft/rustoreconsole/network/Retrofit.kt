@@ -37,7 +37,5 @@ object RetrofitClient {
         return retrofit!!
     }
 
-
-    fun getPurchasesAPI(token: String) = getClient(token).create(PurchasesAPI::class.java)
-
+    fun apiRuStore(token: String): APIRuStore = getClient(token).create(APIRuStore::class.java)
 }

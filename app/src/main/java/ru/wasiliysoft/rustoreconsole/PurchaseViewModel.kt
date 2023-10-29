@@ -17,7 +17,7 @@ class PurchaseViewModel(
     token: String,
     private val appId: List<Long>
 ) : ViewModel() {
-    private val api = RetrofitClient.getPurchasesAPI(token)
+    private val api = RetrofitClient.apiRuStore(token)
     private val mutex = Mutex()
 
     private val _purchases = MutableLiveData<LoadingResult<List<Purchase>>>()
