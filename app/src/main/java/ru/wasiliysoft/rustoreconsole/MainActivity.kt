@@ -47,14 +47,14 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val state = vm.purchases
-                        .observeAsState(LoadingResult.Loading("Инициализация"))
+                    val state = vm.purchases.observeAsState(
+                        LoadingResult.Loading("Инициализация")
+                    )
                     PurchasesScreen(
                         uiSate = state,
                         openInBrowser = ::openPurchaseInBrowser,
                         onRefresh = ::onRefresh
                     )
-                    onRefresh()
                 }
             }
         }
@@ -63,6 +63,7 @@ class MainActivity : ComponentActivity() {
                 onFailureAuth()
             }
         }
+        onRefresh()
     }
 
     private fun openPurchaseInBrowser(appId: Long, invoiceId: Long) {
