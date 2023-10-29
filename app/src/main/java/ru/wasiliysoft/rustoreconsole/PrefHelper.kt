@@ -18,6 +18,6 @@ class PrefHelper private constructor(private val sp: SharedPreferences) {
 
     var token: String
         get() = sp.getString(PREF_TOKEN, "") ?: ""
-//        get() = ""
-set(value) = sp.edit().putString(PREF_TOKEN, value).apply()
+        // get() = ""
+        set(value) = sp.edit().putString(PREF_TOKEN, value).apply()
 }

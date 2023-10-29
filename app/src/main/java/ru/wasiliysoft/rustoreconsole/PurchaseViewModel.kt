@@ -14,7 +14,7 @@ import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
 class PurchaseViewModel(private val appId: List<Long>) : ViewModel() {
-    private val api = RetrofitClient.apiRuStore()
+    private val api = RetrofitClient.api
     private val mutex = Mutex()
 
     private val _purchases = MutableLiveData<LoadingResult<List<Purchase>>>()

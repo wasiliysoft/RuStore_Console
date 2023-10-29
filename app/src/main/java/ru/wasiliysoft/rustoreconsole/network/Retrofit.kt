@@ -9,39 +9,27 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
     private const val LOG_TAG = "RetrofitClient"
-    private var retrofit: Retrofit? = null
     var token: String = ""
-        get(): String {
-            Log.d(LOG_TAG, "call getToken()")
-            return field
-        }
-        set(value) {
-            Log.d(LOG_TAG, "call setToken()")
-            field = value
-        }
 
-    private fun getClient(): Retrofit {
+    private val authInterceptor = Interceptor {
         if (token.isEmpty()) Log.e(LOG_TAG, "token not set or empty")
-
-        if (retrofit == null) {
-            val interceptor = Interceptor {
-                val newRequest = it.request()
-                    .newBuilder()
-                    .header("authorization", token)
-                    .build()
-                Log.d(LOG_TAG, "${it.request().url}")
-                it.proceed(newRequest)
-            }
-
-            val client = OkHttpClient.Builder()
-                .addInterceptor(interceptor)
-                .build()
-
-            retrofit = Retrofit.Builder().baseUrl("https://pay-backapi.rustore.ru/").client(client)
-                .addConverterFactory(GsonConverterFactory.create()).build()
-        }
-        return retrofit!!
+        val newRequest = it.request()
+            .newBuilder()
+            .header("authorization", token)
+            .build()
+        Log.d(LOG_TAG, "${it.request().url}")
+        it.proceed(newRequest)
     }
 
-    fun apiRuStore(): APIRuStore = getClient().create(APIRuStore::class.java)
+    private val okHttpClient = OkHttpClient.Builder()
+        .addInterceptor(authInterceptor)
+        .build()
+
+    private val retrofit = Retrofit.Builder()
+        .baseUrl("https://pay-backapi.rustore.ru/")
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+    val api: APIRuStore = retrofit.create(APIRuStore::class.java)
 }
