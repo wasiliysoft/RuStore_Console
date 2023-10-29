@@ -15,8 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.Purchase
+import ru.wasiliysoft.rustoreconsole.utils.formatFromInvoice
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -28,10 +28,7 @@ fun PurchaseItem(
     modifier: Modifier = Modifier
 ) {
 
-    val date = LocalDateTime.parse(
-        purchase.invoiceDate + ":00",
-        DateTimeFormatter.ISO_OFFSET_DATE_TIME
-    )
+    val date = formatFromInvoice(purchase.invoiceDate)
     val cardColor = if (date.toLocalDate() == LocalDate.now()) CardDefaults.cardColors()
     else CardDefaults.outlinedCardColors()
     Card(

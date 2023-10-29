@@ -35,7 +35,21 @@ data class UserReview(
     val deviceInfo: String?,
     @SerializedName("devResponse")
     val devResponse: List<DeveloperComment>?
-)
+) {
+    companion object {
+        fun demo(commentId: Long = 5) = UserReview(
+            commentId = commentId,
+            appRating = 5,
+            firstName = "firstName",
+            commentDate = "2023-07-20 19:09:45.045",
+            commentText = "commentTextcommentTextcommentText commentText",
+            likeCounter = 8,
+            dislikeCounter = 3,
+            deviceInfo = null,
+            devResponse = listOf(DeveloperComment.demo(commentId))
+        )
+    }
+}
 
 data class DeveloperComment(
     @SerializedName("id")
@@ -46,4 +60,13 @@ data class DeveloperComment(
     val status: String,
     @SerializedName("date")
     val date: String
-)
+) {
+    companion object {
+        fun demo(id: Long = 5) = DeveloperComment(
+            id = id,
+            status = "firstName",
+            date = "2023-07-20 19:09:45.045",
+            text = "Dev comment Dev comment Dev comment",
+        )
+    }
+}
