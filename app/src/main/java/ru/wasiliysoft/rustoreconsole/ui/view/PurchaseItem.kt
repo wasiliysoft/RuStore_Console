@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,9 +20,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PurchaseItem(
     purchase: Purchase,
+    openInBrowser: (appId: Long, invoceId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -33,7 +36,8 @@ fun PurchaseItem(
     else CardDefaults.outlinedCardColors()
     Card(
         colors = cardColor,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        onClick = { openInBrowser(purchase.applicationCode, purchase.invoiceId) }
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -60,6 +64,7 @@ fun PurchaseItem(
 @Composable
 private fun Preview(modifier: Modifier = Modifier) {
     PurchaseItem(
-        purchase = Purchase.demo()
+        purchase = Purchase.demo(),
+        openInBrowser = { _, _ -> }
     )
 }

@@ -32,11 +32,11 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 fun PurchasesScreen(
     uiSate: State<LoadingResult<List<Purchase>>>,
     onRefresh: () -> Unit,
+    openInBrowser: (appId: Long, invoceId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             modifier = Modifier
@@ -49,7 +49,10 @@ fun PurchasesScreen(
                 }
 
                 is LoadingResult.Success -> {
-                    ListItem(purchases = (uiSate.value as LoadingResult.Success<List<Purchase>>).data)
+                    PurchaseListView(
+                        purchases = (uiSate.value as LoadingResult.Success<List<Purchase>>).data,
+                        openInBrowser = openInBrowser
+                    )
                 }
 
                 is LoadingResult.Error -> {
@@ -80,8 +83,9 @@ private fun ProgressView(description: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ListItem(
+private fun PurchaseListView(
     purchases: List<Purchase>,
+    openInBrowser: (appId: Long, invoceId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -90,7 +94,7 @@ private fun ListItem(
         modifier = modifier
     ) {
         items(items = purchases, key = { it.invoiceId }) {
-            PurchaseItem(it)
+            PurchaseItem(it, openInBrowser = openInBrowser)
         }
     }
 }
@@ -105,7 +109,7 @@ private fun Preview(modifier: Modifier = Modifier) {
             })
         )
     }
-    PurchasesScreen(uiSate = uiSate, onRefresh = {})
+    PurchasesScreen(uiSate = uiSate, openInBrowser = { _, _ -> }, onRefresh = {})
 }
 
 @Preview(showBackground = true)
@@ -116,5 +120,5 @@ private fun PreviewLoading(modifier: Modifier = Modifier) {
             LoadingResult.Loading("Загружаем")
         )
     }
-    PurchasesScreen(uiSate = uiSate, onRefresh = {})
+    PurchasesScreen(uiSate = uiSate, openInBrowser = { _, _ -> }, onRefresh = {})
 }

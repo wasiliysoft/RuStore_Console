@@ -23,6 +23,8 @@ data class Purchase(
     val amountCurrent: Int,
     @SerializedName("application_name")
     val applicationName: String,
+    @SerializedName("application_code")
+    val applicationCode: Long,
     @SerializedName("invoice_date")
     val invoiceDate: String,
 //    @SerializedName("payment_info")
@@ -32,6 +34,7 @@ data class Purchase(
         fun demo(paymentId: Long = 13) = Purchase(
             amountCurrent = 1000,
             invoiceId = paymentId + 11,
+            applicationCode = 167L,
             invoiceDate = "2023-10-22T12:35:40+03",
             applicationName = "Test app name",
 //            paymentInfo = PaymentInfo(

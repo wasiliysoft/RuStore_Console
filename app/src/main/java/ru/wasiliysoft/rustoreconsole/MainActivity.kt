@@ -1,6 +1,7 @@
 package ru.wasiliysoft.rustoreconsole
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,7 +37,11 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val state = vm.purchases
                         .observeAsState(LoadingResult.Loading("Инициализация"))
-                    PurchasesScreen(uiSate = state, onRefresh = ::onRefresh)
+                    PurchasesScreen(
+                        uiSate = state,
+                        openInBrowser = ::openPurchaseInBrowser,
+                        onRefresh = ::onRefresh
+                    )
                     onRefresh()
                 }
             }
@@ -46,6 +51,11 @@ class MainActivity : ComponentActivity() {
                 onFailureAuth()
             }
         }
+    }
+
+    private fun openPurchaseInBrowser(appId: Long, invoiceId: Long) {
+        val url = "https://console.rustore.ru/apps/$appId/payments/$invoiceId"
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 
     private fun onFailureAuth() {
