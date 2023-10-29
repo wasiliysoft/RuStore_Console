@@ -26,7 +26,7 @@ fun PurchaseItem(
 ) {
 
     val date = LocalDateTime.parse(
-        purchase.paymentInfo.paymentDate + ":00",
+        purchase.invoiceDate + ":00",
         DateTimeFormatter.ISO_OFFSET_DATE_TIME
     )
     val cardColor = if (date.toLocalDate() == LocalDate.now()) CardDefaults.cardColors()
@@ -45,7 +45,7 @@ fun PurchaseItem(
                 horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)
             ) {
                 Text(text = purchase.applicationName)
-                Text(text = purchase.paymentInfo.paymentId.toString())
+                Text(text = purchase.invoiceId.toString())
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text(text = (purchase.amountCurrent / 100).toString())

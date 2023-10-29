@@ -44,7 +44,7 @@ class PurchaseViewModel(
             if (exceptionList.isNotEmpty()) {
                 _purchases.postValue(LoadingResult.Error(exceptionList.first()))
             } else {
-                list.sortByDescending { it.paymentInfo.paymentId }
+                list.sortByDescending { it.invoiceId }
                 _purchases.postValue(LoadingResult.Success(list))
             }
         }

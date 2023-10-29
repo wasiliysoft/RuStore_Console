@@ -89,7 +89,7 @@ private fun ListItem(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
     ) {
-        items(items = purchases, key = { it.paymentInfo.paymentId }) {
+        items(items = purchases, key = { it.invoiceId }) {
             PurchaseItem(it)
         }
     }

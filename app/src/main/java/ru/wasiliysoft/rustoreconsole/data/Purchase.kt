@@ -17,21 +17,27 @@ data class Invoices(
 )
 
 data class Purchase(
+    @SerializedName("invoice_id")
+    val invoiceId: Long,
     @SerializedName("amount_current")
     val amountCurrent: Int,
     @SerializedName("application_name")
     val applicationName: String,
-    @SerializedName("payment_info")
-    val paymentInfo: PaymentInfo
+    @SerializedName("invoice_date")
+    val invoiceDate: String,
+//    @SerializedName("payment_info")
+//    val paymentInfo: PaymentInfo
 ) {
     companion object {
         fun demo(paymentId: Long = 13) = Purchase(
             amountCurrent = 1000,
+            invoiceId = paymentId + 11,
+            invoiceDate = "2023-10-22T12:35:40+03",
             applicationName = "Test app name",
-            paymentInfo = PaymentInfo(
-                paymentId = paymentId,
-                paymentDate = "2023-10-22T12:35:40+03"
-            )
+//            paymentInfo = PaymentInfo(
+//                paymentId = paymentId,
+//                paymentDate = "2023-10-22T12:35:40+03"
+//            )
         )
     }
 }
