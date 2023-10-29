@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.ui.view
+package ru.wasiliysoft.rustoreconsole.purchases
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

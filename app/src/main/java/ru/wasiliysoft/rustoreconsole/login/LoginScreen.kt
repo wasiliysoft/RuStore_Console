@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole
+package ru.wasiliysoft.rustoreconsole.login
 
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT

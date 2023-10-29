@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole
+package ru.wasiliysoft.rustoreconsole.login
 
 import android.app.Activity
 import android.content.Context

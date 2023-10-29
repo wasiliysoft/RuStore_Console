@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole
+package ru.wasiliysoft.rustoreconsole.purchases
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.Purchase
-import ru.wasiliysoft.rustoreconsole.ui.view.PurchaseItem
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
 @Composable

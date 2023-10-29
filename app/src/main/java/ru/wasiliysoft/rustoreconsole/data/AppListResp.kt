@@ -2,7 +2,7 @@ package ru.wasiliysoft.rustoreconsole.data
 
 import com.google.gson.annotations.SerializedName
 
-data class RetrieveUserApps(
+data class AppListResp(
     @SerializedName("code")
     val code: String,
     @SerializedName("message")

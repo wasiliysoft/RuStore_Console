@@ -2,21 +2,21 @@ package ru.wasiliysoft.rustoreconsole.data
 
 import com.google.gson.annotations.SerializedName
 
-data class CommentResp(
+data class ReviewsResp(
     @SerializedName("code")
     val code: String,
     @SerializedName("message")
     val message: String,
     @SerializedName("body")
-    val body: Comments
+    val body: Reviews
 )
 
-data class Comments(
+data class Reviews(
     @SerializedName("content")
-    val list: List<UserComment>
+    val reviews: List<UserReview>
 )
 
-data class UserComment(
+data class UserReview(
     @SerializedName("commentId")
     val commentId: Long,
     @SerializedName("appRating")
