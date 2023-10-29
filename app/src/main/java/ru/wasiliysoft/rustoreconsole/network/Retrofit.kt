@@ -8,34 +8,40 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 object RetrofitClient {
+    private const val LOG_TAG = "RetrofitClient"
     private var retrofit: Retrofit? = null
+    var token: String = ""
+        get(): String {
+            Log.d(LOG_TAG, "call getToken()")
+            return field
+        }
+        set(value) {
+            Log.d(LOG_TAG, "call setToken()")
+            field = value
+        }
 
-    private fun getClient(token: String): Retrofit {
+    private fun getClient(): Retrofit {
+        if (token.isEmpty()) Log.e(LOG_TAG, "token not set or empty")
+
         if (retrofit == null) {
-//            val interceptorLogging = HttpLoggingInterceptor() {}
-//            interceptorLogging.setLevel(HttpLoggingInterceptor.Level.BODY)
-
-            val interceptor = Interceptor() {
+            val interceptor = Interceptor {
                 val newRequest = it.request()
-                    .newBuilder().header("authorization", token).build()
-//                Log.d(
-//                    "RetrofitClient",
-//                    "${it.request().url} headers: ${newRequest.header("authorization")}"
-//                )
-                Log.d("RetrofitClient", "${it.request().url}")
+                    .newBuilder()
+                    .header("authorization", token)
+                    .build()
+                Log.d(LOG_TAG, "${it.request().url}")
                 it.proceed(newRequest)
             }
 
-            val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
-
-            retrofit = Retrofit.Builder()
-                .baseUrl("https://pay-backapi.rustore.ru/")
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+            val client = OkHttpClient.Builder()
+                .addInterceptor(interceptor)
                 .build()
+
+            retrofit = Retrofit.Builder().baseUrl("https://pay-backapi.rustore.ru/").client(client)
+                .addConverterFactory(GsonConverterFactory.create()).build()
         }
         return retrofit!!
     }
 
-    fun apiRuStore(token: String): APIRuStore = getClient(token).create(APIRuStore::class.java)
+    fun apiRuStore(): APIRuStore = getClient().create(APIRuStore::class.java)
 }

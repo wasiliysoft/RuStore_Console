@@ -3,6 +3,7 @@ package ru.wasiliysoft.rustoreconsole
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
@@ -23,11 +25,21 @@ class MainActivity : ComponentActivity() {
         2063487890, // dexp
         2063488048, // irf
     )
+    private val vm = PurchaseViewModel(appId)
     private val ph by lazy { PrefHelper.get(applicationContext) }
-    private val vm by lazy { PurchaseViewModel(ph.token, appId) }
+
+    private val launcherLoginActivity = registerForActivityResult(LoginActivity.Contract()) {
+        if (it.isNotEmpty()) {
+            Toast.makeText(this, "Auth success", Toast.LENGTH_LONG).show()
+            ph.token = it
+            RetrofitClient.token = it
+            onRefresh()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RetrofitClient.token = ph.token
         setContent {
             RuStoreConsoleTheme {
                 // A surface container using the 'background' color from the theme
@@ -59,8 +71,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun onFailureAuth() {
-        startActivity(Intent(this, LoginActivity::class.java))
-        finish()
+        launcherLoginActivity.launch(null)
     }
 
     private fun onRefresh() {

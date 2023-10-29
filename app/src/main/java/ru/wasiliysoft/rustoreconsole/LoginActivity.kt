@@ -1,9 +1,12 @@
 package ru.wasiliysoft.rustoreconsole
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -11,10 +14,8 @@ import androidx.compose.ui.Modifier
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 
 class LoginActivity : ComponentActivity() {
-    private val ph by lazy { PrefHelper.get(applicationContext) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ph.token = ""
         setContent {
             RuStoreConsoleTheme {
                 // A surface container using the 'background' color from the theme
@@ -29,7 +30,24 @@ class LoginActivity : ComponentActivity() {
     }
 
     private fun onTokenReceived(token: String) {
-        Toast.makeText(this, "Auth success, restart app", Toast.LENGTH_LONG).show()
-        ph.token = token
+        intent?.let {
+            it.putExtra(EXTRA_TOKEN, token)
+            setResult(Activity.RESULT_OK, it)
+            finish()
+        }
+    }
+
+    companion object {
+        private const val EXTRA_TOKEN = "EXTRA_TOKEN"
+    }
+
+    class Contract : ActivityResultContract<Unit?, String>() {
+        override fun createIntent(context: Context, input: Unit?): Intent {
+            return Intent(context, LoginActivity::class.java)
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): String {
+            return intent?.extras?.getString(EXTRA_TOKEN, "") ?: ""
+        }
     }
 }
