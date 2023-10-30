@@ -16,6 +16,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -50,7 +51,7 @@ class MainActivity : ComponentActivity() {
 
     private val launcherLoginActivity = registerForActivityResult(LoginActivity.Contract()) {
         if (it.isNotEmpty()) {
-            Toast.makeText(this, "Auth success", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Auth success, restart app", Toast.LENGTH_LONG).show()
             ph.token = it
             RetrofitClient.token = it
             appListVM.loadData()
@@ -162,7 +163,8 @@ private fun BottomBar(navController: NavController) {
                         imageVector = if (isSelected) screen.selectedVector else screen.uneselectedVector,
                         contentDescription = screen.title
                     )
-                })
+                },
+                label = { Text(text = screen.title) })
         }
     }
 }
