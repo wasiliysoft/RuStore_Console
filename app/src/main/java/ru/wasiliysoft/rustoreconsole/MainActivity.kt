@@ -45,15 +45,6 @@ val navList = listOf(
 )
 
 class MainActivity : ComponentActivity() {
-    private val appId = listOf<Long>(
-        2063486239, // microlab
-        2063486363, // sven
-        2063486368, // edifier
-        2063486369, // dialog
-        2063487352, // bbk
-        2063487890, // dexp
-        2063488048, // irf
-    )
     private val initLoadingState = LoadingResult.Loading("Инициализация")
     private val ph by lazy { PrefHelper.get(applicationContext) }
 
@@ -67,15 +58,14 @@ class MainActivity : ComponentActivity() {
     }
     private val appListVM by viewModels<ApplicationListViewModel>()
 
+    private val purchaseVM by lazy { PurchaseViewModel(ph.appIdList) }
+    private val reviewVM by lazy { ReviewViewModel(ph.appIdList) }
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RetrofitClient.token = ph.token
-        val purchaseVM = PurchaseViewModel(appId)
-        val reviewVM = ReviewViewModel(appId)
-        appListVM.list.observe(this) {
 
-        }
         setContent {
             RuStoreConsoleTheme {
                 val navController = rememberNavController()
@@ -116,9 +106,19 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        purchaseVM.purchases.observe(this) {
-            if (it is LoadingResult.Error && it.exception.message.toString().trim() == "HTTP 401") {
-                onFailureAuth()
+        appListVM.list.observe(this) { result ->
+            when (result) {
+                is LoadingResult.Success -> {
+                    ph.appIdList = result.data.map { it.appId }
+                }
+
+                is LoadingResult.Error -> {
+                    if (result.exception.message.toString().trim() == "HTTP 401") {
+                        onFailureAuth()
+                    }
+                }
+
+                else -> {}
             }
         }
         appListVM.loadData()
