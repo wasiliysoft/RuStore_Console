@@ -16,6 +16,10 @@ class ApplicationListViewModel : ViewModel() {
     private val _list = MutableLiveData<LoadingResult<List<AppInfo>>>()
     val list: LiveData<LoadingResult<List<AppInfo>>> = _list
 
+    init {
+        loadData()
+    }
+
     fun loadData() {
         viewModelScope.launch(Dispatchers.IO) {
             _list.postValue(LoadingResult.Loading("Загружаем..."))

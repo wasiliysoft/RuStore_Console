@@ -3,7 +3,6 @@ package ru.wasiliysoft.rustoreconsole.purchases
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.joinAll
@@ -20,6 +19,10 @@ class PurchaseViewModel(private val appId: List<Long>) : ViewModel() {
 
     private val _purchases = MutableLiveData<LoadingResult<List<Purchase>>>()
     val purchases: LiveData<LoadingResult<List<Purchase>>> = _purchases
+
+    init {
+        loadPurchases()
+    }
 
     fun loadPurchases() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -47,23 +50,4 @@ class PurchaseViewModel(private val appId: List<Long>) : ViewModel() {
             }
         }
     }
-
-
-    // https://developer.android.com/topic/libraries/architecture/viewmodel/viewmodel-factories
-
-    class NewsViewModelFactory(
-        private val appIdList: List<Long>
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(PurchaseViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return PurchaseViewModel(
-                    appId = appIdList
-                ) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
-
-
 }

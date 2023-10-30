@@ -20,6 +20,10 @@ class ReviewViewModel(private val appId: List<Long>) : ViewModel() {
     private val _reviews = MutableLiveData<LoadingResult<List<UserReview>>>()
     val reviews: LiveData<LoadingResult<List<UserReview>>> = _reviews
 
+    init {
+        loadReviews()
+    }
+
     fun loadReviews() {
         viewModelScope.launch(Dispatchers.IO) {
             _reviews.postValue(LoadingResult.Loading("Загружаем..."))

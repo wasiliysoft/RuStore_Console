@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
             Toast.makeText(this, "Auth success", Toast.LENGTH_LONG).show()
             ph.token = it
             RetrofitClient.token = it
-            // TODO onRefresh()
+            appListVM.loadData()
         }
     }
     private val appListVM by viewModels<ApplicationListViewModel>()
@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
                     }) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = Screen.Purchases.route,
+                            startDestination = Screen.AppList.route,
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             composable(route = Screen.AppList.route) {
@@ -121,9 +121,6 @@ class MainActivity : ComponentActivity() {
                 else -> {}
             }
         }
-        appListVM.loadData()
-        reviewVM.loadReviews()
-        purchaseVM.loadPurchases()
     }
 
     private fun openPurchaseInBrowser(appId: Long, invoiceId: Long) {
