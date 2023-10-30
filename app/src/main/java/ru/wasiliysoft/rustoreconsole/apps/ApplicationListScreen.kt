@@ -1,7 +1,9 @@
 package ru.wasiliysoft.rustoreconsole.apps
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,13 +42,7 @@ fun ApplicationListScreen(
                 }
 
                 is LoadingResult.Success -> {
-                    LazyColumn {
-                        items(
-                            items = (uiSate.value as LoadingResult.Success<List<AppInfo>>).data,
-                            key = { it.packageName }) {
-                            AppInfoCard(appInfo = it)
-                        }
-                    }
+                    ListView(data = (uiSate.value as LoadingResult.Success).data)
                 }
 
                 is LoadingResult.Error -> {
@@ -66,16 +62,36 @@ fun ApplicationListScreen(
 }
 
 @Composable
-fun AppInfoCard(
+private fun ListView(
+    data: List<AppInfo>,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(16.dp),
+        modifier = modifier
+    ) {
+        items(items = data, key = { it.packageName }) {
+            AppInfoCard(it)
+        }
+    }
+}
+
+@Composable
+private fun AppInfoCard(
     appInfo: AppInfo,
     modifier: Modifier = Modifier
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
-        Column {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
             Text(text = appInfo.appName)
-            Text(text = appInfo.appStatus)
+            Text(text = "Статус: ${appInfo.appStatus}")
             Text(text = appInfo.versionName)
-            Text(text = appInfo.versionCode.toString())
+            Text(text = "versionCode:${appInfo.versionCode}")
         }
     }
 }

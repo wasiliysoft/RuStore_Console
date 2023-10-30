@@ -82,23 +82,22 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             composable(route = Screen.AppList.route) {
-                                val state = appListVM.list.observeAsState(initLoadingState)
                                 ApplicationListScreen(
-                                    uiSate = state,
+                                    uiSate = appListVM.list.observeAsState(initLoadingState),
                                     onRefresh = { appListVM.loadData() }
                                 )
                             }
                             composable(route = Screen.Purchases.route) {
-                                val state = purchaseVM.purchases.observeAsState(initLoadingState)
                                 PurchasesScreen(
-                                    uiSate = state,
+                                    uiSate = purchaseVM.purchases.observeAsState(initLoadingState),
                                     openInBrowser = ::openPurchaseInBrowser,
                                     onRefresh = { purchaseVM.loadPurchases() }
                                 )
                             }
                             composable(route = Screen.Revews.route) {
-                                val state = reviewVM.reviews.observeAsState(initLoadingState)
-                                ReviewsScreen(uiSate = state, onRefresh = { reviewVM.loadReviews() }
+                                ReviewsScreen(
+                                    uiSate = reviewVM.reviews.observeAsState(initLoadingState),
+                                    onRefresh = { reviewVM.loadReviews() }
                                 )
                             }
                         }
