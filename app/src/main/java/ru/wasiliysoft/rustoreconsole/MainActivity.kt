@@ -6,13 +6,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -32,6 +27,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import ru.wasiliysoft.rustoreconsole.apps.ApplicationListScreen
+import ru.wasiliysoft.rustoreconsole.apps.ApplicationListViewModel
 import ru.wasiliysoft.rustoreconsole.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.purchases.PurchaseViewModel
@@ -41,29 +38,10 @@ import ru.wasiliysoft.rustoreconsole.reviews.ReviewsScreen
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
-sealed class Screen(
-    val route: String,
-    val title: String,
-    val selectedVector: ImageVector,
-    val uneselectedVector: ImageVector
-) {
-    object Revews : Screen(
-        route = "Revews",
-        title = "Отзывы",
-        selectedVector = Icons.Filled.ThumbUp,
-        uneselectedVector = Icons.Outlined.ThumbUp
-    )
-
-    object Purchases : Screen(
-        route = "Purchases",
-        title = "Платежи",
-        selectedVector = Icons.Filled.ShoppingCart,
-        uneselectedVector = Icons.Outlined.ShoppingCart
-    )
-}
-
 val navList = listOf(
-    Screen.Purchases, Screen.Revews
+    Screen.AppList,
+    Screen.Purchases,
+    Screen.Revews
 )
 
 class MainActivity : ComponentActivity() {
@@ -76,7 +54,7 @@ class MainActivity : ComponentActivity() {
         2063487890, // dexp
         2063488048, // irf
     )
-
+    private val initLoadingState = LoadingResult.Loading("Инициализация")
     private val ph by lazy { PrefHelper.get(applicationContext) }
 
     private val launcherLoginActivity = registerForActivityResult(LoginActivity.Contract()) {
@@ -87,13 +65,17 @@ class MainActivity : ComponentActivity() {
             // TODO onRefresh()
         }
     }
+    private val appListVM by viewModels<ApplicationListViewModel>()
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         RetrofitClient.token = ph.token
-        val purchaseViewModel = PurchaseViewModel(appId)
-        val reviewViewModel = ReviewViewModel(appId)
+        val purchaseVM = PurchaseViewModel(appId)
+        val reviewVM = ReviewViewModel(appId)
+        appListVM.list.observe(this) {
+
+        }
         setContent {
             RuStoreConsoleTheme {
                 val navController = rememberNavController()
@@ -109,27 +91,24 @@ class MainActivity : ComponentActivity() {
                             startDestination = Screen.Purchases.route,
                             modifier = Modifier.padding(innerPadding)
                         ) {
-                            composable(route = Screen.Purchases.route) {
-                                val state = purchaseViewModel.purchases.observeAsState(
-                                    LoadingResult.Loading("Инициализация")
+                            composable(route = Screen.AppList.route) {
+                                val state = appListVM.list.observeAsState(initLoadingState)
+                                ApplicationListScreen(
+                                    uiSate = state,
+                                    onRefresh = { appListVM.loadData() }
                                 )
+                            }
+                            composable(route = Screen.Purchases.route) {
+                                val state = purchaseVM.purchases.observeAsState(initLoadingState)
                                 PurchasesScreen(
                                     uiSate = state,
                                     openInBrowser = ::openPurchaseInBrowser,
-                                    onRefresh = {
-                                        purchaseViewModel.loadPurchases()
-                                    }
+                                    onRefresh = { purchaseVM.loadPurchases() }
                                 )
                             }
                             composable(route = Screen.Revews.route) {
-                                val state = reviewViewModel.reviews.observeAsState(
-                                    LoadingResult.Loading("Инициализация")
-                                )
-                                ReviewsScreen(
-                                    uiSate = state,
-                                    onRefresh = {
-                                        reviewViewModel.loadReviews()
-                                    }
+                                val state = reviewVM.reviews.observeAsState(initLoadingState)
+                                ReviewsScreen(uiSate = state, onRefresh = { reviewVM.loadReviews() }
                                 )
                             }
                         }
@@ -137,13 +116,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        purchaseViewModel.purchases.observe(this) {
+        purchaseVM.purchases.observe(this) {
             if (it is LoadingResult.Error && it.exception.message.toString().trim() == "HTTP 401") {
                 onFailureAuth()
             }
         }
-        reviewViewModel.loadReviews()
-        purchaseViewModel.loadPurchases()
+        appListVM.loadData()
+        reviewVM.loadReviews()
+        purchaseVM.loadPurchases()
     }
 
     private fun openPurchaseInBrowser(appId: Long, invoiceId: Long) {

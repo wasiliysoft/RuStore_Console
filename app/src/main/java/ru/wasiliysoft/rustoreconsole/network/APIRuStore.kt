@@ -24,6 +24,6 @@ interface APIRuStore {
         @Query("pageNumber") pageNumber: Int = 0,
     ): ReviewsResp
 
-    @GET("applicationData/retrieveUserApps")
-    suspend fun getRetrieveUserApps(): AppListResp
+    @GET
+    suspend fun getRetrieveUserApps(@Url url: String): AppListResp
 }

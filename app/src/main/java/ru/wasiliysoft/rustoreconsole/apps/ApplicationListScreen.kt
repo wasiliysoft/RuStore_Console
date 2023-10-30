@@ -1,32 +1,28 @@
-package ru.wasiliysoft.rustoreconsole.reviews
+package ru.wasiliysoft.rustoreconsole.apps
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ru.wasiliysoft.rustoreconsole.data.UserReview
+import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
 @Composable
-fun ReviewsScreen(
-    uiSate: State<LoadingResult<List<UserReview>>>,
+fun ApplicationListScreen(
+    uiSate: State<LoadingResult<List<AppInfo>>>,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -44,9 +40,13 @@ fun ReviewsScreen(
                 }
 
                 is LoadingResult.Success -> {
-                    ReviewListView(
-                        reviews = (uiSate.value as LoadingResult.Success<List<UserReview>>).data
-                    )
+                    LazyColumn {
+                        items(
+                            items = (uiSate.value as LoadingResult.Success<List<AppInfo>>).data,
+                            key = { it.packageName }) {
+                            AppInfoCard(appInfo = it)
+                        }
+                    }
                 }
 
                 is LoadingResult.Error -> {
@@ -65,43 +65,17 @@ fun ReviewsScreen(
     }
 }
 
-
 @Composable
-private fun ReviewListView(
-    reviews: List<UserReview>,
+fun AppInfoCard(
+    appInfo: AppInfo,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        contentPadding = PaddingValues(16.dp),
-        modifier = modifier
-    ) {
-        items(items = reviews, key = { it.commentId }) {
-            ReviewItem(it)
+    Card(modifier = modifier.fillMaxWidth()) {
+        Column {
+            Text(text = appInfo.appName)
+            Text(text = appInfo.appStatus)
+            Text(text = appInfo.versionName)
+            Text(text = appInfo.versionCode.toString())
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun Preview(modifier: Modifier = Modifier) {
-    val uiSate = remember {
-        mutableStateOf(
-            LoadingResult.Success(List(5) {
-                UserReview.demo(it.toLong())
-            })
-        )
-    }
-    ReviewsScreen(uiSate = uiSate, onRefresh = {})
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewLoading(modifier: Modifier = Modifier) {
-    val uiSate = remember {
-        mutableStateOf(
-            LoadingResult.Loading("Загружаем")
-        )
-    }
-    ReviewsScreen(uiSate = uiSate, onRefresh = {})
 }
