@@ -6,13 +6,14 @@ import android.util.Log
 
 class PrefHelper private constructor(context: Context) {
 
-    private val prefs: SharedPreferences = context.getSharedPreferences(PREF_APP_NAME, Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences =
+        context.getSharedPreferences(PREF_APP_FILE_NAME, Context.MODE_PRIVATE)
 
     companion object {
         private const val LOG_TAG = "PrefHelper"
         private const val PREF_TOKEN = "PREF_TOKEN"
         private const val PREF_APP_IDS = "PREF_APP_IDS"
-        private const val PREF_APP_NAME = "prefs"
+        private const val PREF_APP_FILE_NAME = "prefs"
 
         private var instance: PrefHelper? = null
 
