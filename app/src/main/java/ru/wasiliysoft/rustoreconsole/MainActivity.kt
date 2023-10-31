@@ -47,7 +47,7 @@ val navList = listOf(
 
 class MainActivity : ComponentActivity() {
     private val initLoadingState = LoadingResult.Loading("Инициализация")
-    private val ph by lazy { PrefHelper.get(applicationContext) }
+    private val ph by lazy { PrefHelper.getInstance() }
 
     private val launcherLoginActivity = registerForActivityResult(LoginActivity.Contract()) {
         if (it.isNotEmpty()) {

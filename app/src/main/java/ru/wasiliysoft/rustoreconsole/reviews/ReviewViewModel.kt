@@ -13,6 +13,9 @@ import ru.wasiliysoft.rustoreconsole.data.UserReview
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
+//аналогичная ситуация
+//всегда есть вариант собрать луковку (клин) и вынести часть логики в юзкейсы
+//тем более они для этого и нужны
 class ReviewViewModel(private val appId: List<Long>) : ViewModel() {
     private val api = RetrofitClient.api
     private val mutex = Mutex()

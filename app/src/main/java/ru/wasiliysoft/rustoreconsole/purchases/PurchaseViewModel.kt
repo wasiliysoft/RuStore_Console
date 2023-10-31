@@ -13,6 +13,7 @@ import ru.wasiliysoft.rustoreconsole.data.Purchase
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
+//Пересоздаёмся, система создаёт VM и...
 class PurchaseViewModel(private val appId: List<Long>) : ViewModel() {
     private val api = RetrofitClient.api
     private val mutex = Mutex()
