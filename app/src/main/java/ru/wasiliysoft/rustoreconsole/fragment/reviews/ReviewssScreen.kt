@@ -1,17 +1,13 @@
-package ru.wasiliysoft.rustoreconsole.purchases
+package ru.wasiliysoft.rustoreconsole.fragment.reviews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -21,15 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ru.wasiliysoft.rustoreconsole.data.Purchase
+import ru.wasiliysoft.rustoreconsole.data.UserReview
+import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
 import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
 @Composable
-fun PurchasesScreen(
-    uiSate: State<LoadingResult<List<Purchase>>>,
+fun ReviewsScreen(
+    uiSate: State<LoadingResult<List<UserReview>>>,
     onRefresh: () -> Unit,
-    openInBrowser: (appId: Long, invoceId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -46,9 +42,8 @@ fun PurchasesScreen(
                 }
 
                 is LoadingResult.Success -> {
-                    PurchaseListView(
-                        purchases = (uiSate.value as LoadingResult.Success<List<Purchase>>).data,
-                        openInBrowser = openInBrowser
+                    ReviewListView(
+                        reviews = (uiSate.value as LoadingResult.Success<List<UserReview>>).data
                     )
                 }
 
@@ -64,21 +59,10 @@ fun PurchasesScreen(
     }
 }
 
-@Composable
-private fun ProgressView(description: String, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator()
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(text = description)
-        }
-    }
-}
 
 @Composable
-private fun PurchaseListView(
-    purchases: List<Purchase>,
-    openInBrowser: (appId: Long, invoceId: Long) -> Unit,
+private fun ReviewListView(
+    reviews: List<UserReview>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -86,8 +70,8 @@ private fun PurchaseListView(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
     ) {
-        items(items = purchases, key = { it.invoiceId }) {
-            PurchaseItem(it, openInBrowser = openInBrowser)
+        items(items = reviews, key = { it.commentId }) {
+            ReviewItem(it)
         }
     }
 }
@@ -98,11 +82,11 @@ private fun Preview(modifier: Modifier = Modifier) {
     val uiSate = remember {
         mutableStateOf(
             LoadingResult.Success(List(5) {
-                Purchase.demo(it.toLong())
+                UserReview.demo(it.toLong())
             })
         )
     }
-    PurchasesScreen(uiSate = uiSate, openInBrowser = { _, _ -> }, onRefresh = {})
+    ReviewsScreen(uiSate = uiSate, onRefresh = {})
 }
 
 @Preview(showBackground = true)
@@ -113,5 +97,5 @@ private fun PreviewLoading(modifier: Modifier = Modifier) {
             LoadingResult.Loading("Загружаем")
         )
     }
-    PurchasesScreen(uiSate = uiSate, openInBrowser = { _, _ -> }, onRefresh = {})
+    ReviewsScreen(uiSate = uiSate, onRefresh = {})
 }

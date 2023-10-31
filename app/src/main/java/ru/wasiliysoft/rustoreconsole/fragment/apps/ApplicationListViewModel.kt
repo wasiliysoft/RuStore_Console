@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.apps
+package ru.wasiliysoft.rustoreconsole.fragment.apps
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

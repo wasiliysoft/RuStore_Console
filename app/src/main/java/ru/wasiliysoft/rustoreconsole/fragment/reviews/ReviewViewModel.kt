@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.reviews
+package ru.wasiliysoft.rustoreconsole.fragment.reviews
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

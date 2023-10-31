@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.reviews
+package ru.wasiliysoft.rustoreconsole.fragment.reviews
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
