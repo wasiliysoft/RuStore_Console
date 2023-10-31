@@ -67,13 +67,19 @@ data class DeveloperComment(
     @SerializedName("status")
     val status: String,
     @SerializedName("date")
-    val date: String
+    private val dateStr: String
 ) {
+    val date: LocalDateTime
+        get() = LocalDateTime.parse(
+            dateStr.take(19).replace(' ', 'T'),
+            DateTimeFormatter.ISO_DATE_TIME
+        )
+
     companion object {
         fun demo(id: Long = 5) = DeveloperComment(
             id = id,
             status = "firstName",
-            date = "2023-07-20 19:09:45.045",
+            dateStr = "2023-07-20 19:09:45.045",
             text = "Dev comment Dev comment Dev comment",
         )
     }
