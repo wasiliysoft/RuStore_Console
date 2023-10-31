@@ -13,7 +13,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.UserReview
-import ru.wasiliysoft.rustoreconsole.utils.formatFromReview
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -23,7 +22,7 @@ fun ReviewItem(
     review: UserReview,
     modifier: Modifier = Modifier
 ) {
-    val date = formatFromReview(review.commentDate)
+    val date = review.commentDate
     val cardColor = if (date.toLocalDate() == LocalDate.now()) CardDefaults.cardColors()
     else CardDefaults.outlinedCardColors()
 

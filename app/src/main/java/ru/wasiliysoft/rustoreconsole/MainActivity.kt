@@ -38,6 +38,7 @@ import ru.wasiliysoft.rustoreconsole.reviews.ReviewViewModel
 import ru.wasiliysoft.rustoreconsole.reviews.ReviewsScreen
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import ru.wasiliysoft.rustoreconsole.utils.PrefHelper
 
 val navList = listOf(
     Screen.AppList,

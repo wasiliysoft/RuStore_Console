@@ -1,6 +1,8 @@
 package ru.wasiliysoft.rustoreconsole.data
 
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class ReviewsResp(
     @SerializedName("code")
@@ -24,7 +26,7 @@ data class UserReview(
     @SerializedName("firstName")
     val firstName: String,
     @SerializedName("commentDate")
-    val commentDate: String,
+    private val commentDateStr: String,
     @SerializedName("commentText")
     val commentText: String,
     @SerializedName("likeCounter")
@@ -36,12 +38,18 @@ data class UserReview(
     @SerializedName("devResponse")
     val devResponse: List<DeveloperComment>?
 ) {
+    val commentDate: LocalDateTime
+        get() = LocalDateTime.parse(
+            commentDateStr.take(19).replace(' ', 'T'),
+            DateTimeFormatter.ISO_DATE_TIME
+        )
+
     companion object {
         fun demo(commentId: Long = 5) = UserReview(
             commentId = commentId,
             appRating = 5,
             firstName = "firstName",
-            commentDate = "2023-07-20 19:09:45.045",
+            commentDateStr = "2023-07-20 19:09:45.045",
             commentText = "commentTextcommentTextcommentText commentText",
             likeCounter = 8,
             dislikeCounter = 3,

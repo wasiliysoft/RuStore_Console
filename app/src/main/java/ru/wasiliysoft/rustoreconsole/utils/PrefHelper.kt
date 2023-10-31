@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole
+package ru.wasiliysoft.rustoreconsole.utils
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -12,7 +12,7 @@ class PrefHelper private constructor(context: Context) {
         private const val LOG_TAG = "PrefHelper"
         private const val PREF_TOKEN = "PREF_TOKEN"
         private const val PREF_APP_IDS = "PREF_APP_IDS"
-        private const val PREF_APP_NAME = "prefs" //удобно и сразу всё понятно. Тем более вынос в константы есть
+        private const val PREF_APP_NAME = "prefs"
 
         private var instance: PrefHelper? = null
 

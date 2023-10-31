@@ -1,6 +1,8 @@
 package ru.wasiliysoft.rustoreconsole.data
 
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class PurchaseResp(
     @SerializedName("code")
@@ -26,16 +28,22 @@ data class Purchase(
     @SerializedName("application_code")
     val applicationCode: Long,
     @SerializedName("invoice_date")
-    val invoiceDate: String,
+    private val invoiceDateStr: String,
 //    @SerializedName("payment_info")
 //    val paymentInfo: PaymentInfo
 ) {
+    val invoiceDate: LocalDateTime
+        get(): LocalDateTime = LocalDateTime.parse(
+            "$invoiceDateStr:00",
+            DateTimeFormatter.ISO_OFFSET_DATE_TIME
+        )
+
     companion object {
         fun demo(paymentId: Long = 13) = Purchase(
             amountCurrent = 1000,
             invoiceId = paymentId + 11,
             applicationCode = 167L,
-            invoiceDate = "2023-10-22T12:35:40+03",
+            invoiceDateStr = "2023-10-22T12:35:40+03",
             applicationName = "Test app name",
 //            paymentInfo = PaymentInfo(
 //                paymentId = paymentId,
