@@ -11,13 +11,16 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.wasiliysoft.rustoreconsole.data.UserReview
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
+import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
 //аналогичная ситуация
 //всегда есть вариант собрать луковку (клин) и вынести часть логики в юзкейсы
 //тем более они для этого и нужны
-class ReviewViewModel(private val appId: List<Long>) : ViewModel() {
+class ReviewViewModel : ViewModel() {
     private val api = RetrofitClient.api
+    private val appListRepo = AppListRepository
+
     private val mutex = Mutex()
 
     private val _reviews = MutableLiveData<LoadingResult<List<UserReview>>>()
@@ -32,11 +35,16 @@ class ReviewViewModel(private val appId: List<Long>) : ViewModel() {
             _reviews.postValue(LoadingResult.Loading("Загружаем..."))
             val list = mutableListOf<UserReview>()
             val exceptionList = mutableListOf<Exception>()
-            appId.chunked(3).forEach { idList ->
+            val appIds = appListRepo.getApps() ?: emptyList()
+            if (appIds.isEmpty()) {
+                _reviews.postValue(LoadingResult.Error(Exception("Empty app id list")))
+                return@launch
+            }
+            appIds.chunked(3).forEach { idList ->
                 idList.map {
                     launch {
                         try {
-                            val url = "https://backapi.rustore.ru/devs/app/$it/comment"
+                            val url = "https://backapi.rustore.ru/devs/app/${it.appId}/comment"
                             val reviews = api.getReviews(url = url).body.reviews
                             mutex.withLock { list.addAll(reviews) }
                         } catch (e: Exception) {

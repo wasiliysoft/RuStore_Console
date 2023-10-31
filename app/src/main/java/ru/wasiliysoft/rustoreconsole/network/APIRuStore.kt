@@ -1,10 +1,10 @@
 package ru.wasiliysoft.rustoreconsole.network
 
+import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
-import ru.wasiliysoft.rustoreconsole.data.AppListResp
 import ru.wasiliysoft.rustoreconsole.data.PurchaseResp
 import ru.wasiliysoft.rustoreconsole.data.ReviewsResp
 
@@ -25,5 +25,5 @@ interface APIRuStore {
     ): ReviewsResp
 
     @GET
-    suspend fun getRetrieveUserApps(@Url url: String): AppListResp
+    suspend fun getRetrieveUserApps(@Url url: String): ResponseBody
 }

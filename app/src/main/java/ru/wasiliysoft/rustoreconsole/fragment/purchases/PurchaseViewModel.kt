@@ -11,10 +11,12 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.wasiliysoft.rustoreconsole.data.Purchase
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
+import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
 //Пересоздаёмся, система создаёт VM и...
-class PurchaseViewModel(private val appId: List<Long>) : ViewModel() {
+class PurchaseViewModel : ViewModel() {
+    private val appListRepo = AppListRepository
     private val api = RetrofitClient.api
     private val mutex = Mutex()
 
@@ -30,11 +32,16 @@ class PurchaseViewModel(private val appId: List<Long>) : ViewModel() {
             _purchases.postValue(LoadingResult.Loading("Загружаем..."))
             val list = mutableListOf<Purchase>()
             val exceptionList = mutableListOf<Exception>()
-            appId.chunked(3).forEach { idList ->
+            val appIds = appListRepo.getApps() ?: emptyList()
+            if (appIds.isEmpty()) {
+                _purchases.postValue(LoadingResult.Error(Exception("Empty app id list")))
+                return@launch
+            }
+            appIds.chunked(3).forEach { idList ->
                 idList.map {
                     launch {
                         try {
-                            val purchases = api.getPurchases(it).body.list
+                            val purchases = api.getPurchases(it.appId).body.list
                             mutex.withLock { list.addAll(purchases) }
                         } catch (e: Exception) {
                             exceptionList.add(e)

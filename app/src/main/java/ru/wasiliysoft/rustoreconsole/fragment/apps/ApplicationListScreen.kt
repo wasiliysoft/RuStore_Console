@@ -41,13 +41,17 @@ fun ApplicationListScreen(
                 }
 
                 is LoadingResult.Success -> {
-                    ListView(data = (uiSate.value as LoadingResult.Success).data)
+                    val result = (uiSate.value as LoadingResult.Success)
+                    if (result.comment.isNotEmpty()) {
+                        Text(text = result.comment)
+                    }
+                    ListView(data = result.data)
                 }
 
                 is LoadingResult.Error -> {
                     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        val message = (uiSate.value as LoadingResult.Error).exception.message
-                        Text(text = message ?: "Неизвестная ошибка")
+                        val e = (uiSate.value as LoadingResult.Error).exception
+                        Text(text = e.message ?: "Неизвестная ошибка: $e")
                     }
                 }
             }

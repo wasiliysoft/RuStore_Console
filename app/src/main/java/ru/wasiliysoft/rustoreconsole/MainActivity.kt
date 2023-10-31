@@ -61,8 +61,8 @@ class MainActivity : ComponentActivity() {
     }
     private val appListVM by viewModels<ApplicationListViewModel>()
 
-    private val purchaseVM by lazy { PurchaseViewModel(ph.appIdList) }
-    private val reviewVM by lazy { ReviewViewModel(ph.appIdList) }
+    private val purchaseVM by lazy { PurchaseViewModel() }
+    private val reviewVM by lazy { ReviewViewModel() }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -109,18 +109,10 @@ class MainActivity : ComponentActivity() {
             }
         }
         appListVM.list.observe(this) { result ->
-            when (result) {
-                is LoadingResult.Success -> {
-                    ph.appIdList = result.data.map { it.appId }
-                }
-
-                is LoadingResult.Error -> {
-                    if (result.exception.message.toString().trim() == "HTTP 401") {
-                        onFailureAuth()
-                    }
-                }
-
-                else -> {}
+            if (result is LoadingResult.Error
+                && result.exception.message.toString().trim() == "HTTP 401"
+            ) {
+                onFailureAuth()
             }
         }
     }

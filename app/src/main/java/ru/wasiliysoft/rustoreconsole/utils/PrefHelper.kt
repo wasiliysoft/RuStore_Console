@@ -11,9 +11,12 @@ class PrefHelper private constructor(context: Context) {
 
     companion object {
         private const val LOG_TAG = "PrefHelper"
-        private const val PREF_TOKEN = "PREF_TOKEN"
-        private const val PREF_APP_IDS = "PREF_APP_IDS"
         private const val PREF_APP_FILE_NAME = "prefs"
+        private const val PREF_TOKEN = "PREF_TOKEN"
+        private const val PREF_JSON_APP_LIST = "PREF_JSON_APP_LIST"
+
+        @Deprecated("")
+        private const val PREF_APP_IDS = "PREF_APP_IDS"
 
         private var instance: PrefHelper? = null
 
@@ -32,27 +35,14 @@ class PrefHelper private constructor(context: Context) {
     //Сейчас можно в любом месте изменить переменную в итоге мы можем ожидать не тот результат, который нам нужен
     var token: String
         get() = prefs.getString(PREF_TOKEN, "") ?: ""
-        // get() = ""
+        // get() = "" // for manual test on empty value
         set(value) = prefs.edit().putString(PREF_TOKEN, value).apply()
 
-    //стоит рассмотреть вариант хранить в json'е
-    //потому что любое неверное движение и у тебя не то, что ты хотел
-    //но стоит учитывать, что обфусикация (если рассмотреть json) может сожрать названия переменных :D
-    var appIdList: List<Long>
-        get(): List<Long> {
-            val str = prefs.getString(PREF_APP_IDS, "") ?: ""
-            val list = mutableListOf<Long>()
-            str.split(',').toList().forEach {
-                if (it.isNotEmpty()) list.add(it.toLong())
-            }
-            return list
-        }
+    var jsonAppListResp: String
+        get() = prefs.getString(PREF_JSON_APP_LIST, "") ?: ""
+        // get() = "" // for manual test on empty value
         set(value) {
-            Log.d(LOG_TAG, "update application id list")
-            val str = StringBuilder()
-            value.forEach {
-                str.append(it).append(',')
-            }
-            prefs.edit().putString(PREF_APP_IDS, str.toString()).apply()
+            Log.d(LOG_TAG, "update app list in cache")
+            prefs.edit().putString(PREF_JSON_APP_LIST, value).apply()
         }
 }

@@ -1,7 +1,7 @@
 package ru.wasiliysoft.rustoreconsole.utils
 
 sealed class LoadingResult<out R> {
-    data class Success<out T>(val data: T) : LoadingResult<T>()
+    data class Success<out T>(val data: T, val comment: String = "") : LoadingResult<T>()
     data class Error(val exception: Exception) : LoadingResult<Nothing>()
     data class Loading(val description: String) : LoadingResult<Nothing>()
 
