@@ -33,7 +33,6 @@ import ru.wasiliysoft.rustoreconsole.fragment.apps.ApplicationListScreen
 import ru.wasiliysoft.rustoreconsole.fragment.apps.ApplicationListViewModel
 import ru.wasiliysoft.rustoreconsole.fragment.purchases.PurchaseViewModel
 import ru.wasiliysoft.rustoreconsole.fragment.purchases.PurchasesScreen
-import ru.wasiliysoft.rustoreconsole.fragment.reviews.ReviewViewModel
 import ru.wasiliysoft.rustoreconsole.fragment.reviews.ReviewsScreen
 import ru.wasiliysoft.rustoreconsole.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
@@ -62,7 +61,6 @@ class MainActivity : ComponentActivity() {
     private val appListVM by viewModels<ApplicationListViewModel>()
 
     private val purchaseVM by lazy { PurchaseViewModel() }
-    private val reviewVM by lazy { ReviewViewModel() }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,12 +95,7 @@ class MainActivity : ComponentActivity() {
                                     onRefresh = { purchaseVM.loadPurchases() }
                                 )
                             }
-                            composable(route = Screen.Revews.route) {
-                                ReviewsScreen(
-                                    uiSate = reviewVM.reviews.observeAsState(initLoadingState),
-                                    onRefresh = { reviewVM.loadReviews() }
-                                )
-                            }
+                            composable(route = Screen.Revews.route) { ReviewsScreen() }
                         }
                     }
                 }

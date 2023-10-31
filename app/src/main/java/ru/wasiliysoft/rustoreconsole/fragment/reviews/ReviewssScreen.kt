@@ -1,33 +1,38 @@
 package ru.wasiliysoft.rustoreconsole.fragment.reviews
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.UserReview
+import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
 import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
-import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Error
+import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
+import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Success
 
 @Composable
 fun ReviewsScreen(
-    uiSate: State<LoadingResult<List<UserReview>>>,
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ReviewViewModel = viewModel()
 ) {
+    val uiSate = viewModel.reviews
+        .observeAsState(Loading(""))
+        .value
+
     Column(
         modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -36,29 +41,15 @@ fun ReviewsScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            when (uiSate.value) {
-                is LoadingResult.Loading -> {
-                    ProgressView((uiSate.value as LoadingResult.Loading).description)
-                }
-
-                is LoadingResult.Success -> {
-                    ReviewListView(
-                        reviews = (uiSate.value as LoadingResult.Success<List<UserReview>>).data
-                    )
-                }
-
-                is LoadingResult.Error -> {
-                    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        val e = (uiSate.value as LoadingResult.Error).exception
-                        Text(text = e.message ?: "Неизвестная ошибка: $e")
-                    }
-                }
+            when (uiSate) {
+                is Loading -> ProgressView(uiSate.description)
+                is Success -> ReviewListView(reviews = uiSate.data)
+                is Error -> ErrorTextView(exception = uiSate.exception)
             }
         }
-        RefreshButton(onRefresh)
+        RefreshButton(viewModel::loadReviews)
     }
 }
-
 
 @Composable
 private fun ReviewListView(
@@ -81,12 +72,12 @@ private fun ReviewListView(
 private fun Preview(modifier: Modifier = Modifier) {
     val uiSate = remember {
         mutableStateOf(
-            LoadingResult.Success(List(5) {
+            Success(List(5) {
                 UserReview.demo(it.toLong())
             })
         )
     }
-    ReviewsScreen(uiSate = uiSate, onRefresh = {})
+    ReviewsScreen()
 }
 
 @Preview(showBackground = true)
@@ -94,8 +85,8 @@ private fun Preview(modifier: Modifier = Modifier) {
 private fun PreviewLoading(modifier: Modifier = Modifier) {
     val uiSate = remember {
         mutableStateOf(
-            LoadingResult.Loading("Загружаем")
+            Loading("Загружаем")
         )
     }
-    ReviewsScreen(uiSate = uiSate, onRefresh = {})
+    ReviewsScreen()
 }

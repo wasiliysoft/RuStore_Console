@@ -23,11 +23,16 @@ class ReviewViewModel : ViewModel() {
 
     private val mutex = Mutex()
 
-    private val _reviews = MutableLiveData<LoadingResult<List<UserReview>>>()
+    private val _reviews =
+        MutableLiveData<LoadingResult<List<UserReview>>>(LoadingResult.Loading("Инициализация"))
     val reviews: LiveData<LoadingResult<List<UserReview>>> = _reviews
 
     init {
         loadReviews()
+    }
+
+    fun getAppName(appId: Long): String {
+        return appListRepo.getApps()?.firstOrNull() { it.appId == appId }?.appName ?: "NULL"
     }
 
     fun loadReviews() {
