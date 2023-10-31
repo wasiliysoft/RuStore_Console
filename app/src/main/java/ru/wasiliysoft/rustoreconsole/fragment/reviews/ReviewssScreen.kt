@@ -53,7 +53,7 @@ fun ReviewsScreen(
 
 @Composable
 private fun ReviewListView(
-    reviews: List<UserReview>,
+    reviews: List<Review>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -61,8 +61,8 @@ private fun ReviewListView(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
     ) {
-        items(items = reviews, key = { it.commentId }) {
-            ReviewItem(it)
+        items(items = reviews, key = { it.userReview.commentId }) { review ->
+            ReviewItem(review)
         }
     }
 }

@@ -37,4 +37,19 @@ data class AppInfo(
     val paid: Boolean,
     @SerializedName("activePrice")
     val activePrice: Int
-)
+) {
+    companion object {
+        fun demo(appId: Long = 1) = AppInfo(
+            appId = appId,
+            packageName = "packageName",
+            appName = "appName",
+            iconUrl = "iconUrl",
+            appStatus = "appStatus",
+            versionName = "versionName",
+            versionCode = 4,
+            appVerUpdatedAt = "appVerUpdatedAt",
+            paid = true,
+            activePrice = 950
+        )
+    }
+}

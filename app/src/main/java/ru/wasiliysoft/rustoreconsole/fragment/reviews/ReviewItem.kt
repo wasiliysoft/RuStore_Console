@@ -1,5 +1,6 @@
 package ru.wasiliysoft.rustoreconsole.fragment.reviews
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,9 +10,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.UserReview
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -19,13 +22,16 @@ import java.time.format.FormatStyle
 
 @Composable
 fun ReviewItem(
-    review: UserReview,
+    review: Review,
     modifier: Modifier = Modifier
 ) {
-    val date = review.commentDate
+
+    val userReview = review.userReview
+    val appInfo = review.appInfo
+
+    val date = userReview.commentDate
     val cardColor = if (date.toLocalDate() == LocalDate.now()) CardDefaults.cardColors()
     else CardDefaults.outlinedCardColors()
-
     Card(
         colors = cardColor,
         modifier = modifier.fillMaxWidth(),
@@ -33,18 +39,20 @@ fun ReviewItem(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Text(text = appInfo.appName, fontWeight = FontWeight.Bold)
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = "${review.firstName} ${review.appRating}",
+                    text = "${userReview.firstName} ${userReview.appRating}",
                     modifier = Modifier.weight(1f)
                 )
                 Text(text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
             }
-            Text(text = review.commentText, modifier = Modifier.padding(vertical = 4.dp))
+            Text(text = userReview.commentText)
             Text(
-                text = "like ${review.likeCounter} / dislike ${review.dislikeCounter}",
+                text = "like ${userReview.likeCounter} / dislike ${userReview.dislikeCounter}",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Right
             )
@@ -56,6 +64,9 @@ fun ReviewItem(
 @Composable
 private fun Preview(modifier: Modifier = Modifier) {
     ReviewItem(
-        review = UserReview.demo(),
+        review = Review(
+            appInfo = AppInfo.demo(),
+            userReview = UserReview.demo(),
+        )
     )
 }
