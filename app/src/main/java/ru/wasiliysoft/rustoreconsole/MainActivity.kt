@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -144,7 +145,13 @@ private fun BottomBar(navController: NavController) {
                         contentDescription = screen.title
                     )
                 },
-                label = { Text(text = screen.title) })
+                label = {
+                    Text(
+                        text = screen.title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                })
         }
     }
 }
