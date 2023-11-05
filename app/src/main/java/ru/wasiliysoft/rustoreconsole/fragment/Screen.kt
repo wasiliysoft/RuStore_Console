@@ -1,38 +1,38 @@
 package ru.wasiliysoft.rustoreconsole.fragment
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material.icons.outlined.List
-import androidx.compose.material.icons.outlined.ShoppingCart
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.ui.graphics.vector.ImageVector
+import ru.wasiliysoft.rustoreconsole.R
 
 sealed class Screen(
     val route: String,
     val title: String,
-    val selectedVector: ImageVector,
-    val uneselectedVector: ImageVector
+    val selectedVector: Int,
+    val uneselectedVector: Int,
 ) {
     object AppList : Screen(
         route = "AppList",
         title = "Приложения",
-        selectedVector = Icons.Filled.List,
-        uneselectedVector = Icons.Outlined.List
+        selectedVector = R.drawable.baseline_apps_24,
+        uneselectedVector = R.drawable.baseline_apps_24,
     )
 
     object Revews : Screen(
         route = "Revews",
         title = "Отзывы",
-        selectedVector = Icons.Filled.ThumbUp,
-        uneselectedVector = Icons.Outlined.ThumbUp
+        selectedVector = R.drawable.baseline_chat_24,
+        uneselectedVector = R.drawable.outline_chat_24,
     )
 
     object Purchases : Screen(
         route = "Purchases",
         title = "Платежи",
-        selectedVector = Icons.Filled.ShoppingCart,
-        uneselectedVector = Icons.Outlined.ShoppingCart
+        selectedVector = R.drawable.baseline_credit_card_24,
+        uneselectedVector = R.drawable.baseline_credit_card_24,
+    )
+
+    object PaymentStats : Screen(
+        route = "PaymentStats",
+        title = "Статистика",
+        selectedVector = R.drawable.baseline_query_stats_24,
+        uneselectedVector = R.drawable.baseline_query_stats_24,
     )
 }

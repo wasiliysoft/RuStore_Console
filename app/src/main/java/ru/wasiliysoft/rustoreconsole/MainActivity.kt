@@ -1,6 +1,7 @@
 package ru.wasiliysoft.rustoreconsole
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -29,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import ru.wasiliysoft.rustoreconsole.fragment.Screen
 import ru.wasiliysoft.rustoreconsole.fragment.apps.ApplicationListScreen
 import ru.wasiliysoft.rustoreconsole.fragment.apps.ApplicationListViewModel
+import ru.wasiliysoft.rustoreconsole.fragment.paymentstats.PaymentStatScreen
 import ru.wasiliysoft.rustoreconsole.fragment.purchases.PurchasesScreen
 import ru.wasiliysoft.rustoreconsole.fragment.reviews.ReviewsScreen
 import ru.wasiliysoft.rustoreconsole.login.LoginActivity
@@ -38,12 +41,14 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.PrefHelper
 
 val navList = listOf(
-    Screen.AppList,
+    Screen.PaymentStats,
+    Screen.Revews,
     Screen.Purchases,
-    Screen.Revews
+    Screen.AppList,
 )
 
 class MainActivity : ComponentActivity() {
+    private val LOG_TAG = "MainActivity"
     private val initLoadingState = LoadingResult.Loading("Инициализация")
     private val ph by lazy { PrefHelper.getInstance() }
 
@@ -74,7 +79,7 @@ class MainActivity : ComponentActivity() {
                     }) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = Screen.AppList.route,
+                            startDestination = Screen.PaymentStats.route,
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             composable(route = Screen.AppList.route) {
@@ -85,14 +90,17 @@ class MainActivity : ComponentActivity() {
                             }
                             composable(route = Screen.Purchases.route) { PurchasesScreen() }
                             composable(route = Screen.Revews.route) { ReviewsScreen() }
+                            composable(route = Screen.PaymentStats.route) { PaymentStatScreen() }
                         }
                     }
                 }
             }
         }
         appListVM.list.observe(this) { result ->
+            Log.d(LOG_TAG, result.toString())
+            //FIXME работает не стабильно (issue #6)
             if (result is LoadingResult.Error
-                && result.exception.message.toString().trim() == "HTTP 401"
+                && result.exception.message.toString().trim().contains("HTTP 401")
             ) {
                 onFailureAuth()
             }
@@ -130,8 +138,9 @@ private fun BottomBar(navController: NavController) {
                     }
                 },
                 icon = {
+                    val resId = if (isSelected) screen.selectedVector else screen.uneselectedVector
                     Icon(
-                        imageVector = if (isSelected) screen.selectedVector else screen.uneselectedVector,
+                        painter = painterResource(id = resId),
                         contentDescription = screen.title
                     )
                 },
