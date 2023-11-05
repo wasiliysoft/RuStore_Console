@@ -41,11 +41,11 @@ data class AppInfo(
     companion object {
         fun demo(appId: Long = 1) = AppInfo(
             appId = appId,
-            packageName = "packageName",
-            appName = "appName",
+            packageName = "packageName.preview",
+            appName = "Preview Application name",
             iconUrl = "iconUrl",
-            appStatus = "appStatus",
-            versionName = "versionName",
+            appStatus = "PUBLISHED",
+            versionName = "v44.4.56",
             versionCode = 4,
             appVerUpdatedAt = "appVerUpdatedAt",
             paid = true,
