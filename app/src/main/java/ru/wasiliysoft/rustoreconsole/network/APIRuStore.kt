@@ -5,6 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
+import ru.wasiliysoft.rustoreconsole.data.PaymentResp
 import ru.wasiliysoft.rustoreconsole.data.PurchaseResp
 import ru.wasiliysoft.rustoreconsole.data.ReviewsResp
 
@@ -16,13 +17,15 @@ interface APIRuStore {
         @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
     ): PurchaseResp
 
-    //    @GET("/devs/app/{appId}/comment")
     @GET
     suspend fun getReviews(
         @Url url: String,
         @Query("pageSize") pageSize: Int = 10,
         @Query("pageNumber") pageNumber: Int = 0,
     ): ReviewsResp
+
+    @GET
+    suspend fun getPaymentStats(@Url url: String): PaymentResp
 
     @GET
     suspend fun getRetrieveUserApps(@Url url: String): ResponseBody

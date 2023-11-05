@@ -37,10 +37,6 @@ class ReviewViewModel : ViewModel() {
         loadReviews()
     }
 
-    fun getAppName(appId: Long): String {
-        return appListRepo.getApps()?.firstOrNull() { it.appId == appId }?.appName ?: "NULL"
-    }
-
     fun loadReviews() {
         viewModelScope.launch(Dispatchers.IO) {
             _reviews.postValue(LoadingResult.Loading("Загружаем..."))
