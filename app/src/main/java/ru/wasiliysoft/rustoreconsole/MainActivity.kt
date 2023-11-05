@@ -1,7 +1,5 @@
 package ru.wasiliysoft.rustoreconsole
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -31,7 +29,6 @@ import androidx.navigation.compose.rememberNavController
 import ru.wasiliysoft.rustoreconsole.fragment.Screen
 import ru.wasiliysoft.rustoreconsole.fragment.apps.ApplicationListScreen
 import ru.wasiliysoft.rustoreconsole.fragment.apps.ApplicationListViewModel
-import ru.wasiliysoft.rustoreconsole.fragment.purchases.PurchaseViewModel
 import ru.wasiliysoft.rustoreconsole.fragment.purchases.PurchasesScreen
 import ru.wasiliysoft.rustoreconsole.fragment.reviews.ReviewsScreen
 import ru.wasiliysoft.rustoreconsole.login.LoginActivity
@@ -60,8 +57,6 @@ class MainActivity : ComponentActivity() {
     }
     private val appListVM by viewModels<ApplicationListViewModel>()
 
-    private val purchaseVM by lazy { PurchaseViewModel() }
-
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,13 +83,7 @@ class MainActivity : ComponentActivity() {
                                     onRefresh = { appListVM.loadData() }
                                 )
                             }
-                            composable(route = Screen.Purchases.route) {
-                                PurchasesScreen(
-                                    uiSate = purchaseVM.purchases.observeAsState(initLoadingState),
-                                    openInBrowser = ::openPurchaseInBrowser,
-                                    onRefresh = { purchaseVM.loadPurchases() }
-                                )
-                            }
+                            composable(route = Screen.Purchases.route) { PurchasesScreen() }
                             composable(route = Screen.Revews.route) { ReviewsScreen() }
                         }
                     }
@@ -108,11 +97,6 @@ class MainActivity : ComponentActivity() {
                 onFailureAuth()
             }
         }
-    }
-
-    private fun openPurchaseInBrowser(appId: Long, invoiceId: Long) {
-        val url = "https://console.rustore.ru/apps/$appId/payments/$invoiceId"
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 
     private fun onFailureAuth() {

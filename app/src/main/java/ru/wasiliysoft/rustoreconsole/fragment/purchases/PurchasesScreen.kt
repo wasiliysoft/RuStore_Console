@@ -14,53 +14,40 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.Purchase
+import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 
 @Composable
 fun PurchasesScreen(
-    uiSate: State<LoadingResult<List<Purchase>>>,
-    onRefresh: () -> Unit,
-    openInBrowser: (appId: Long, invoceId: Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: PurchaseViewModel = viewModel(),
 ) {
+    val uiSate = viewModel.purchases.observeAsState(Loading("")).value
     Column(
-        modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            when (uiSate.value) {
-                is LoadingResult.Loading -> {
-                    ProgressView((uiSate.value as LoadingResult.Loading).description)
-                }
-
-                is LoadingResult.Success -> {
-                    PurchaseListView(
-                        purchases = (uiSate.value as LoadingResult.Success<List<Purchase>>).data,
-                        openInBrowser = openInBrowser
-                    )
-                }
-
-                is LoadingResult.Error -> {
-                    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        val e = (uiSate.value as LoadingResult.Error).exception
-                        Text(text = e.message ?: "Неизвестная ошибка: $e")
-                    }
-                }
+            when (uiSate) {
+                is Loading -> ProgressView(uiSate.description)
+                is LoadingResult.Success -> PurchaseListView(purchases = uiSate.data)
+                is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
             }
         }
-        RefreshButton(onRefresh)
+        RefreshButton(viewModel::load)
     }
 }
 
@@ -78,7 +65,6 @@ private fun ProgressView(description: String, modifier: Modifier = Modifier) {
 @Composable
 private fun PurchaseListView(
     purchases: List<Purchase>,
-    openInBrowser: (appId: Long, invoceId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -87,7 +73,7 @@ private fun PurchaseListView(
         modifier = modifier
     ) {
         items(items = purchases, key = { it.invoiceId }) {
-            PurchaseItem(it, openInBrowser = openInBrowser)
+            PurchaseItem(it)
         }
     }
 }
@@ -95,23 +81,8 @@ private fun PurchaseListView(
 @Preview(showBackground = true)
 @Composable
 private fun Preview(modifier: Modifier = Modifier) {
-    val uiSate = remember {
-        mutableStateOf(
-            LoadingResult.Success(List(5) {
-                Purchase.demo(it.toLong())
-            })
-        )
+    val data = List(5) {
+        Purchase.demo(it.toLong())
     }
-    PurchasesScreen(uiSate = uiSate, openInBrowser = { _, _ -> }, onRefresh = {})
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewLoading(modifier: Modifier = Modifier) {
-    val uiSate = remember {
-        mutableStateOf(
-            LoadingResult.Loading("Загружаем")
-        )
-    }
-    PurchasesScreen(uiSate = uiSate, openInBrowser = { _, _ -> }, onRefresh = {})
+    PurchaseListView(purchases = data)
 }

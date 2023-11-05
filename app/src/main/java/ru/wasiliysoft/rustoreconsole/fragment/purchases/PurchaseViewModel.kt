@@ -14,7 +14,6 @@ import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
-//Пересоздаёмся, система создаёт VM и...
 class PurchaseViewModel : ViewModel() {
     private val appListRepo = AppListRepository
     private val api = RetrofitClient.api
@@ -24,10 +23,10 @@ class PurchaseViewModel : ViewModel() {
     val purchases: LiveData<LoadingResult<List<Purchase>>> = _purchases
 
     init {
-        loadPurchases()
+        load()
     }
 
-    fun loadPurchases() {
+    fun load() {
         viewModelScope.launch(Dispatchers.IO) {
             _purchases.postValue(LoadingResult.Loading("Загружаем..."))
             val list = mutableListOf<Purchase>()

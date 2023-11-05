@@ -1,5 +1,7 @@
 package ru.wasiliysoft.rustoreconsole.fragment.purchases
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.Purchase
@@ -23,17 +26,22 @@ import java.time.format.FormatStyle
 @Composable
 fun PurchaseItem(
     purchase: Purchase,
-    openInBrowser: (appId: Long, invoceId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
     val date = purchase.invoiceDate
     val cardColor = if (date.toLocalDate() == LocalDate.now()) CardDefaults.cardColors()
     else CardDefaults.outlinedCardColors()
+    val context = LocalContext.current
     Card(
         colors = cardColor,
         modifier = modifier.fillMaxWidth(),
-        onClick = { openInBrowser(purchase.applicationCode, purchase.invoiceId) }
+        onClick = {
+            val app = purchase.applicationCode
+            val invoceId = purchase.invoiceId
+            val url = "https://console.rustore.ru/apps/$app/payments/$invoceId"
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        }
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -56,11 +64,9 @@ fun PurchaseItem(
     }
 }
 
+
 @Preview()
 @Composable
 private fun Preview(modifier: Modifier = Modifier) {
-    PurchaseItem(
-        purchase = Purchase.demo(),
-        openInBrowser = { _, _ -> }
-    )
+    PurchaseItem(purchase = Purchase.demo())
 }
