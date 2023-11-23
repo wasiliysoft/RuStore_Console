@@ -1,8 +1,10 @@
 package ru.wasiliysoft.rustoreconsole.login
 
+import android.graphics.Bitmap
+import android.net.Uri
+import android.util.Log
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
@@ -14,18 +16,23 @@ import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 const val TAG = "LoginScreen"
 
 @Composable
-fun LoginScreen(onTokedReceived: (token: String) -> Unit) {
+fun LoginScreen(onTokedReceived: (uuid: String, token: String) -> Unit) {
     val mUrl = "https://console.rustore.ru/apps"
+    val regexUuid = "(?<=\\\"uuid\\\":\\\")[^\\\"]*".toRegex()
+    val regexToken = "(?<=\\\"token\\\":\\\")[^\\\"]*".toRegex()
     val mWebViewClient = object : WebViewClient() {
-        override fun onPageFinished(view: WebView, url: String) {
-            super.onPageFinished(view, url)
-            val cookies: String? = CookieManager.getInstance().getCookie(url)
-            cookies?.split("; ")?.forEach {
-                val cookiePair = it.split("=", limit = 2)
-                val key = cookiePair[0]
-                val value = cookiePair[1]
-                if (key == "vk_dev_console_access_token") {
-                    onTokedReceived(value)
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+            url?.let {
+                val uri = Uri.parse(it)
+                val payload = uri.getQueryParameter("payload").toString()
+                var token = ""
+                var uuid = ""
+                regexToken.find(payload)?.let { result -> token = result.value }
+                regexUuid.find(payload)?.let { result -> uuid = result.value }
+                if (token != "" || uuid != "") {
+                    Log.d(TAG, "$uuid, $token")
+                    onTokedReceived(uuid, token)
                 }
             }
         }
@@ -47,6 +54,6 @@ fun LoginScreen(onTokedReceived: (token: String) -> Unit) {
 @Composable
 fun GreetingPreview() {
     RuStoreConsoleTheme {
-        LoginScreen(onTokedReceived = {})
+        LoginScreen(onTokedReceived = { _, _ -> })
     }
 }
