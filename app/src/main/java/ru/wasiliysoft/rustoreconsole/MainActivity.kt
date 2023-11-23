@@ -42,9 +42,9 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.PrefHelper
 
 val navList = listOf(
-    Screen.PaymentStats,
-    Screen.Revews,
     Screen.Purchases,
+    Screen.Revews,
+    Screen.PaymentStats,
     Screen.AppList,
 )
 
@@ -66,6 +66,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        ph.token = "" // used for auth testing
         RetrofitClient.token = ph.token
 
         setContent {
@@ -80,7 +81,7 @@ class MainActivity : ComponentActivity() {
                     }) { innerPadding ->
                         NavHost(
                             navController = navController,
-                            startDestination = Screen.PaymentStats.route,
+                            startDestination = Screen.Purchases.route,
                             modifier = Modifier.padding(innerPadding)
                         ) {
                             composable(route = Screen.AppList.route) {
