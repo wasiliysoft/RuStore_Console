@@ -19,3 +19,37 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+# Save annotation SerializedName
+# https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md
+-keepclassmembers,allowobfuscation class * {
+  @com.google.gson.annotations.SerializedName <fields>;
+}
+
+# GSON uses type tokens to serialize and deserialize generic types.
+# # https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md
+-keepattributes Signature
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+
+# Kotlin suspend functions and generic signatures
+# # https://r8.googlesource.com/r8/+/refs/heads/master/compatibility-faq.md
+-keepattributes Signature
+-keep class kotlin.coroutines.Continuation
+
+-assumenosideeffects
+class android.util.Log {
+    #public static *** e(...);
+    public static *** d(...);
+    #public static *** i(...);
+    #public static *** v(...);
+}
+
+-dontwarn org.bouncycastle.jsse.BCSSLParameters
+-dontwarn org.bouncycastle.jsse.BCSSLSocket
+-dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.ConscryptHostnameVerifier
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE
