@@ -1,7 +1,6 @@
 package ru.wasiliysoft.rustoreconsole.screen.reviews
 
 import androidx.activity.ComponentActivity
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
@@ -20,16 +19,8 @@ fun ReviewDetailScreen(
         .value
     when (uiSate) {
         is LoadingResult.Loading -> ProgressView(uiSate.description)
-        is LoadingResult.Success -> ReviewDetailView(review = uiSate.data.find { it.userReview.commentId == commentId })
+        is LoadingResult.Success -> ReviewDetailItem(review = uiSate.data.find { it.userReview.commentId == commentId }!!)
         is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
     }
 }
 
-@Composable
-private fun ReviewDetailView(
-    review: Review?
-) {
-    review?.let {
-        Text(text = it.userReview.commentText)
-    }
-}

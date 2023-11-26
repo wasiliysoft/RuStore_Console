@@ -4,24 +4,36 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.wasiliysoft.rustoreconsole.data.AppInfo
+import ru.wasiliysoft.rustoreconsole.data.UserReview
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
 import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Error
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Success
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 @Composable
 fun ReviewsScreen(
@@ -66,6 +78,66 @@ private fun ReviewListView(
             ReviewItem(review, onClick = { onClickItem(review.userReview.commentId) })
         }
     }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ReviewItem(
+    review: Review,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+
+    val userReview = review.userReview
+    val appInfo = review.appInfo
+
+    val date = userReview.commentDate
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(text = appInfo.appName, fontWeight = FontWeight.Bold)
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "${userReview.firstName} ${userReview.appRating}",
+                    modifier = Modifier.weight(1f)
+                )
+                Text(text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
+            }
+            Text(text = userReview.commentText, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            if (userReview.likeCounter != 0 || userReview.dislikeCounter != 0) {
+                Text(
+                    text = "like ${userReview.likeCounter} / dislike ${userReview.dislikeCounter}",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Right
+                )
+            }
+
+            userReview.devResponse?.find { it.status == "PUBLISHED" }?.date?.let { date ->
+                val dateStr = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                Text(text = "Дата ответа $dateStr", fontWeight = FontWeight.Light)
+            }
+
+        }
+    }
+}
+
+@Preview()
+@Composable
+private fun PreviewItem(modifier: Modifier = Modifier) {
+    ReviewItem(
+        review = Review(
+            appInfo = AppInfo.demo(),
+            userReview = UserReview.demo(),
+        )
+    )
 }
 
 @Preview(showBackground = true)
