@@ -28,6 +28,7 @@ import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.UserReview
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
+import ru.wasiliysoft.rustoreconsole.ui.view.RateStarView
 import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Error
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
@@ -104,11 +105,11 @@ private fun ReviewItem(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(text = appInfo.appName, fontWeight = FontWeight.Bold)
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "${userReview.firstName} ${userReview.appRating}",
-                    modifier = Modifier.weight(1f)
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RateStarView(rate = userReview.appRating, modifier = Modifier.weight(1f))
                 Text(text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
             }
             Text(text = userReview.commentText, maxLines = 2, overflow = TextOverflow.Ellipsis)

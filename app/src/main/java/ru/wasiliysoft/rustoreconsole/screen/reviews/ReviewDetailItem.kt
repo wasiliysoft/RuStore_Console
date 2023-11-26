@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -16,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.DeveloperComment
 import ru.wasiliysoft.rustoreconsole.data.UserReview
+import ru.wasiliysoft.rustoreconsole.ui.view.RateStarView
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -35,13 +37,14 @@ fun ReviewDetailItem(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(text = appInfo.appName, fontWeight = FontWeight.Bold)
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = "${userReview.firstName} ${userReview.appRating}",
-                modifier = Modifier.weight(1f)
-            )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RateStarView(rate = userReview.appRating, modifier = Modifier.weight(1f))
             Text(text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
         }
+        Text(text = userReview.firstName)
         Text(text = userReview.commentText)
         Text(
             text = "like ${userReview.likeCounter} / dislike ${userReview.dislikeCounter}",
