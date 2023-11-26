@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.fragment.reviews
+package ru.wasiliysoft.rustoreconsole.screen.reviews
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,10 +21,12 @@ import ru.wasiliysoft.rustoreconsole.data.UserReview
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewItem(
     review: Review,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
 
     val userReview = review.userReview
@@ -35,6 +38,7 @@ fun ReviewItem(
     Card(
 //        colors = cardColor,
         modifier = modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier

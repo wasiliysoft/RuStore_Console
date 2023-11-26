@@ -1,5 +1,6 @@
-package ru.wasiliysoft.rustoreconsole.fragment.apps
+package ru.wasiliysoft.rustoreconsole.screen.apps
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,10 +17,11 @@ class ApplicationListViewModel : ViewModel() {
     private val repo = AppListRepository
 
     init {
-        loadData()
+        Log.d("ApplicationListViewModel", "onInit")
+        load()
     }
 
-    fun loadData() {
+    fun load() {
         viewModelScope.launch(Dispatchers.IO) {
             _list.postValue(LoadingResult.Loading("Загружаем..."))
             try {

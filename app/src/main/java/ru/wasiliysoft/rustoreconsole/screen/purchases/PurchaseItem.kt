@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.fragment.purchases
+package ru.wasiliysoft.rustoreconsole.screen.purchases
 
 import android.content.Intent
 import android.net.Uri

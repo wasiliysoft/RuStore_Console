@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.fragment.paymentstats
+package ru.wasiliysoft.rustoreconsole.screen.paymentstats
 
 import android.util.Log
 import androidx.lifecycle.LiveData

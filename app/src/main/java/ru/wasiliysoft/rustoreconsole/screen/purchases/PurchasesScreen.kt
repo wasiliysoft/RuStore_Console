@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.fragment.purchases
+package ru.wasiliysoft.rustoreconsole.screen.purchases
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

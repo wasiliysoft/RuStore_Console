@@ -1,10 +1,10 @@
-package ru.wasiliysoft.rustoreconsole.fragment.paymentstats
+package ru.wasiliysoft.rustoreconsole.screen.apps
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,30 +18,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.wasiliysoft.rustoreconsole.data.Stats
+import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
 import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 
-data class AppStats(
-    val appName: String,
-    val appId: Long,
-    val overallSum: Stats
-)
-
 @Composable
-fun PaymentStatScreen(
+fun ApplicationListScreen(
     modifier: Modifier = Modifier,
-    viewModel: PaymentsViewModel = viewModel(),
+    viewModel: ApplicationListViewModel = viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity),
 ) {
-
-    val uiSate = viewModel.overallSum.observeAsState(Loading("")).value
-
+    val uiSate = viewModel.list.observeAsState(Loading(""))
     Column(
         modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -50,19 +43,22 @@ fun PaymentStatScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            when (uiSate) {
-                is Loading -> ProgressView(uiSate.description)
+            when (uiSate.value) {
+                is Loading -> {
+                    ProgressView((uiSate.value as Loading).description)
+                }
 
                 is LoadingResult.Success -> {
-                    if (uiSate.comment.isNotEmpty()) {
-                        Text(text = uiSate.comment)
+                    val result = (uiSate.value as LoadingResult.Success)
+                    if (result.comment.isNotEmpty()) {
+                        Text(text = result.comment)
                     }
-                    ListView(data = uiSate.data)
+                    ListView(data = result.data)
                 }
 
                 is LoadingResult.Error -> {
                     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        val e = uiSate.exception
+                        val e = (uiSate.value as LoadingResult.Error).exception
                         Text(text = e.message ?: "Неизвестная ошибка: $e")
                     }
                 }
@@ -74,7 +70,7 @@ fun PaymentStatScreen(
 
 @Composable
 private fun ListView(
-    data: List<AppStats>,
+    data: List<AppInfo>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -82,15 +78,15 @@ private fun ListView(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
     ) {
-        items(items = data, key = { it.appId }) {
-            PaymentStatCard(it)
+        items(items = data, key = { it.packageName }) {
+            AppInfoCard(it)
         }
     }
 }
 
 @Composable
-private fun PaymentStatCard(
-    appStats: AppStats,
+private fun AppInfoCard(
+    appInfo: AppInfo,
     modifier: Modifier = Modifier
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
@@ -99,34 +95,17 @@ private fun PaymentStatCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text(text = appStats.appName, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                appStats.overallSum.let {
-                    Text(text = "Вчера\n${it.dailyStats} р.")
-                    Text(text = "7 дней\n${it.weeklyStats} р.")
-                    Text(text = "30 дней\n${it.monthlyStats} р.")
-                    Text(text = "Всё время\n${it.totalStats} р.")
-                }
-            }
+            Text(text = appInfo.appName, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+            Text(text = appInfo.versionName)
+            Text(text = "versionCode:${appInfo.versionCode}")
+            Text(text = "Статус: ${appInfo.appStatus}")
         }
     }
 }
 
 @Preview
 @Composable
-private fun PreviewPaymentStatCard(modifier: Modifier = Modifier) {
-    PaymentStatCard(
-        AppStats(
-            appName = "Test app name", appId = 4, overallSum = Stats(
-                dailyStats = 1,
-                weeklyStats = 7,
-                monthlyStats = 30,
-                totalStats = 365
-            )
-        )
-    )
+private fun PreviewAppInfoCard(modifier: Modifier = Modifier) {
+    AppInfoCard(AppInfo.demo())
 }

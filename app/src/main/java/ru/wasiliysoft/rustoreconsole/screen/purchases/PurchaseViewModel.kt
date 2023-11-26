@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.fragment.purchases
+package ru.wasiliysoft.rustoreconsole.screen.purchases
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

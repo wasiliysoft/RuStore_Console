@@ -1,5 +1,6 @@
-package ru.wasiliysoft.rustoreconsole.fragment.reviews
+package ru.wasiliysoft.rustoreconsole.screen.reviews
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -34,6 +35,7 @@ class ReviewViewModel : ViewModel() {
     val reviews: LiveData<LoadingResult<List<Review>>> = _reviews
 
     init {
+        Log.d("ReviewViewModel", "init")
         loadReviews()
     }
 
