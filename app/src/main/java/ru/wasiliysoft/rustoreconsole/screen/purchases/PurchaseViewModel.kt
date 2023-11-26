@@ -13,14 +13,19 @@ import ru.wasiliysoft.rustoreconsole.data.Purchase
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+
+// Int - DayOfYear
+typealias PurchaseMap = Map<String, List<Purchase>>
 
 class PurchaseViewModel : ViewModel() {
     private val appListRepo = AppListRepository
     private val api = RetrofitClient.api
     private val mutex = Mutex()
 
-    private val _purchases = MutableLiveData<LoadingResult<List<Purchase>>>()
-    val purchases: LiveData<LoadingResult<List<Purchase>>> = _purchases
+    private val _purchases = MutableLiveData<LoadingResult<PurchaseMap>>()
+    val purchases: LiveData<LoadingResult<PurchaseMap>> = _purchases
 
     init {
         load()
@@ -53,7 +58,12 @@ class PurchaseViewModel : ViewModel() {
                 _purchases.postValue(LoadingResult.Error(exceptionList.first()))
             } else {
                 list.sortByDescending { it.invoiceId }
-                _purchases.postValue(LoadingResult.Success(list))
+                val purchaseMap: PurchaseMap = list.groupBy {
+                    it.invoiceDate.format(
+                        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+                    )
+                }
+                _purchases.postValue(LoadingResult.Success(purchaseMap))
             }
         }
     }

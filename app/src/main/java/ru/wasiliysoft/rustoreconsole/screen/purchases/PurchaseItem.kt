@@ -10,15 +10,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.Purchase
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -28,14 +29,15 @@ fun PurchaseItem(
     purchase: Purchase,
     modifier: Modifier = Modifier
 ) {
-
     val date = purchase.invoiceDate
-    val cardColor = if (date.toLocalDate() == LocalDate.now()) CardDefaults.cardColors()
-    else CardDefaults.outlinedCardColors()
     val context = LocalContext.current
+    val cardColors =
+        if (purchase.amountCurrent == 0) CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer
+        ) else CardDefaults.cardColors()
     Card(
-        colors = cardColor,
         modifier = modifier.fillMaxWidth(),
+        colors = cardColors,
         onClick = {
             val app = purchase.applicationCode
             val invoceId = purchase.invoiceId
@@ -53,12 +55,17 @@ fun PurchaseItem(
                 horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)
             ) {
                 Text(text = purchase.applicationName)
-                Text(text = purchase.invoiceId.toString())
+                Text(
+                    text = "invoiceId: " + purchase.invoiceId.toString(),
+                    fontWeight = FontWeight.Light
+                )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text(text = (purchase.amountCurrent / 100).toString())
-                Text(text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
-                Text(text = date.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)))
+                Text(text = (purchase.amountCurrent / 100).toString() + "p")
+                Text(
+                    text = date.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)),
+                    fontWeight = FontWeight.Light
+                )
             }
         }
     }
@@ -68,5 +75,8 @@ fun PurchaseItem(
 @Preview()
 @Composable
 private fun Preview(modifier: Modifier = Modifier) {
-    PurchaseItem(purchase = Purchase.demo())
+    Column {
+        PurchaseItem(purchase = Purchase.demo())
+        PurchaseItem(purchase = Purchase.demo().copy(amountCurrent = 0))
+    }
 }
