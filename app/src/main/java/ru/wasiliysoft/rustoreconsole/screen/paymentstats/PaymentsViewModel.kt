@@ -30,7 +30,7 @@ class PaymentsViewModel : ViewModel() {
 
     fun load() {
         viewModelScope.launch(Dispatchers.IO) {
-            _overallSum.postValue(LoadingResult.Loading("Загружаем..."))
+            _overallSum.postValue(LoadingResult.Loading("Наберитесь терпения,\nсервер капризный..."))
             val list = mutableListOf<AppStats>()
 
             val appIds = appListRepo.getApps() ?: emptyList()
@@ -56,7 +56,7 @@ class PaymentsViewModel : ViewModel() {
                         }
                     //TODO Сервер чувствителен к частоте запросов, было бы хорошо блокировать кнопку
                     // "обновить" на 10-15 секунд в случае кода HTTP 429
-                    delay(1000)
+                    delay(3000)
                 } catch (e: Exception) {
                     _overallSum.postValue(LoadingResult.Error(e))
                     e.printStackTrace()
