@@ -13,8 +13,12 @@ data class PaymentResp(
 
 
 data class Stats(
+    @SerializedName("dailyStats")
     val dailyStats: Int,
+    @SerializedName("weeklyStats")
     val weeklyStats: Int,
+    @SerializedName("monthlyStats")
     val monthlyStats: Int,
+    @SerializedName("totalStats")
     val totalStats: Int,
 )
