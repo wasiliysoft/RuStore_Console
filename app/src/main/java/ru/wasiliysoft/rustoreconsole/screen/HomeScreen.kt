@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.screen.main
+package ru.wasiliysoft.rustoreconsole.screen
 
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
@@ -22,11 +22,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ru.wasiliysoft.rustoreconsole.R
+import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
+import ru.wasiliysoft.rustoreconsole.data.prefs.StringPreferencesImpl
+import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.AppList
+import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.PaymentStats
+import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.Purchases
+import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.Revews
+import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.Settings
 import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListScreen
 import ru.wasiliysoft.rustoreconsole.screen.paymentstats.PaymentStatScreen
 import ru.wasiliysoft.rustoreconsole.screen.purchases.PurchasesScreen
 import ru.wasiliysoft.rustoreconsole.screen.reviews.ReviewDetailScreen
 import ru.wasiliysoft.rustoreconsole.screen.reviews.ReviewsScreen
+import ru.wasiliysoft.rustoreconsole.screen.settings.SettingsScreen
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,23 +44,26 @@ fun HomeScreen() {
     Scaffold(bottomBar = {
         BottomBar(navController)
     }) { innerPadding ->
+        val startDestination = StringPreferencesImpl()
+            .getData(PrefHelper.PREF_HOME_START_TAB_ROUTE, Purchases.route)
         NavHost(
             navController = navController,
-            startDestination = BottomBarScreen.Purchases.route,
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(route = BottomBarScreen.AppList.route) { ApplicationListScreen() }
-            composable(route = BottomBarScreen.Purchases.route) { PurchasesScreen() }
-            composable(route = BottomBarScreen.PaymentStats.route) { PaymentStatScreen() }
-            composable(route = BottomBarScreen.Revews.route) {
+            composable(route = AppList.route) { ApplicationListScreen() }
+            composable(route = Purchases.route) { PurchasesScreen() }
+            composable(route = PaymentStats.route) { PaymentStatScreen() }
+            composable(route = Settings.route) { SettingsScreen() }
+            composable(route = Revews.route) {
                 ReviewsScreen(
                     onClickItem = { id ->
                         navController.navigate(
-                            route = "${BottomBarScreen.Revews.route}/$id"
+                            route = "${Revews.route}/$id"
                         )
                     })
             }
-            composable(route = "${BottomBarScreen.Revews.route}/{commnetId}") {
+            composable(route = "${Revews.route}/{commnetId}") {
                 ReviewDetailScreen(
                     commentId = it.arguments?.getString("commnetId")?.toLong() ?: 0
                 )
@@ -67,10 +78,11 @@ fun HomeScreen() {
 @Composable
 private fun BottomBar(navController: NavController) {
     val screens = listOf(
-        BottomBarScreen.Purchases,
-        BottomBarScreen.Revews,
-        BottomBarScreen.PaymentStats,
-        BottomBarScreen.AppList,
+        Purchases,
+        Revews,
+        PaymentStats,
+        AppList,
+        Settings,
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -110,7 +122,8 @@ private fun RowScope.AddItem(
             }
         },
         icon = {
-            val resId = if (isSelected) screen.selectedVector else screen.uneselectedVector
+            val resId =
+                if (isSelected) screen.selectedDrawableResId else screen.uneselectedDrawableResId
             Icon(
                 painter = painterResource(id = resId),
                 contentDescription = screen.title
@@ -122,40 +135,49 @@ private fun RowScope.AddItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-        })
+        },
+//        alwaysShowLabel = false
+    )
 }
 
-private sealed class BottomBarScreen(
+sealed class BottomBarScreen(
     val route: String,
     val title: String,
-    val selectedVector: Int,
-    val uneselectedVector: Int,
+    val selectedDrawableResId: Int,
+    val uneselectedDrawableResId: Int,
 ) {
     object AppList : BottomBarScreen(
         route = "AppList",
         title = "Приложения",
-        selectedVector = R.drawable.baseline_apps_24,
-        uneselectedVector = R.drawable.baseline_apps_24,
+        selectedDrawableResId = R.drawable.baseline_apps_24,
+        uneselectedDrawableResId = R.drawable.baseline_apps_24,
     )
 
     object Revews : BottomBarScreen(
         route = "Revews",
         title = "Отзывы",
-        selectedVector = R.drawable.baseline_chat_24,
-        uneselectedVector = R.drawable.outline_chat_24,
+        selectedDrawableResId = R.drawable.baseline_chat_24,
+        uneselectedDrawableResId = R.drawable.outline_chat_24,
     )
 
     object Purchases : BottomBarScreen(
         route = "Purchases",
         title = "Платежи",
-        selectedVector = R.drawable.baseline_credit_card_24,
-        uneselectedVector = R.drawable.baseline_credit_card_24,
+        selectedDrawableResId = R.drawable.baseline_credit_card_24,
+        uneselectedDrawableResId = R.drawable.baseline_credit_card_24,
     )
 
     object PaymentStats : BottomBarScreen(
         route = "PaymentStats",
         title = "Статистика",
-        selectedVector = R.drawable.baseline_query_stats_24,
-        uneselectedVector = R.drawable.baseline_query_stats_24,
+        selectedDrawableResId = R.drawable.baseline_query_stats_24,
+        uneselectedDrawableResId = R.drawable.baseline_query_stats_24,
+    )
+
+    object Settings : BottomBarScreen(
+        route = "Settings",
+        title = "Настройки",
+        selectedDrawableResId = R.drawable.baseline_settings_24,
+        uneselectedDrawableResId = R.drawable.outline_settings_24,
     )
 }

@@ -13,13 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
+import ru.wasiliysoft.rustoreconsole.screen.HomeScreen
 import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListViewModel
-import ru.wasiliysoft.rustoreconsole.screen.main.HomeScreen
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
-import ru.wasiliysoft.rustoreconsole.utils.PrefHelper
 
 class MainActivity : ComponentActivity() {
     private val LOG_TAG = "MainActivity"

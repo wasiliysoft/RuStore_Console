@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.utils
+package ru.wasiliysoft.rustoreconsole.data.prefs
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -15,7 +15,16 @@ class PrefHelper private constructor(context: Context) {
         private const val PREF_TOKEN = "PREF_TOKEN"
         private const val PREF_JSON_APP_LIST = "PREF_JSON_APP_LIST"
 
-        @Deprecated("")
+        /**
+         * Хранит имя маршрута для стартовой вкладки на домашнем экране
+         */
+        const val PREF_HOME_START_TAB_ROUTE = "PREF_HOME_START_TAB_ROUTE"
+
+        @Deprecated(
+            message = "Used in old versions",
+            replaceWith = ReplaceWith("PREF_JSON_APP_LIST"),
+            level = DeprecationLevel.ERROR
+        )
         private const val PREF_APP_IDS = "PREF_APP_IDS"
 
         private var instance: PrefHelper? = null
@@ -45,4 +54,8 @@ class PrefHelper private constructor(context: Context) {
             Log.d(LOG_TAG, "update app list in cache")
             prefs.edit().putString(PREF_JSON_APP_LIST, value).apply()
         }
+
+    fun getPrefs(): SharedPreferences = prefs
+
+    fun editPrefs(): SharedPreferences.Editor = prefs.edit()
 }

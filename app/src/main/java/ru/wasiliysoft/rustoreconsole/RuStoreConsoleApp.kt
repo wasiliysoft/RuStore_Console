@@ -1,7 +1,7 @@
 package ru.wasiliysoft.rustoreconsole
 
 import android.app.Application
-import ru.wasiliysoft.rustoreconsole.utils.PrefHelper
+import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 
 class RuStoreConsoleApp : Application() {
 

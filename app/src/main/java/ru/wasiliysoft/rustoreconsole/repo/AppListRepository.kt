@@ -3,8 +3,8 @@ package ru.wasiliysoft.rustoreconsole.repo
 import com.google.gson.Gson
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.AppListResp
+import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
-import ru.wasiliysoft.rustoreconsole.utils.PrefHelper
 
 
 object AppListRepository {
