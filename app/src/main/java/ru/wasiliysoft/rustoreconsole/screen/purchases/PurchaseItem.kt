@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.Purchase
@@ -54,7 +55,11 @@ fun PurchaseItem(
             Column(
                 horizontalAlignment = Alignment.Start, modifier = Modifier.weight(1f)
             ) {
-                Text(text = purchase.applicationName)
+                Text(
+                    text = purchase.applicationName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Text(
                     text = "invoiceId: " + purchase.invoiceId.toString(),
                     fontWeight = FontWeight.Light
