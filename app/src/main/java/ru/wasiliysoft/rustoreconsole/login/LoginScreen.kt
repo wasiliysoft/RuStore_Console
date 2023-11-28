@@ -1,5 +1,6 @@
 package ru.wasiliysoft.rustoreconsole.login
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -15,6 +16,7 @@ import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 
 const val TAG = "LoginScreen"
 
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun LoginScreen(onTokedReceived: (uuid: String, token: String) -> Unit) {
     val mUrl = "https://console.rustore.ru/apps"
