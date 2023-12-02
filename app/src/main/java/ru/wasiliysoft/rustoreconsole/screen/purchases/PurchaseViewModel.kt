@@ -16,7 +16,7 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-// Int - DayOfYear
+// key = day as String
 typealias PurchaseMap = Map<String, List<Purchase>>
 
 class PurchaseViewModel : ViewModel() {
@@ -24,8 +24,8 @@ class PurchaseViewModel : ViewModel() {
     private val api = RetrofitClient.api
     private val mutex = Mutex()
 
-    private val _purchases = MutableLiveData<LoadingResult<PurchaseMap>>()
-    val purchases: LiveData<LoadingResult<PurchaseMap>> = _purchases
+    private val _purchasesByDays = MutableLiveData<LoadingResult<PurchaseMap>>()
+    val purchasesByDays: LiveData<LoadingResult<PurchaseMap>> = _purchasesByDays
 
     init {
         load()
@@ -33,12 +33,12 @@ class PurchaseViewModel : ViewModel() {
 
     fun load() {
         viewModelScope.launch(Dispatchers.IO) {
-            _purchases.postValue(LoadingResult.Loading("Загружаем..."))
+            _purchasesByDays.postValue(LoadingResult.Loading("Загружаем..."))
             val list = mutableListOf<Purchase>()
             val exceptionList = mutableListOf<Exception>()
             val appIds = appListRepo.getApps() ?: emptyList()
             if (appIds.isEmpty()) {
-                _purchases.postValue(LoadingResult.Error(Exception("Empty app id list")))
+                _purchasesByDays.postValue(LoadingResult.Error(Exception("Empty app id list")))
                 return@launch
             }
             appIds.chunked(3).forEach { idList ->
@@ -55,7 +55,7 @@ class PurchaseViewModel : ViewModel() {
                 }.joinAll()
             }
             if (exceptionList.isNotEmpty()) {
-                _purchases.postValue(LoadingResult.Error(exceptionList.first()))
+                _purchasesByDays.postValue(LoadingResult.Error(exceptionList.first()))
             } else {
                 list.sortByDescending { it.invoiceId }
                 val purchaseMap: PurchaseMap = list.groupBy {
@@ -63,7 +63,7 @@ class PurchaseViewModel : ViewModel() {
                         DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
                     )
                 }
-                _purchases.postValue(LoadingResult.Success(purchaseMap))
+                _purchasesByDays.postValue(LoadingResult.Success(purchaseMap))
             }
         }
     }

@@ -35,7 +35,7 @@ fun PurchasesScreen(
     modifier: Modifier = Modifier,
     viewModel: PurchaseViewModel = viewModel(),
 ) {
-    val uiSate = viewModel.purchases.observeAsState(Loading("")).value
+    val uiSate = viewModel.purchasesByDays.observeAsState(Loading("")).value
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
