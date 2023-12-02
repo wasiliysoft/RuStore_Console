@@ -106,7 +106,6 @@ private fun PaymentStatCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 appStats.overallSum.let {
-                    Text(text = "Вчера\n${it.dailyStats} р.")
                     Text(text = "7 дней\n${it.weeklyStats} р.")
                     Text(text = "30 дней\n${it.monthlyStats} р.")
                     Text(text = "Всё время\n${it.totalStats} р.")
