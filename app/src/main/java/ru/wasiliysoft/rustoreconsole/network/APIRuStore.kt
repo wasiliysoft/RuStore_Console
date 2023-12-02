@@ -17,14 +17,14 @@ interface APIRuStore {
     @GET("products/applications/{appId}/purchases")
     suspend fun getPurchases(
         @Path(value = "appId") appId: Long,
-        @Query("size") size: Int = 10,
+        @Query("size") size: Int = 500,
         @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
     ): PurchaseResp
 
     @GET
     suspend fun getReviews(
         @Url url: String,
-        @Query("pageSize") pageSize: Int = 10,
+        @Query("pageSize") pageSize: Int = 20,
         @Query("pageNumber") pageNumber: Int = 0,
     ): ReviewsResp
 
