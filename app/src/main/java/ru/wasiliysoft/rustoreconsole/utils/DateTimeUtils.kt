@@ -10,3 +10,9 @@ fun LocalDateTime.toMediumDateString(): String =
 
 fun LocalDateTime.toMediumTimeString(): String =
     format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM))
+
+/**
+ * Format to yyyy.MM
+ */
+fun LocalDateTime.toYearAndMonthString(): String =
+    format(DateTimeFormatter.ofPattern("yyyy.MM"))

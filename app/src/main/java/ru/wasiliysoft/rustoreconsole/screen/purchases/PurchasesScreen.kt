@@ -36,6 +36,7 @@ fun PurchasesScreen(
     viewModel: PurchaseViewModel = viewModel(),
 ) {
     val uiSate = viewModel.purchasesByDays.observeAsState(Loading("")).value
+    val amountSums = viewModel.amountSumPerMonth.observeAsState(emptyList()).value
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -47,7 +48,11 @@ fun PurchasesScreen(
         ) {
             when (uiSate) {
                 is Loading -> ProgressView(uiSate.description)
-                is LoadingResult.Success -> PurchaseListView(purchases = uiSate.data)
+                is LoadingResult.Success -> PurchaseListView(
+                    purchases = uiSate.data,
+                    amountSums = amountSums
+                )
+
                 is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
             }
         }
@@ -69,6 +74,7 @@ private fun ProgressView(description: String, modifier: Modifier = Modifier) {
 @Composable
 private fun PurchaseListView(
     purchases: PurchaseMap,
+    amountSums: AmountSumPerMonth,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -76,8 +82,21 @@ private fun PurchaseListView(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
     ) {
-        purchases.forEach { purchasesPerDay ->
+        itemsIndexed(items = amountSums, key = { _, item -> item.first }) { index, item ->
+            val paddingValues = PaddingValues(horizontal = 8.dp)
+            if (index == 0) {
+                Text(
+                    text = "Сводные суммы",
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .padding(bottom = 16.dp)
+                )
+            }
+            AmountPerMonthItem(item, modifier = Modifier.padding(paddingValues))
+        }
 
+        purchases.forEach { purchasesPerDay ->
             itemsIndexed(
                 items = purchasesPerDay.value,
                 key = { _, p -> p.invoiceId }) { index, purchase ->
@@ -90,6 +109,17 @@ private fun PurchaseListView(
                 PurchaseItem(purchase)
             }
         }
+    }
+}
+
+@Composable
+private fun AmountPerMonthItem(
+    amountPerMonth: Pair<String, Int>,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier = modifier.fillMaxWidth()) {
+        Text(text = amountPerMonth.first, modifier = Modifier.weight(1f))
+        Text(text = String.format("%,d", amountPerMonth.second) + "р")
     }
 }
 
@@ -128,5 +158,5 @@ private fun Preview(modifier: Modifier = Modifier) {
             DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
         )
     }
-    PurchaseListView(purchases = data)
+    PurchaseListView(purchases = data, amountSums = emptyList())
 }

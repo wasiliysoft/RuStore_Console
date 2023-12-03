@@ -15,10 +15,13 @@ import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
+import ru.wasiliysoft.rustoreconsole.utils.toYearAndMonthString
 import java.time.LocalDateTime
 
 // key = day as String
 typealias PurchaseMap = Map<String, List<Purchase>>
+
+typealias AmountSumPerMonth = List<Pair<String, Int>>
 
 class PurchaseViewModel : ViewModel() {
     private val LOG_TAG = "PurchaseViewModel"
@@ -29,6 +32,9 @@ class PurchaseViewModel : ViewModel() {
 
     private val _purchasesByDays = MutableLiveData<LoadingResult<PurchaseMap>>()
     val purchasesByDays: LiveData<LoadingResult<PurchaseMap>> = _purchasesByDays
+
+    private val _amountSumPerMonth = MutableLiveData<AmountSumPerMonth>(emptyList())
+    val amountSumPerMonth: LiveData<AmountSumPerMonth> = _amountSumPerMonth
 
     init {
         load()
@@ -48,7 +54,7 @@ class PurchaseViewModel : ViewModel() {
                 idList.map { appInfo ->
                     launch {
                         try {
-                            val querySize = 500
+                            val querySize = 500 // TODO создать настройку
                             val purchases = api.getPurchases(
                                 appId = appInfo.appId,
                                 size = querySize
@@ -96,6 +102,7 @@ class PurchaseViewModel : ViewModel() {
                 } else {
                     Log.i(LOG_TAG, "loaded all available purchases")
                 }
+                _amountSumPerMonth.postValue(list.toMonthSumMap())
                 val purchaseMap = list.toPurchaseMap()
                 val result = LoadingResult.Success(purchaseMap)
                 _purchasesByDays.postValue(result)
@@ -107,5 +114,16 @@ class PurchaseViewModel : ViewModel() {
         return sortedByDescending { it.invoiceId }.groupBy {
             it.invoiceDate.toMediumDateString()
         }
+    }
+
+    // TODO создать настройку количества строк,
+    //  опасаться неполных данных за первый и последний месяц
+    private fun List<Purchase>.toMonthSumMap(): AmountSumPerMonth {
+        return groupBy { it.invoiceDate.toYearAndMonthString() }
+            .map { entry -> Pair(entry.key, entry.value.sumOf { it.amountCurrent / 100 }) }
+            .sortedByDescending { it.first }
+            .toMutableList().apply {
+                removeLast() // защита от неполного первого месяца
+            }.take(4)
     }
 }
