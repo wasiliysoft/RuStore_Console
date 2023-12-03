@@ -105,8 +105,7 @@ class PurchaseViewModel : ViewModel() {
     }
 
     private fun List<Purchase>.toPurchaseMap(): PurchaseMap {
-        this.sortedByDescending { it.invoiceId }
-        return groupBy {
+        return sortedByDescending { it.invoiceId }.groupBy {
             it.invoiceDate.format(
                 DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
             )
