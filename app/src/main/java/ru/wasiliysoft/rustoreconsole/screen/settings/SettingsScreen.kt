@@ -45,6 +45,6 @@ private fun SelectStartScreenPrefView() {
 
 @Preview(showBackground = true)
 @Composable
-fun Preview(modifier: Modifier = Modifier) {
+fun Preview() {
     SettingsScreen()
 }

@@ -117,7 +117,7 @@ private fun PaymentStatCard(
 
 @Preview
 @Composable
-private fun PreviewPaymentStatCard(modifier: Modifier = Modifier) {
+private fun PreviewPaymentStatCard() {
     PaymentStatCard(
         AppStats(
             appName = "Test app name", appId = 4, overallSum = Stats(

@@ -150,7 +150,7 @@ fun PurchaseDayHeader(
 
 @Preview(showBackground = true)
 @Composable
-private fun Preview(modifier: Modifier = Modifier) {
+private fun Preview() {
     val data = List(5) {
         Purchase.demo(it.toLong())
     }.groupBy {

@@ -148,6 +148,6 @@ private fun ShareAppLinkButton(appInfo: AppInfo, modifier: Modifier = Modifier) 
 
 @Preview
 @Composable
-private fun PreviewAppInfoCard(modifier: Modifier = Modifier) {
+private fun PreviewAppInfoCard() {
     AppInfoCard(AppInfo.demo())
 }
