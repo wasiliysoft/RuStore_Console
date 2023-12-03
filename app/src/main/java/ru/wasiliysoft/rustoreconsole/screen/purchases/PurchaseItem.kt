@@ -78,7 +78,7 @@ fun PurchaseItem(
 
 @Preview()
 @Composable
-private fun Preview(modifier: Modifier = Modifier) {
+private fun Preview() {
     Column {
         PurchaseItem(purchase = Purchase.demo())
         PurchaseItem(purchase = Purchase.demo().copy(amountCurrent = 0))

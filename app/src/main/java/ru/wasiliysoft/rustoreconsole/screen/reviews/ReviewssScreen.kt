@@ -131,7 +131,7 @@ private fun ReviewItem(
 
 @Preview()
 @Composable
-private fun PreviewItem(modifier: Modifier = Modifier) {
+private fun PreviewItem() {
     ReviewItem(
         review = Review(
             appInfo = AppInfo.demo(),
@@ -142,6 +142,6 @@ private fun PreviewItem(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = true)
 @Composable
-private fun Preview(modifier: Modifier = Modifier) {
+private fun Preview() {
     ReviewsScreen()
 }

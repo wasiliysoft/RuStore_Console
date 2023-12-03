@@ -89,7 +89,7 @@ private fun DeveloperResponseListView(
 
 @Preview()
 @Composable
-private fun Preview(modifier: Modifier = Modifier) {
+private fun Preview() {
     ReviewDetailItem(
         review = Review(
             appInfo = AppInfo.demo(),
