@@ -21,8 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.Purchase
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import ru.wasiliysoft.rustoreconsole.utils.toMediumTimeString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +67,7 @@ fun PurchaseItem(
             Column(horizontalAlignment = Alignment.End) {
                 Text(text = (purchase.amountCurrent / 100).toString() + "p")
                 Text(
-                    text = date.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)),
+                    text = date.toMediumTimeString(),
                     fontWeight = FontWeight.Light
                 )
             }

@@ -14,9 +14,8 @@ import ru.wasiliysoft.rustoreconsole.data.Purchase
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 // key = day as String
 typealias PurchaseMap = Map<String, List<Purchase>>
@@ -106,9 +105,7 @@ class PurchaseViewModel : ViewModel() {
 
     private fun List<Purchase>.toPurchaseMap(): PurchaseMap {
         return sortedByDescending { it.invoiceId }.groupBy {
-            it.invoiceDate.format(
-                DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-            )
+            it.invoiceDate.toMediumDateString()
         }
     }
 }

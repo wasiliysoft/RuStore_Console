@@ -33,8 +33,7 @@ import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Error
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Success
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 
 @Composable
 fun ReviewsScreen(
@@ -110,7 +109,7 @@ private fun ReviewItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RateStarView(rate = userReview.appRating, modifier = Modifier.weight(1f))
-                Text(text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
+                Text(text = date.toMediumDateString())
             }
             Text(text = userReview.commentText, maxLines = 2, overflow = TextOverflow.Ellipsis)
             if (userReview.likeCounter != 0 || userReview.dislikeCounter != 0) {
@@ -122,7 +121,7 @@ private fun ReviewItem(
             }
 
             userReview.devResponse?.find { it.status == "PUBLISHED" }?.date?.let { date ->
-                val dateStr = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+                val dateStr = date.toMediumDateString()
                 Text(text = "Дата ответа $dateStr", fontWeight = FontWeight.Light)
             }
 

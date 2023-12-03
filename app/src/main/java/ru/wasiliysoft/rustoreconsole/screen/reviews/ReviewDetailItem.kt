@@ -20,8 +20,7 @@ import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.DeveloperComment
 import ru.wasiliysoft.rustoreconsole.data.UserReview
 import ru.wasiliysoft.rustoreconsole.ui.view.RateStarView
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 
 
 @Composable
@@ -45,7 +44,7 @@ fun ReviewDetailItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             RateStarView(rate = userReview.appRating, modifier = Modifier.weight(1f))
-            Text(text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
+            Text(text = date.toMediumDateString())
         }
         Text(text = userReview.firstName)
         Text(text = userReview.commentText)
@@ -79,7 +78,7 @@ private fun DeveloperResponseListView(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = it.status, modifier = Modifier.weight(1f))
-                    Text(text = it.date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)))
+                    Text(text = it.date.toMediumDateString())
                 }
                 Text(text = it.text)
             }
