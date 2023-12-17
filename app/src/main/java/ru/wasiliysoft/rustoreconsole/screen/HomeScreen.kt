@@ -32,7 +32,7 @@ import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.Settings
 import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListScreen
 import ru.wasiliysoft.rustoreconsole.screen.paymentstats.PaymentStatScreen
 import ru.wasiliysoft.rustoreconsole.screen.purchases.PurchasesScreen
-import ru.wasiliysoft.rustoreconsole.screen.reviews.ReviewDetailScreen
+import ru.wasiliysoft.rustoreconsole.screen.reviews.ReviewDetailActivity
 import ru.wasiliysoft.rustoreconsole.screen.reviews.ReviewsScreen
 import ru.wasiliysoft.rustoreconsole.screen.settings.SettingsScreen
 
@@ -64,7 +64,7 @@ fun HomeScreen() {
                     })
             }
             composable(route = "${Revews.route}/{commnetId}") {
-                ReviewDetailScreen(
+                ReviewDetailActivity(
                     commentId = it.arguments?.getString("commnetId")?.toLong() ?: 0
                 )
             }
