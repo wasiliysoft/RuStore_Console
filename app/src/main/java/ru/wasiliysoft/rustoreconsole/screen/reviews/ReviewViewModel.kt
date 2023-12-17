@@ -12,6 +12,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.UserReview
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
@@ -77,6 +80,23 @@ class ReviewViewModel : ViewModel() {
                 appInfo = appInfo,
                 userReview = it
             )
+        }
+    }
+
+    fun sendDevResponse(review: Review, devComment: String) {
+        if (devComment.isEmpty()) return
+        viewModelScope.launch {
+            val paramMap = JSONObject()
+            paramMap.accumulate("responseText", devComment)
+            val type = "application/json; charset=utf-8".toMediaTypeOrNull()
+            val requestBody = paramMap.toString().toRequestBody(type)
+            val appId = review.appInfo.appId
+            val commentId = review.userReview.commentId
+            val result = RetrofitClient.api.sendDevResponse(
+                url = "https://backapi.rustore.ru/devs/app/$appId/comment/$commentId/devresponse",
+                body = requestBody
+            )
+            if (result.code() == 200) loadReviews()
         }
     }
 }

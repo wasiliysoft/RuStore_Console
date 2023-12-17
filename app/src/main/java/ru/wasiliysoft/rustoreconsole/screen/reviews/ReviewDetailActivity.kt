@@ -40,7 +40,7 @@ fun ReviewDetailActivity(
         is LoadingResult.Success -> {
             uiSate.data.find { it.userReview.commentId == commentId }?.let { review: Review ->
                 ReviewDetailScreen(review = review, onSend = {
-                    // TODO impelentation
+                    viewModel.sendDevResponse(review = review, devComment = it)
                 })
             }
         }
