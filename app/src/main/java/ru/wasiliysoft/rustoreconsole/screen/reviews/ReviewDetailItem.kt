@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -48,6 +50,14 @@ fun ReviewDetailItem(
         }
         Text(text = userReview.firstName)
         Text(text = userReview.commentText)
+
+        Spacer(modifier = Modifier.size(4.dp))
+        userReview.deviceInfo?.let { devInfo ->
+            devInfo.manufacturer?.let { Text(text = "manufacturer: $it") }
+            devInfo.model?.let { Text(text = "model: $it") }
+            devInfo.firmwareVersion?.let { Text(text = "firmwareVersion: $it") }
+        }
+
         Text(
             text = "like ${userReview.likeCounter} / dislike ${userReview.dislikeCounter}",
             modifier = Modifier.fillMaxWidth(),

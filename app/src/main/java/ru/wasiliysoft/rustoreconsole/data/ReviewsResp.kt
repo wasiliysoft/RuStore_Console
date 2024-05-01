@@ -34,7 +34,7 @@ data class UserReview(
     @SerializedName("dislikeCounter")
     val dislikeCounter: Int,
     @SerializedName("deviceInfo")
-    val deviceInfo: String?,
+    val deviceInfo: DeviceInfo?,
     @SerializedName("devResponse")
     val devResponse: List<DeveloperComment>?
 ) {
@@ -58,6 +58,17 @@ data class UserReview(
         )
     }
 }
+
+data class DeviceInfo(
+    @SerializedName("id")
+    val id: String?,
+    @SerializedName("firmwareVersion")
+    val firmwareVersion: String?,
+    @SerializedName("model")
+    val model: String?,
+    @SerializedName("manufacturer")
+    val manufacturer: String?,
+)
 
 data class DeveloperComment(
     @SerializedName("id")
