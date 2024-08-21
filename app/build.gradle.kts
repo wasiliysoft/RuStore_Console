@@ -65,11 +65,11 @@ dependencies {
     val nav_version = "2.7.7"
     implementation("androidx.navigation:navigation-compose:$nav_version")
     implementation("androidx.webkit:webkit:1.11.0")
-    implementation("androidx.fragment:fragment-ktx:1.8.1")
-    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.2")
+    implementation("androidx.activity:activity-compose:1.9.1")
 
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.3")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
 
     implementation(platform("androidx.compose:compose-bom:2024.06.00"))
     implementation("androidx.compose.ui:ui")
