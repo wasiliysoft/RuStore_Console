@@ -1,6 +1,7 @@
 package ru.wasiliysoft.rustoreconsole.screen.reviews
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -41,25 +44,27 @@ fun ReviewsScreen(
     viewModel: ReviewViewModel = viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity),
     onClickItem: (commentId: Long) -> Unit = {}
 ) {
-    val uiSate = viewModel.reviews
-        .observeAsState(Loading(""))
-        .value
+    Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
+        val uiSate = viewModel.reviews
+            .observeAsState(Loading(""))
+            .value
 
-    Column(
-        modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
-    ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+            modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (uiSate) {
-                is Loading -> ProgressView(uiSate.description)
-                is Success -> ReviewListView(reviews = uiSate.data, onClickItem = onClickItem)
-                is Error -> ErrorTextView(exception = uiSate.exception)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                when (uiSate) {
+                    is Loading -> ProgressView(uiSate.description)
+                    is Success -> ReviewListView(reviews = uiSate.data, onClickItem = onClickItem)
+                    is Error -> ErrorTextView(exception = uiSate.exception)
+                }
             }
+            RefreshButton(viewModel::loadReviews)
         }
-        RefreshButton(viewModel::loadReviews)
     }
 }
 

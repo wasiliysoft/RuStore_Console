@@ -1,5 +1,6 @@
 package ru.wasiliysoft.rustoreconsole.screen.purchases
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -35,28 +38,30 @@ fun PurchasesScreen(
     modifier: Modifier = Modifier,
     viewModel: PurchaseViewModel = viewModel(),
 ) {
-    val uiSate = viewModel.purchasesByDays.observeAsState(Loading("")).value
-    val amountSums = viewModel.amountSumPerMonth.observeAsState(emptyList()).value
-    Column(
-        modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
+        val uiSate = viewModel.purchasesByDays.observeAsState(Loading("")).value
+        val amountSums = viewModel.amountSumPerMonth.observeAsState(emptyList()).value
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (uiSate) {
-                is Loading -> ProgressView(uiSate.description)
-                is LoadingResult.Success -> PurchaseListView(
-                    purchases = uiSate.data,
-                    amountSums = amountSums
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                when (uiSate) {
+                    is Loading -> ProgressView(uiSate.description)
+                    is LoadingResult.Success -> PurchaseListView(
+                        purchases = uiSate.data,
+                        amountSums = amountSums
+                    )
 
-                is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
+                    is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
+                }
             }
+            RefreshButton(viewModel::load)
         }
-        RefreshButton(viewModel::load)
     }
 }
 

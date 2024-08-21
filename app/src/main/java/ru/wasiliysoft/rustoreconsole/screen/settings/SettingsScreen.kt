@@ -1,7 +1,10 @@
 package ru.wasiliysoft.rustoreconsole.screen.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -16,12 +19,14 @@ import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.Revews
 fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier.fillMaxSize()
-    ) {
-        GroupTitleView("Общие")
-        SelectStartScreenPrefView()
-        CheckUpdates()
+    Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
+        Column(
+            modifier = modifier.fillMaxSize()
+        ) {
+            GroupTitleView("Общие")
+            SelectStartScreenPrefView()
+            CheckUpdates()
+        }
     }
 }
 

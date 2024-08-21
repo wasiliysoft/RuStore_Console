@@ -1,5 +1,6 @@
 package ru.wasiliysoft.rustoreconsole.screen.paymentstats
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -39,36 +42,37 @@ fun PaymentStatScreen(
     modifier: Modifier = Modifier,
     viewModel: PaymentsViewModel = viewModel(),
 ) {
+    Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
+        val uiSate = viewModel.overallSum.observeAsState(Loading("")).value
 
-    val uiSate = viewModel.overallSum.observeAsState(Loading("")).value
-
-    Column(
-        modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
-    ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+            modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (uiSate) {
-                is Loading -> ProgressView(uiSate.description)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                when (uiSate) {
+                    is Loading -> ProgressView(uiSate.description)
 
-                is LoadingResult.Success -> {
-                    if (uiSate.comment.isNotEmpty()) {
-                        Text(text = uiSate.comment)
+                    is LoadingResult.Success -> {
+                        if (uiSate.comment.isNotEmpty()) {
+                            Text(text = uiSate.comment)
+                        }
+                        ListView(data = uiSate.data)
                     }
-                    ListView(data = uiSate.data)
-                }
 
-                is LoadingResult.Error -> {
-                    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        val e = uiSate.exception
-                        Text(text = e.message ?: "Неизвестная ошибка: $e")
+                    is LoadingResult.Error -> {
+                        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            val e = uiSate.exception
+                            Text(text = e.message ?: "Неизвестная ошибка: $e")
+                        }
                     }
                 }
             }
+            RefreshButton(viewModel::load)
         }
-        RefreshButton(viewModel::load)
     }
 }
 

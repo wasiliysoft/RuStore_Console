@@ -1,5 +1,6 @@
 package ru.wasiliysoft.rustoreconsole.screen
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,7 +64,11 @@ fun HomeScreen() {
                         )
                     })
             }
-            composable(route = "${Revews.route}/{commnetId}") {
+            composable(
+                route = "${Revews.route}/{commnetId}",
+                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up) },
+                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down) },
+            ) {
                 ReviewDetailActivity(
                     commentId = it.arguments?.getString("commnetId")?.toLong() ?: 0
                 )

@@ -2,6 +2,7 @@ package ru.wasiliysoft.rustoreconsole.screen.apps
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -42,37 +45,39 @@ fun ApplicationListScreen(
     modifier: Modifier = Modifier,
     viewModel: ApplicationListViewModel = viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity),
 ) {
-    val uiSate = viewModel.list.observeAsState(Loading(""))
-    Column(
-        modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
+        val uiSate = viewModel.list.observeAsState(Loading(""))
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
+            modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            when (uiSate.value) {
-                is Loading -> {
-                    ProgressView((uiSate.value as Loading).description)
-                }
-
-                is LoadingResult.Success -> {
-                    val result = (uiSate.value as LoadingResult.Success)
-                    if (result.comment.isNotEmpty()) {
-                        Text(text = result.comment)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                when (uiSate.value) {
+                    is Loading -> {
+                        ProgressView((uiSate.value as Loading).description)
                     }
-                    ListView(data = result.data)
-                }
 
-                is LoadingResult.Error -> {
-                    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        val e = (uiSate.value as LoadingResult.Error).exception
-                        Text(text = e.message ?: "Неизвестная ошибка: $e")
+                    is LoadingResult.Success -> {
+                        val result = (uiSate.value as LoadingResult.Success)
+                        if (result.comment.isNotEmpty()) {
+                            Text(text = result.comment)
+                        }
+                        ListView(data = result.data)
+                    }
+
+                    is LoadingResult.Error -> {
+                        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            val e = (uiSate.value as LoadingResult.Error).exception
+                            Text(text = e.message ?: "Неизвестная ошибка: $e")
+                        }
                     }
                 }
             }
+            RefreshButton(viewModel::load)
         }
-        RefreshButton(viewModel::load)
     }
 }
 
