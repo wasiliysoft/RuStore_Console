@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -49,11 +48,13 @@ fun ReviewDetailActivity(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun ReviewDetailScreen(review: Review, onSend: (comment: String) -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
-        ReviewDetailItem(review = review, modifier = Modifier.weight(1f))
+        val (devCommnet, onChange) = remember { mutableStateOf("") }
+        ReviewDetailItem(review = review, modifier = Modifier.weight(1f),
+            onEnterEditComment = { onChange(it) })
         Surface(
             tonalElevation = 4.dp
         ) {
@@ -63,7 +64,6 @@ fun ReviewDetailScreen(review: Review, onSend: (comment: String) -> Unit) {
                     .fillMaxWidth()
                     .padding(8.dp)
             ) {
-                val (devCommnet, onChange) = remember { mutableStateOf("") }
                 OutlinedTextField(
                     value = devCommnet,
                     onValueChange = onChange,

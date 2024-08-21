@@ -1,7 +1,7 @@
 package ru.wasiliysoft.rustoreconsole.screen.reviews
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,7 +9,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,6 +35,7 @@ import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 fun ReviewDetailItem(
     review: Review,
     modifier: Modifier = Modifier,
+    onEnterEditComment: (text: String) -> Unit,
 ) {
     val userReview = review.userReview
     val appInfo = review.appInfo
@@ -40,17 +47,23 @@ fun ReviewDetailItem(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(text = appInfo.appName, fontWeight = FontWeight.Bold)
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            RateStarView(rate = userReview.appRating, modifier = Modifier.weight(1f))
+            Text(text = appInfo.appName, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            RateStarView(rate = userReview.appRating)
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = userReview.firstName, modifier = Modifier.weight(1f))
             Text(text = date.toMediumDateString())
         }
-        Text(text = userReview.firstName)
-        Text(text = userReview.commentText)
-
+        SelectionContainer {
+            Text(text = userReview.commentText)
+        }
         Spacer(modifier = Modifier.size(4.dp))
         userReview.deviceInfo?.let { devInfo ->
             devInfo.manufacturer?.let { Text(text = "manufacturer: $it") }
@@ -66,7 +79,9 @@ fun ReviewDetailItem(
         userReview.devResponse?.let { devResponse ->
             DeveloperResponseListView(
                 devResponse = devResponse,
-                modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 8.dp),
+                onClick = onEnterEditComment
             )
         }
     }
@@ -76,34 +91,51 @@ fun ReviewDetailItem(
 @Composable
 private fun DeveloperResponseListView(
     devResponse: List<DeveloperComment>,
+    onClick: (text: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(modifier = modifier) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            devResponse.forEach {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        devResponse.forEach {
+            Column(
+                Modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    verticalAlignment = Alignment.Top,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                 ) {
-                    Text(text = it.status, modifier = Modifier.weight(1f))
-                    Text(text = it.date.toMediumDateString())
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(8.dp)
+                    ) {
+                        Text(text = it.status, Modifier.padding(bottom = 8.dp))
+                        Text(text = it.date.toMediumDateString())
+                    }
+                    IconButton(onClick = { onClick(it.text) }) {
+                        Icon(imageVector = Icons.Filled.Edit, contentDescription = "Edit")
+                    }
                 }
-                Text(text = it.text)
+                SelectionContainer {
+                    Text(text = it.text, Modifier.padding(8.dp))
+                }
             }
-
         }
     }
 }
 
-@Preview()
+@Preview(showBackground = true)
 @Composable
 private fun Preview() {
     ReviewDetailItem(
         review = Review(
             appInfo = AppInfo.demo(),
-            userReview = UserReview.demo(),
-        )
+            userReview = UserReview.demo()
+        ), onEnterEditComment = {}
     )
 }

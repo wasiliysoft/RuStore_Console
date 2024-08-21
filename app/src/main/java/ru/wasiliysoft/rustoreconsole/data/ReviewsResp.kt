@@ -54,7 +54,7 @@ data class UserReview(
             likeCounter = 8,
             dislikeCounter = 3,
             deviceInfo = null,
-            devResponse = listOf(DeveloperComment.demo(commentId))
+            devResponse = List(5) { DeveloperComment.demo(commentId) }
         )
     }
 }
@@ -89,7 +89,7 @@ data class DeveloperComment(
     companion object {
         fun demo(id: Long = 5) = DeveloperComment(
             id = id,
-            status = "firstName",
+            status = "comment status",
             dateStr = "2023-07-20 19:09:45.045",
             text = "Dev comment Dev comment Dev comment",
         )
