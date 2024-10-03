@@ -62,16 +62,15 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-gson:2.11.0")
-    val nav_version = "2.7.7"
+    val nav_version = "2.8.2"
     implementation("androidx.navigation:navigation-compose:$nav_version")
-    implementation("androidx.webkit:webkit:1.11.0")
-    implementation("androidx.fragment:fragment-ktx:1.8.2")
-    implementation("androidx.activity:activity-compose:1.9.1")
+    implementation("androidx.webkit:webkit:1.12.1")
+    implementation("androidx.activity:activity-compose:1.9.2")
 
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
 
-    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.09.03"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.runtime:runtime-livedata")
 
@@ -81,7 +80,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.09.03"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
