@@ -12,8 +12,8 @@ android {
         applicationId = "ru.wasiliysoft.rustoreconsole"
         minSdk = 26
         targetSdk = 34
-        versionCode = 14
-        versionName = "1.9.0"
+        versionCode = 15
+        versionName = "1.10.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
