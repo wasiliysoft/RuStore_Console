@@ -47,4 +47,9 @@ interface APIRuStore {
         @Url url: String,
         @Body body: RequestBody,
     ): AuthTokenResp
+
+    @POST
+    suspend fun logout(
+        @Url url: String
+    ): Response<Any>
 }
