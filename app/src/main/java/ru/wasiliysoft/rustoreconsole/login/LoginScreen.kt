@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
@@ -19,7 +20,7 @@ const val TAG = "LoginScreen"
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun LoginScreen(onTokedReceived: (uuid: String, token: String) -> Unit) {
-    val mUrl = "https://console.rustore.ru/apps"
+    val mUrl = "https://console.rustore.ru/sign-in"
     val regexUuid = "(?<=\\\"uuid\\\":\\\")[^\\\"]*".toRegex()
     val regexToken = "(?<=\\\"token\\\":\\\")[^\\\"]*".toRegex()
     val mWebViewClient = object : WebViewClient() {
@@ -41,13 +42,17 @@ fun LoginScreen(onTokedReceived: (uuid: String, token: String) -> Unit) {
     }
     AndroidView(factory = {
         WebView(it).apply {
+            clearCache(true)
             layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+            settings.allowContentAccess = true
+            settings.domStorageEnabled = true // https://stackoverflow.com/a/33080057/5795315
+            settings.cacheMode = WebSettings.LOAD_NO_CACHE;
             settings.javaScriptEnabled = true
             webViewClient = mWebViewClient
             loadUrl(mUrl)
         }
     }, update = {
-        it.loadUrl(mUrl)
+//        it.loadUrl(mUrl)
     })
 }
 
