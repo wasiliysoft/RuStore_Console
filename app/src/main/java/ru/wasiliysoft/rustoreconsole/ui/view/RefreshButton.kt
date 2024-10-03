@@ -17,6 +17,7 @@ fun RefreshButton(
 ) {
     Surface(
         tonalElevation = BottomAppBarDefaults.ContainerElevation,
+        color = BottomAppBarDefaults.containerColor,
         modifier = modifier.fillMaxWidth()
     ) {
         OutlinedButton(onClick = onClick, Modifier.padding(16.dp)) {
