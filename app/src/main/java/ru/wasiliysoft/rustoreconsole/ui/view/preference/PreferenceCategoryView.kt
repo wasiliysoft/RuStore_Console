@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.screen.settings
+package ru.wasiliysoft.rustoreconsole.ui.view.preference
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -10,7 +10,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun GroupTitleView(title: String) {
+fun PreferenceCategoryView(title: String) {
     Text(
         text = title,
         color = MaterialTheme.colorScheme.primary,
