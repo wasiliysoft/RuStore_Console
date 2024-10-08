@@ -15,10 +15,17 @@ import ru.wasiliysoft.rustoreconsole.data.PurchaseResp
 import ru.wasiliysoft.rustoreconsole.data.ReviewsResp
 
 interface APIRuStore {
+    /**
+     * @param dateFrom формат YYYY-MM-DD
+     * @param dateTo формат YYYY-MM-DD
+     */
     @GET("products/applications/{appId}/purchases")
     suspend fun getPurchases(
         @Path(value = "appId") appId: Long,
-        @Query("size") size: Int = 500,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+        @Query("dateFrom") dateFrom: String,
+        @Query("dateTo") dateTo: String,
         @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
     ): PurchaseResp
 
