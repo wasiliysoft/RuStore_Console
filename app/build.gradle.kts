@@ -85,4 +85,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation(kotlin("reflect"))
+
+    // appmetrica
+    implementation("io.appmetrica.analytics:analytics:7.2.0")
+
 }
