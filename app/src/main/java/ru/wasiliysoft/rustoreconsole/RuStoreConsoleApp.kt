@@ -3,6 +3,7 @@ package ru.wasiliysoft.rustoreconsole
 import android.app.ActivityManager
 import android.app.Application
 import android.os.Process
+import com.google.android.material.color.DynamicColors
 import io.appmetrica.analytics.AppMetrica
 import io.appmetrica.analytics.AppMetricaConfig
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
@@ -17,6 +18,8 @@ class RuStoreConsoleApp : Application() {
     override fun onCreate() {
         super.onCreate()
         if (isMainProcess()) {
+            DynamicColors.applyToActivitiesIfAvailable(this)
+
             if (!BuildConfig.DEBUG) {
                 // Creating an extended library configuration.
                 val config = AppMetricaConfig.newConfigBuilder(API_KEY).build()
