@@ -25,13 +25,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ru.wasiliysoft.rustoreconsole.data.Purchase
+import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 
 @Composable
 fun PurchasesScreen(
@@ -131,7 +130,7 @@ private fun AmountPerMonthItem(
 @Composable
 fun PurchaseDayHeader(
     dateStr: String,
-    list: List<Purchase>,
+    list: List<PurchaseListItem>,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -157,11 +156,9 @@ fun PurchaseDayHeader(
 @Composable
 private fun Preview() {
     val data = List(5) {
-        Purchase.demo(it.toLong())
+        PurchaseListItem.demo(it.toLong())
     }.groupBy {
-        it.invoiceDate.format(
-            DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-        )
+        it.invoiceDate.toMediumDateString()
     }
     PurchaseListView(purchases = data, amountSums = emptyList())
 }

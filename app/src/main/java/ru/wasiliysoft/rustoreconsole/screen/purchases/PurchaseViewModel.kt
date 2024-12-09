@@ -14,7 +14,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
-import ru.wasiliysoft.rustoreconsole.data.Purchase
+import ru.wasiliysoft.rustoreconsole.data.Invoice
+import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
@@ -25,7 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicInteger
 
 // key = day as String
-typealias PurchaseMap = Map<String, List<Purchase>>
+typealias PurchaseMap = Map<String, List<PurchaseListItem>>
 
 typealias AmountSumPerMonth = List<Pair<String, Int>>
 
@@ -57,7 +58,7 @@ class PurchaseViewModel : ViewModel() {
             _purchasesByDays.value = LoadingResult.Error(Exception("Empty app id list"))
             return
         }
-        val list = mutableListOf<Purchase>()
+        val list = mutableListOf<Invoice>()
         val progress = AtomicInteger(0)
 
         viewModelScope.launch(errorHandler) {
@@ -75,17 +76,18 @@ class PurchaseViewModel : ViewModel() {
                     }
                 }.joinAll()
             }
-            _amountSumPerMonth.postValue(list.toMonthSumMap())
             val purchaseMap = list.toPurchaseMap()
+            _amountSumPerMonth.postValue(purchaseMap.toAmountSumPerMonth())
             val result = LoadingResult.Success(purchaseMap)
             _purchasesByDays.postValue(result)
         }
     }
 
+
     /**
      * Рекурсивная постраничкая загрузка платежей
      */
-    private suspend fun query(appInfo: AppInfo, page: Int = 0): List<Purchase> = withContext(Dispatchers.IO) {
+    private suspend fun query(appInfo: AppInfo, page: Int = 0): List<Invoice> = withContext(Dispatchers.IO) {
         val dateFrom = LocalDate.now()
             .minusMonths(3) // TODO настройка количества загружаемых месяцев
             .withDayOfMonth(1)
@@ -96,16 +98,16 @@ class PurchaseViewModel : ViewModel() {
             .format(DateTimeFormatter.ISO_DATE)
 
         val querySize = 250
-        val result = api.getPurchases(
+        val result = api.getInvoices(
+            url = "https://api.rustore.ru/invoices-history/public/v1/apps/${appInfo.appId}/invoice-payments",
             page = page,
-            appId = appInfo.appId,
             dateFrom = dateFrom,
             dateTo = dateTo,
             size = querySize
-        ).body.list
+        ).body.invoices.map { it.enrich(appInfo) }.toList()
 
         if (result.size < querySize) {
-            Log.i(LOG_TAG, "${appInfo.appName} loaded all available purchases")
+            Log.i(LOG_TAG, "${appInfo.appName} loaded all available InApp purchases")
         } else {
             Log.i(LOG_TAG, "${appInfo.appName} need recursive call next page ${page + 1}")
             delay(1000)
@@ -114,17 +116,29 @@ class PurchaseViewModel : ViewModel() {
         return@withContext result
     }
 
-    private fun List<Purchase>.toPurchaseMap(): PurchaseMap {
-        return sortedByDescending { it.invoiceId }.groupBy {
+    private fun Invoice.mapToUi(): PurchaseListItem {
+        return PurchaseListItem(
+            invoiceDateStr = invoiceDateStr,
+            applicationCode = applicationCode,
+            amountCurrent = amountCreate,
+            invoiceId = invoiceId,
+            productName = if (visualName == "Покупка приложения") null else productName,
+            applicationName = applicationName
+        )
+    }
+
+    private fun List<Invoice>.toPurchaseMap(): PurchaseMap {
+        return map { it.mapToUi() }.sortedByDescending { it.invoiceDate }.groupBy {
             it.invoiceDate.toMediumDateString()
         }
     }
 
-    // TODO создать настройку количества строк,
-    //  опасаться неполных данных за первый и последний месяц
-    private fun List<Purchase>.toMonthSumMap(): AmountSumPerMonth {
-        return groupBy { it.invoiceDate.toYearAndMonthString() }
-            .map { entry -> Pair(entry.key, entry.value.sumOf { it.amountCurrent / 100 }) }
-            .sortedByDescending { it.first }
+    private suspend fun PurchaseMap.toAmountSumPerMonth(): AmountSumPerMonth {
+        return withContext(Dispatchers.Default) {
+            return@withContext values.flatten()
+                .groupBy { it.invoiceDate.toYearAndMonthString() }
+                .map { entry -> Pair(entry.key, entry.value.sumOf { it.amountCurrent / 100 }) }
+                .sortedByDescending { it.first }
+        }
     }
 }

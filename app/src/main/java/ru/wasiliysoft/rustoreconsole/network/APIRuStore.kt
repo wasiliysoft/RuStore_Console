@@ -6,12 +6,11 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 import ru.wasiliysoft.rustoreconsole.data.AuthTokenResp
+import ru.wasiliysoft.rustoreconsole.data.InvoicesResp
 import ru.wasiliysoft.rustoreconsole.data.PaymentResp
-import ru.wasiliysoft.rustoreconsole.data.PurchaseResp
 import ru.wasiliysoft.rustoreconsole.data.ReviewsResp
 
 interface APIRuStore {
@@ -19,15 +18,15 @@ interface APIRuStore {
      * @param dateFrom формат YYYY-MM-DD
      * @param dateTo формат YYYY-MM-DD
      */
-    @GET("products/applications/{appId}/purchases")
-    suspend fun getPurchases(
-        @Path(value = "appId") appId: Long,
+    @GET
+    suspend fun getInvoices(
+        @Url url: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Query("dateFrom") dateFrom: String,
         @Query("dateTo") dateTo: String,
         @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
-    ): PurchaseResp
+    ): InvoicesResp
 
     @GET
     suspend fun getReviews(
