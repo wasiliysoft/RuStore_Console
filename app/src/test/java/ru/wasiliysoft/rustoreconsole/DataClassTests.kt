@@ -2,8 +2,8 @@ package ru.wasiliysoft.rustoreconsole
 
 import org.junit.Assert
 import org.junit.Test
-import ru.wasiliysoft.rustoreconsole.data.Purchase
 import ru.wasiliysoft.rustoreconsole.data.UserReview
+import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -17,7 +17,7 @@ class DataClassTests {
 
     @Test
     fun invoiceDateFormat() {
-        val localDate = Purchase.demo().invoiceDate
+        val localDate = PurchaseListItem.demo().invoiceDate
         Assert.assertEquals(2023, localDate.year)
         Assert.assertEquals(35, localDate.minute)
     }
