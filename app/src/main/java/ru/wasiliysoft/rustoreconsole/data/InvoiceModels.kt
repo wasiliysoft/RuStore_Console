@@ -13,11 +13,15 @@ class Invoices(
 
 class Invoice(
     @SerializedName("invoice_id") val invoiceId: Long,
+    @SerializedName("invoice_status") val invoiceStatus: String,
     @SerializedName("amount_create") val amountCreate: Int,
     @SerializedName("product_name") val productName: String,
     @SerializedName("invoice_date") val invoiceDateStr: String,
     @SerializedName("visual_name") val visualName: String,
 ) {
+    val amountCurrent: Int
+        get() = if (invoiceStatus == "confirmed") amountCreate else 0
+
     var applicationCode: Long = 0
         private set
 

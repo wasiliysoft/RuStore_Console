@@ -120,7 +120,7 @@ class PurchaseViewModel : ViewModel() {
         return PurchaseListItem(
             invoiceDateStr = invoiceDateStr,
             applicationCode = applicationCode,
-            amountCurrent = amountCreate,
+            amountCurrent = amountCurrent,
             invoiceId = invoiceId,
             productName = if (visualName == "Покупка приложения") null else productName,
             applicationName = applicationName
