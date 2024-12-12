@@ -74,8 +74,7 @@ class ReviewViewModel : ViewModel() {
     }
 
     private suspend fun loadReviews(appInfo: AppInfo): List<Review> = withContext(Dispatchers.IO) {
-        val url = "https://backapi.rustore.ru/devs/app/${appInfo.appId}/comment"
-        return@withContext api.getReviews(url = url).body.reviews.map {
+        return@withContext api.getReviews("${appInfo.appId}").body.reviews.map {
             Review(
                 appInfo = appInfo,
                 userReview = it
@@ -93,7 +92,8 @@ class ReviewViewModel : ViewModel() {
             val appId = review.appInfo.appId
             val commentId = review.userReview.commentId
             val result = RetrofitClient.api.sendDevResponse(
-                url = "https://backapi.rustore.ru/devs/app/$appId/comment/$commentId/devresponse",
+                appId = "$appId",
+                commentId = "$commentId",
                 body = requestBody
             )
             if (result.code() == 200) loadReviews()

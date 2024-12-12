@@ -26,7 +26,7 @@ object RetrofitClient {
         .build()
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://pay-backapi.rustore.ru/")
+        .baseUrl("https://api.rustore.ru/")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()

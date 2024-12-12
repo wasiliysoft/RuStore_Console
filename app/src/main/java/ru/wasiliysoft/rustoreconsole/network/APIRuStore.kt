@@ -6,6 +6,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 import ru.wasiliysoft.rustoreconsole.data.AuthTokenResp
@@ -18,9 +19,10 @@ interface APIRuStore {
      * @param dateFrom формат YYYY-MM-DD
      * @param dateTo формат YYYY-MM-DD
      */
-    @GET
+
+    @GET("invoices-history/public/v1/apps/{appId}/invoice-payments")
     suspend fun getInvoices(
-        @Url url: String,
+        @Path("appId") appId: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Query("dateFrom") dateFrom: String,
@@ -28,22 +30,23 @@ interface APIRuStore {
         @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
     ): InvoicesResp
 
-    @GET
+    @GET("/feedbacks/devs/app/{appId}/comment")
     suspend fun getReviews(
-        @Url url: String,
+        @Path("appId") appId: String,
         @Query("pageSize") pageSize: Int = 20,
         @Query("pageNumber") pageNumber: Int = 0,
     ): ReviewsResp
 
-    @GET
-    suspend fun getPaymentStats(@Url url: String): PaymentResp
+    @GET("invoices-history/public/v1/apps/{appId}/invoice-payments/statistics")
+    suspend fun getPaymentStats(@Path("appId") appId: String): PaymentResp
 
     @GET
     suspend fun getRetrieveUserApps(@Url url: String): ResponseBody
 
-    @POST
+    @POST("feedbacks/devs/app/{appId}/comment/{commentId}/devresponse")
     suspend fun sendDevResponse(
-        @Url url: String,
+        @Path("appId") appId: String,
+        @Path("commentId") commentId: String,
         @Body body: RequestBody
     ): Response<ResponseBody>
 

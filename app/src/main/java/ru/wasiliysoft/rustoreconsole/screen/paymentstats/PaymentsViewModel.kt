@@ -40,8 +40,7 @@ class PaymentsViewModel : ViewModel() {
             }
             appIds.forEach { appInfo ->
                 try {
-                    val url = "https://backapi.rustore.ru/statistics/${appInfo.appId}/payment"
-                    val resp = api.getPaymentStats(url)
+                    val resp = api.getPaymentStats("${appInfo.appId}")
                     resp.body["income"]
                         ?.get("sum")
                         ?.get("overallSum")
@@ -56,7 +55,7 @@ class PaymentsViewModel : ViewModel() {
                         }
                     //TODO Сервер чувствителен к частоте запросов, было бы хорошо блокировать кнопку
                     // "обновить" на 10-15 секунд в случае кода HTTP 429
-                    delay(3000)
+                    delay(1000)
                 } catch (e: Exception) {
                     _overallSum.postValue(LoadingResult.Error(e))
                     e.printStackTrace()

@@ -99,7 +99,7 @@ class PurchaseViewModel : ViewModel() {
 
         val querySize = 250
         val result = api.getInvoices(
-            url = "https://api.rustore.ru/invoices-history/public/v1/apps/${appInfo.appId}/invoice-payments",
+            appId = "${appInfo.appId}",
             page = page,
             dateFrom = dateFrom,
             dateTo = dateTo,
