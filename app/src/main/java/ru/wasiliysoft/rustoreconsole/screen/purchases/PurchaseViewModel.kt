@@ -75,6 +75,7 @@ class PurchaseViewModel : ViewModel() {
                         }
                     }
                 }.joinAll()
+                delay(1000)
             }
             val purchaseMap = list.toPurchaseMap()
             _amountSumPerMonth.postValue(purchaseMap.toAmountSumPerMonth())
