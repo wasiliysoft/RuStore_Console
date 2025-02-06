@@ -1,8 +1,10 @@
 package ru.wasiliysoft.rustoreconsole.screen.reviews
 
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,11 +18,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,40 +33,40 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.UserReview
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
-import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
 import ru.wasiliysoft.rustoreconsole.ui.view.RateStarView
-import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Error
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Success
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewsScreen(
     modifier: Modifier = Modifier,
-    viewModel: ReviewViewModel = viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity),
+    viewModel: ReviewViewModel = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity),
     onClickItem: (commentId: Long) -> Unit = {}
 ) {
     Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
-        val uiSate = viewModel.reviews
-            .observeAsState(Loading(""))
-            .value
-
         Column(
-            modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+            val uiSate = viewModel.reviews.observeAsState(Loading("")).value
+            val state = rememberPullToRefreshState()
+            PullToRefreshBox(
+                state = state,
+                isRefreshing = uiSate is Loading,
+                onRefresh = viewModel::loadReviews
             ) {
                 when (uiSate) {
-                    is Loading -> ProgressView(uiSate.description)
+                    is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = uiSate.description)
+                    }
+
                     is Success -> ReviewListView(reviews = uiSate.data, onClickItem = onClickItem)
                     is Error -> ErrorTextView(exception = uiSate.exception)
                 }
             }
-            RefreshButton(viewModel::loadReviews)
         }
     }
 }

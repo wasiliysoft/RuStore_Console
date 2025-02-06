@@ -6,17 +6,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -27,30 +27,34 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
-import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PurchasesScreen(
     modifier: Modifier = Modifier,
     viewModel: PurchaseViewModel = viewModel(),
 ) {
     Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
-        val uiSate = viewModel.purchasesByDays.observeAsState(Loading("")).value
-        val amountSums = viewModel.amountSumPerMonth.observeAsState(emptyList()).value
         Column(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+            val uiSate = viewModel.purchasesByDays.observeAsState(Loading("")).value
+            val amountSums = viewModel.amountSumPerMonth.observeAsState(emptyList()).value
+            val state = rememberPullToRefreshState()
+            PullToRefreshBox(
+                state = state,
+                isRefreshing = uiSate is Loading,
+                onRefresh = viewModel::load
             ) {
                 when (uiSate) {
-                    is Loading -> ProgressView(uiSate.description)
+                    is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = uiSate.description)
+                    }
+
                     is LoadingResult.Success -> PurchaseListView(
                         purchases = uiSate.data,
                         amountSums = amountSums
@@ -59,21 +63,10 @@ fun PurchasesScreen(
                     is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
                 }
             }
-            RefreshButton(viewModel::load)
         }
     }
 }
 
-@Composable
-private fun ProgressView(description: String, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator()
-            Spacer(modifier = Modifier.width(16.dp))
-            Text(text = description)
-        }
-    }
-}
 
 @Composable
 private fun PurchaseListView(

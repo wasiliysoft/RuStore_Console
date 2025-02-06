@@ -2,6 +2,7 @@ package ru.wasiliysoft.rustoreconsole.screen.apps
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +25,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -35,48 +38,42 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
-import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
-import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
+import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ApplicationListScreen(
     modifier: Modifier = Modifier,
-    viewModel: ApplicationListViewModel = viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity),
+    viewModel: ApplicationListViewModel = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity),
 ) {
     Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
-        val uiSate = viewModel.list.observeAsState(Loading(""))
         Column(
             modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+            val uiSate = viewModel.list.observeAsState(Loading("")).value
+            val state = rememberPullToRefreshState()
+            PullToRefreshBox(
+                state = state,
+                isRefreshing = uiSate is Loading,
+                onRefresh = viewModel::load
             ) {
-                when (uiSate.value) {
-                    is Loading -> {
-                        ProgressView((uiSate.value as Loading).description)
+                when (uiSate) {
+                    is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = uiSate.description)
                     }
 
                     is LoadingResult.Success -> {
-                        val result = (uiSate.value as LoadingResult.Success)
-                        if (result.comment.isNotEmpty()) {
-                            Text(text = result.comment)
+                        if (uiSate.comment.isNotEmpty()) {
+                            Text(text = uiSate.comment)
                         }
-                        ListView(data = result.data)
+                        ListView(data = uiSate.data)
                     }
 
-                    is LoadingResult.Error -> {
-                        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            val e = (uiSate.value as LoadingResult.Error).exception
-                            Text(text = e.message ?: "Неизвестная ошибка: $e")
-                        }
-                    }
+                    is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
                 }
             }
-            RefreshButton(viewModel::load)
         }
     }
 }

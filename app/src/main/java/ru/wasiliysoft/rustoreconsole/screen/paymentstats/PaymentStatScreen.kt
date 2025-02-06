@@ -14,9 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -26,8 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.Stats
-import ru.wasiliysoft.rustoreconsole.ui.view.ProgressView
-import ru.wasiliysoft.rustoreconsole.ui.view.RefreshButton
+import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 
@@ -37,24 +39,27 @@ data class AppStats(
     val overallSum: Stats
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentStatScreen(
     modifier: Modifier = Modifier,
     viewModel: PaymentsViewModel = viewModel(),
 ) {
     Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
-        val uiSate = viewModel.overallSum.observeAsState(Loading("")).value
-
         Column(
             modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+            val uiSate = viewModel.overallSum.observeAsState(Loading("")).value
+            val state = rememberPullToRefreshState()
+            PullToRefreshBox(
+                state = state,
+                isRefreshing = uiSate is Loading,
+                onRefresh = viewModel::load
             ) {
                 when (uiSate) {
-                    is Loading -> ProgressView(uiSate.description)
+                    is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = uiSate.description)
+                    }
 
                     is LoadingResult.Success -> {
                         if (uiSate.comment.isNotEmpty()) {
@@ -63,15 +68,9 @@ fun PaymentStatScreen(
                         ListView(data = uiSate.data)
                     }
 
-                    is LoadingResult.Error -> {
-                        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            val e = uiSate.exception
-                            Text(text = e.message ?: "Неизвестная ошибка: $e")
-                        }
-                    }
+                    is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
                 }
             }
-            RefreshButton(viewModel::load)
         }
     }
 }
