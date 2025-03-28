@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,8 @@ import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
+import java.time.LocalDate
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,6 +86,7 @@ private fun PurchaseListView(
         itemsIndexed(items = amountSums, key = { _, item -> item.first }) { index, item ->
             val paddingValues = PaddingValues(horizontal = 8.dp)
             if (index == 0) {
+                PredictionItem(item, modifier = Modifier.padding(paddingValues))
                 Text(
                     text = "Сводные суммы",
                     fontWeight = FontWeight.Bold,
@@ -105,6 +110,37 @@ private fun PurchaseListView(
                 }
                 PurchaseItem(purchase)
             }
+        }
+    }
+}
+
+@Composable
+private fun PredictionItem(
+    amountPerMonth: Pair<String, Int>,
+    modifier: Modifier = Modifier
+) {
+    val dayOfMonth = LocalDate.now().dayOfMonth
+    val calendar: Calendar = Calendar.getInstance()
+    val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+    if (dayOfMonth < daysInMonth) {
+        Column(modifier = modifier.fillMaxWidth()) {
+            Text(
+                text = "Прогноз",
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .padding(bottom = 16.dp)
+            )
+            Row(modifier = Modifier.fillMaxWidth()) {
+                val predictionAmount = amountPerMonth.second / dayOfMonth * daysInMonth
+                Text(text = "За текущий месяц", modifier = Modifier.weight(1f))
+                Text(text = String.format("%,d", predictionAmount) + "р")
+            }
+            Row(modifier = Modifier.fillMaxWidth()) {
+                val averageAmount = amountPerMonth.second / dayOfMonth
+                Text(text = "Среднее за день", modifier = Modifier.weight(1f))
+                Text(text = String.format("%,d", averageAmount) + "р")
+            }
+            Spacer(modifier = Modifier.size(16.dp))
         }
     }
 }
