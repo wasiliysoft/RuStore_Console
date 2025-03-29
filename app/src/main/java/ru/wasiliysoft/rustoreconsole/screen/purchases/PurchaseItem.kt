@@ -1,7 +1,13 @@
 package ru.wasiliysoft.rustoreconsole.screen.purchases
 
+import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +27,13 @@ import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import ru.wasiliysoft.rustoreconsole.utils.toMediumTimeString
 
 
+private fun copyKeyToClipBoard(activity: Activity, str: String) {
+    val clipboardManager = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clipData = ClipData.newPlainText("invoiceId", str)
+    clipboardManager.setPrimaryClip(clipData)
+    Toast.makeText(activity, "copy: $str", Toast.LENGTH_SHORT).show()
+}
+
 @Composable
 fun PurchaseItem(
     purchase: PurchaseListItem,
@@ -28,6 +41,7 @@ fun PurchaseItem(
 ) {
     val date = purchase.invoiceDate
     val context = LocalContext.current
+    val activity = LocalActivity.current
     val cardColors =
         if (purchase.amountCurrent == 0) CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer
@@ -38,7 +52,10 @@ fun PurchaseItem(
         onClick = {
             val app = purchase.applicationCode
             val invoceId = purchase.invoiceId
-            val url = "https://console.rustore.ru/apps/$app/payments/$invoceId"
+            activity?.let {
+                copyKeyToClipBoard(activity = it, invoceId.toString())
+            }
+            val url = "https://console.rustore.ru/apps/$app/payments/"
             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
         }
     ) {
