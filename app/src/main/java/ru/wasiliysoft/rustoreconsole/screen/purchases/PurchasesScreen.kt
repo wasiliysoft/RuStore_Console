@@ -4,13 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,6 +35,8 @@ import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
+import java.util.Calendar
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,10 +62,14 @@ fun PurchasesScreen(
                         Text(text = uiSate.description)
                     }
 
-                    is LoadingResult.Success -> PurchaseListView(
-                        purchases = uiSate.data,
-                        amountSums = amountSums
-                    )
+                    is LoadingResult.Success -> {
+                        PurchaseListView(
+                            purchases = uiSate.data,
+                            amountSums = amountSums,
+                            avgDaylyAmmount = viewModel.avgSumm.value
+                        )
+
+                    }
 
                     is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
                 }
@@ -72,6 +83,7 @@ fun PurchasesScreen(
 private fun PurchaseListView(
     purchases: PurchaseMap,
     amountSums: AmountSumPerMonth,
+    avgDaylyAmmount: Int,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -79,18 +91,18 @@ private fun PurchaseListView(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
     ) {
-        itemsIndexed(items = amountSums, key = { _, item -> item.first }) { index, item ->
-            val paddingValues = PaddingValues(horizontal = 8.dp)
-            if (index == 0) {
-                Text(
-                    text = "Сводные суммы",
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .padding(paddingValues)
-                        .padding(bottom = 16.dp)
-                )
+        item {
+            TitledCard(title = "Прогноз") {
+                PredictionItem(avgDaylyAmmount, modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp))
             }
-            AmountPerMonthItem(item, modifier = Modifier.padding(paddingValues))
+            Spacer(Modifier.size(8.dp))
+        }
+        item {
+            TitledCard(title = "Фактические суммы") {
+                amountSums.forEach {
+                    AmountPerMonthItem(it, modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp))
+                }
+            }
         }
 
         purchases.forEach { purchasesPerDay ->
@@ -107,6 +119,51 @@ private fun PurchaseListView(
             }
         }
     }
+}
+
+@Composable
+private fun TitledCard(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Card(modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)) {
+        Row(
+            Modifier
+                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                .fillMaxWidth()
+        ) {
+            Text(text = title, fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
+        }
+        Spacer(Modifier.size(8.dp))
+        Column {
+            content()
+        }
+        Spacer(Modifier.size(8.dp))
+    }
+}
+
+@Composable
+private fun PredictionItem(
+    avgDaylyAmmount: Int,
+    modifier: Modifier = Modifier
+) {
+    val calendar = Calendar.getInstance()
+    val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            Text(text = "Средн.cут. сумма (28 д.)", modifier = Modifier.weight(1f))
+            Text(text = String.format("%,d", avgDaylyAmmount) + "р")
+        }
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            val predictionAmount = avgDaylyAmmount * daysInMonth
+            val mName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG_STANDALONE, Locale.getDefault())
+            Text(text = "Прогноз на $mName", modifier = Modifier.weight(1f))
+            Text(text = String.format("%,d", predictionAmount) + "р")
+        }
+    }
+
 }
 
 @Composable
@@ -153,5 +210,5 @@ private fun Preview() {
     }.groupBy {
         it.invoiceDate.toMediumDateString()
     }
-    PurchaseListView(purchases = data, amountSums = emptyList())
+    PurchaseListView(purchases = data, amountSums = emptyList(), avgDaylyAmmount = 100)
 }

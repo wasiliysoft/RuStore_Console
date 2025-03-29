@@ -1,6 +1,8 @@
 package ru.wasiliysoft.rustoreconsole.screen.purchases
 
 import android.util.Log
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,8 +21,9 @@ import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import ru.wasiliysoft.rustoreconsole.utils.calculateAverageDailyAmmount
+import ru.wasiliysoft.rustoreconsole.utils.toAmountSumPerMonth
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
-import ru.wasiliysoft.rustoreconsole.utils.toYearAndMonthString
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.atomic.AtomicInteger
@@ -41,6 +44,9 @@ class PurchaseViewModel : ViewModel() {
 
     private val _amountSumPerMonth = MutableLiveData<AmountSumPerMonth>(emptyList())
     val amountSumPerMonth: LiveData<AmountSumPerMonth> = _amountSumPerMonth
+
+    private val _avgSumm = mutableIntStateOf(0)
+    val avgSumm: State<Int> = _avgSumm
 
     private val errorHandler = CoroutineExceptionHandler { _, exception ->
         _purchasesByDays.postValue(LoadingResult.Error(Exception(exception.message, exception)))
@@ -69,8 +75,8 @@ class PurchaseViewModel : ViewModel() {
                         val purchases = query(appInfo)
                         mutex.withLock {
                             val msg = "Загружено ${progress.incrementAndGet()} из ${appIds.size}..."
-                            val steta = LoadingResult.Loading(msg)
-                            _purchasesByDays.postValue(steta)
+                            val state = LoadingResult.Loading(msg)
+                            _purchasesByDays.postValue(state)
                             list.addAll(purchases)
                         }
                     }
@@ -81,6 +87,7 @@ class PurchaseViewModel : ViewModel() {
             _amountSumPerMonth.postValue(purchaseMap.toAmountSumPerMonth())
             val result = LoadingResult.Success(purchaseMap)
             _purchasesByDays.postValue(result)
+            _avgSumm.intValue = purchaseMap.calculateAverageDailyAmmount()
         }
     }
 
@@ -131,15 +138,6 @@ class PurchaseViewModel : ViewModel() {
     private fun List<Invoice>.toPurchaseMap(): PurchaseMap {
         return map { it.mapToUi() }.sortedByDescending { it.invoiceDate }.groupBy {
             it.invoiceDate.toMediumDateString()
-        }
-    }
-
-    private suspend fun PurchaseMap.toAmountSumPerMonth(): AmountSumPerMonth {
-        return withContext(Dispatchers.Default) {
-            return@withContext values.flatten()
-                .groupBy { it.invoiceDate.toYearAndMonthString() }
-                .map { entry -> Pair(entry.key, entry.value.sumOf { it.amountCurrent / 100 }) }
-                .sortedByDescending { it.first }
         }
     }
 }
