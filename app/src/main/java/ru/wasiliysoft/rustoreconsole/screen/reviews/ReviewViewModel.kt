@@ -74,7 +74,7 @@ class ReviewViewModel : ViewModel() {
     }
 
     private suspend fun loadReviews(appInfo: AppInfo): List<Review> = withContext(Dispatchers.IO) {
-        return@withContext api.getReviews("${appInfo.appId}").body.reviews.map {
+        return@withContext api.getReviews("${appInfo.appId}").reviews.map {
             Review(
                 appInfo = appInfo,
                 userReview = it

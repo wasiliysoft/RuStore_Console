@@ -30,11 +30,10 @@ interface APIRuStore {
         @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
     ): InvoicesResp
 
-    @GET("/feedbacks/devs/app/{appId}/comment")
+    @GET("/v2/dev-console/devs/apps/{appId}/feedbacks")
     suspend fun getReviews(
         @Path("appId") appId: String,
-        @Query("pageSize") pageSize: Int = 20,
-        @Query("pageNumber") pageNumber: Int = 0,
+        @Query("limit") limit: Int = 20,
     ): ReviewsResp
 
     @GET("invoices-history/public/v1/apps/{appId}/invoice-payments/statistics")
@@ -62,3 +61,26 @@ interface APIRuStore {
         @Url url: String
     ): Response<Any>
 }
+
+// Пожаловаться
+//fetch("https://api.rustore.ru/feedbacks/devs/app/2063589727/comment/2375687014/complaint", {
+//    "headers": {
+//        "accept": "*/*",
+//        "accept-language": "ru,en;q=0.9",
+//        "authorization": "vk1.a.",
+//        "console-accept-language": "ru",
+//        "sec-ch-ua": "\"Chromium\";v=\"148\", \"YaBrowser\";v=\"26.6\", \"Not/A)Brand\";v=\"99\", \"Yowser\";v=\"2.5\"",
+//        "sec-ch-ua-mobile": "?0",
+//        "sec-ch-ua-platform": "\"Windows\"",
+//        "sec-fetch-dest": "empty",
+//        "sec-fetch-mode": "cors",
+//        "sec-fetch-site": "same-site"
+//    },
+//    "referrer": "https://console.rustore.ru/",
+//    "body": null,
+//    "method": "POST",
+//    "mode": "cors",
+//    "credentials": "include"
+//});
+// Ответ
+// {"code":"OK","message":"OK","body":null,"timestamp":"2026-08-20T14:54:51.180Z"}

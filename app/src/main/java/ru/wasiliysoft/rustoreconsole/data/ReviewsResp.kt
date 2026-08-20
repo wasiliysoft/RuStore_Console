@@ -5,16 +5,9 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 data class ReviewsResp(
-    @SerializedName("code")
-    val code: String,
-    @SerializedName("message")
-    val message: String,
-    @SerializedName("body")
-    val body: Reviews
-)
-
-data class Reviews(
-    @SerializedName("content")
+    @SerializedName("elementsCount")
+    val elementsCount: Int,
+    @SerializedName("elements")
     val reviews: List<UserReview>
 )
 
