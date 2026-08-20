@@ -1,18 +1,18 @@
+import org.jetbrains.kotlin.gradle.targets.js.npm.SemVer.Companion.from
+
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.compose.compiler)
 }
 apply { from("signingConfigs.gradle") }
 
 android {
     namespace = "ru.wasiliysoft.rustoreconsole"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "ru.wasiliysoft.rustoreconsole"
         minSdk = 26
-        targetSdk = 34
         versionCode = 22
         versionName = "2.3.0"
 
@@ -34,15 +34,17 @@ android {
         }
         debug {
             applicationIdSuffix = ".debug"
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-    }
+
     buildFeatures {
         compose = true
         buildConfig = true
@@ -85,7 +87,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test.junit4)
 
     // appmetrica
