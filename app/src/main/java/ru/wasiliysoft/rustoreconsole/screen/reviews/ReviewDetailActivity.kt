@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
@@ -66,7 +68,10 @@ fun ReviewDetailScreen(review: Review, onSend: (comment: String) -> Unit) {
         ReviewDetailItem(review = review, modifier = Modifier.weight(1f),
             onEnterEditComment = { onChange(it) })
         Surface(
-            tonalElevation = 4.dp
+            tonalElevation = 4.dp,
+            modifier = Modifier
+                .navigationBarsPadding() // Отступ снизу для системной полосы навигации
+                .imePadding()           // МАГИЯ: Автоматически поднимает поле над клавиатурой!
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

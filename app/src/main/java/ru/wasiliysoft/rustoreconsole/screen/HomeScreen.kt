@@ -2,6 +2,7 @@ package ru.wasiliysoft.rustoreconsole.screen
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -50,7 +51,7 @@ fun HomeScreen() {
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding).consumeWindowInsets(innerPadding)
         ) {
             composable(route = AppList.route) { ApplicationListScreen() }
             composable(route = Purchases.route) { PurchasesScreen() }
