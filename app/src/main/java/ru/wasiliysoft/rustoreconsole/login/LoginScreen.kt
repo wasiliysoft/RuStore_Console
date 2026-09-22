@@ -10,6 +10,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.viewinterop.AndroidView
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
@@ -19,7 +20,7 @@ const val TAG = "LoginScreen"
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun LoginScreen(onTokedReceived: (uuid: String, token: String) -> Unit) {
+fun LoginScreen(onTokedReceived: (uuid: String, token: String) -> Unit, modefier: Modifier = Modifier) {
     val mUrl = "https://console.rustore.ru/sign-in"
     val regexUuid = "(?<=\\\"uuid\\\":\\\")[^\\\"]*".toRegex()
     val regexToken = "(?<=\\\"token\\\":\\\")[^\\\"]*".toRegex()
@@ -53,7 +54,7 @@ fun LoginScreen(onTokedReceived: (uuid: String, token: String) -> Unit) {
         }
     }, update = {
 //        it.loadUrl(mUrl)
-    })
+    }, modifier = modefier)
 }
 
 

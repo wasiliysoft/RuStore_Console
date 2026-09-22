@@ -107,6 +107,8 @@ fun Logout() {
                         } catch (e: Exception) {
                             msg = e.message.toString()
                             e.printStackTrace()
+                        } finally {
+                            PrefHelper.getInstance().token = ""
                         }
                         withContext(Dispatchers.Main) {
                             isShow = false

@@ -5,6 +5,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.wasiliysoft.rustoreconsole.network.interceptor.DemoMockInterceptor
 
 
 object RetrofitClient {
@@ -23,6 +24,7 @@ object RetrofitClient {
 
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
+        .addInterceptor(DemoMockInterceptor())
         .build()
 
     private val retrofit = Retrofit.Builder()
