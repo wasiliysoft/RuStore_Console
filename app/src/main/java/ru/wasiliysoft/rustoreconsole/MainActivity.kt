@@ -1,5 +1,6 @@
 package ru.wasiliysoft.rustoreconsole
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -27,10 +28,14 @@ class MainActivity : ComponentActivity() {
 
     private val launcherLoginActivity = registerForActivityResult(LoginActivity.Contract()) {
         if (it.isNotEmpty()) {
-            Toast.makeText(this, "Auth success, restart app", Toast.LENGTH_LONG).show()
             ph.token = it
-            RetrofitClient.token = it
-            appListVM.load()
+            Toast.makeText(this, "Success", Toast.LENGTH_LONG).show()
+            // Полный перезапуск текущей активити с очисткой стека
+            val intent = intent // Получаем интент, которым была открыта ТЕКУЩАЯ активити
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+            startActivity(intent)
+            finish()
         }
     }
 
