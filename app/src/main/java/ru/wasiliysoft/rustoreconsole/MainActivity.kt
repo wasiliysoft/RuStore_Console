@@ -11,9 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
@@ -59,13 +63,17 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        appListVM.list.observe(this) { result ->
-            Log.d(LOG_TAG, result.toString())
-            //FIXME работает не стабильно (issue #6)
-            if (result is LoadingResult.Error
-                && result.exception.message.toString().trim().contains("HTTP 401")
-            ) {
-                onFailureAuth()
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                appListVM.appsState.collect { result ->
+                    Log.d(LOG_TAG, result.toString())
+                    //FIXME работает не стабильно (issue #6)
+                    if (result is LoadingResult.Error
+                        && result.exception.message.toString().trim().contains("HTTP 401")
+                    ) {
+                        onFailureAuth()
+                    }
+                }
             }
         }
     }

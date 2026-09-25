@@ -28,7 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -52,12 +52,12 @@ fun ApplicationListScreen(
         Column(
             modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val uiSate = viewModel.list.observeAsState(Loading("")).value
+            val uiSate = viewModel.appsState.collectAsState().value
             val state = rememberPullToRefreshState()
             PullToRefreshBox(
                 state = state,
                 isRefreshing = uiSate is Loading,
-                onRefresh = viewModel::load
+                onRefresh = viewModel::refreshData
             ) {
                 when (uiSate) {
                     is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
