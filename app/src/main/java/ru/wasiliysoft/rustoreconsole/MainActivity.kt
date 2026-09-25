@@ -58,7 +58,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     NavHost(navController = navController, startDestination = NavGraph.Home.name) {
-                        composable(NavGraph.Home.name) { HomeScreen() }
+                        composable(NavGraph.Home.name) {
+                            HomeScreen(appListViewMOdel = appListVM)
+                        }
                     }
                 }
             }

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
@@ -19,6 +20,18 @@ class ApplicationListViewModel : ViewModel() {
 
     private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply {
         tryEmit(Unit)
+    }
+
+    private val selectedApp = MutableSharedFlow<AppInfo?>(replay = 1).apply { tryEmit(null) }
+
+    val selectedAppState: StateFlow<AppInfo?> = selectedApp.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
+
+    fun selectApp(appInfo: AppInfo?) {
+        selectedApp.tryEmit(appInfo)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -41,6 +54,14 @@ class ApplicationListViewModel : ViewModel() {
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = LoadingResult.Loading("Загружаем...")
+        )
+
+    val appsList: StateFlow<List<AppInfo>> = appsState
+        .map { result -> if (result is LoadingResult.Success) result.data else emptyList() }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList() // Начальное значение — пустой список
         )
 
     fun refreshData() {
