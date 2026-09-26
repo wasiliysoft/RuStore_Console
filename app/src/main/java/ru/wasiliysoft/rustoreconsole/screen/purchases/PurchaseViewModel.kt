@@ -35,7 +35,7 @@ import kotlin.time.Duration.Companion.milliseconds
 // key = day as String
 typealias PurchaseMap = Map<String, List<PurchaseListItem>>
 
-typealias AmountSumPerMonth = List<Pair<String, Int>>
+typealias AmountPerMonth = List<Pair<String, Int>>
 
 class PurchaseViewModel : ViewModel() {
     private val LOG_TAG = "PurchaseViewModel"
@@ -121,18 +121,32 @@ class PurchaseViewModel : ViewModel() {
         )
 
 
-    val amountSumPerMonth: StateFlow<AmountSumPerMonth> = purchasesByDays.map { result ->
+    val amountPerMonth: StateFlow<AmountPerMonth> = _purchasesByDays.map { result ->
         if (result is LoadingResult.Success) result.data.toAmountSumPerMonth() else emptyList()
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
         .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
 
-    val avgSumm: StateFlow<Int> = purchasesByDays.map { result ->
+    val avgSumm: StateFlow<Int> = _purchasesByDays.map { result ->
         if (result is LoadingResult.Success) result.data.calculateAverageDailyAmmount() else 0
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
         .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = 0)
 
+
+    val avgSummByApp: StateFlow<Map<String, Int>> = _purchasesByDays.map { result ->
+        val map: Map<String, Int> = repo.fromStorage()?.associate { appInfo ->
+            val summ = if (result is LoadingResult.Success) result.data.calculateAverageDailyAmmount(appCode = appInfo.appId) else 0
+            return@associate Pair(appInfo.appName, summ)
+        } ?: emptyMap()
+        return@map map
+    }
+        .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
 
     /**
      * Рекурсивная постраничкая загрузка платежей

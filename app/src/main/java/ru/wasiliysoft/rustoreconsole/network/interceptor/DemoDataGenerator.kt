@@ -35,12 +35,12 @@ object DemoDataGenerator {
         val dailyWeight: Double             // вес для "сегодня"
     )
 
-    private val profiles = List(6) {
+    private val profiles = List(3) {
         val index = it + 1
         AppProfile(
             appId = "20$index",
             packageName = "ru.wasiliysoft.app$index",
-            appName = "My $index demo app name",
+            appName = "My $index demo app long loooooooong test name",
             shortDescription = "My $index demo app name - app small description",
             companyName = "First name developer",
             companyId = 101,

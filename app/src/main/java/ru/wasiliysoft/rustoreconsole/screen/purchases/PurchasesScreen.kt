@@ -25,7 +25,9 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,7 +38,6 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 import java.util.Calendar
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,29 +50,33 @@ fun PurchasesScreen(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val uiSate = viewModel.purchasesByDays.collectAsStateWithLifecycle(Loading("")).value
-            val amountSums = viewModel.amountSumPerMonth.collectAsStateWithLifecycle(emptyList()).value
+            val loadingResult = viewModel.purchasesByDays.collectAsStateWithLifecycle().value
+
             val state = rememberPullToRefreshState()
             PullToRefreshBox(
                 state = state,
-                isRefreshing = uiSate is Loading,
+                isRefreshing = loadingResult is Loading,
                 onRefresh = viewModel::load
             ) {
-                when (uiSate) {
+                when (loadingResult) {
                     is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(text = uiSate.description)
+                        Text(text = loadingResult.description)
                     }
 
                     is LoadingResult.Success -> {
+                        val purchases = loadingResult.data
+                        val amountDaylyAvg = viewModel.avgSumm.collectAsStateWithLifecycle().value
+                        val amountPerMonth = viewModel.amountPerMonth.collectAsStateWithLifecycle().value
+                        val amountDaylyByAppAvg = viewModel.avgSummByApp.collectAsStateWithLifecycle().value
                         PurchaseListView(
-                            purchases = uiSate.data,
-                            amountSums = amountSums,
-                            avgDaylyAmmount = viewModel.avgSumm.collectAsStateWithLifecycle().value
+                            purchases = purchases,
+                            amountDaylyAvg = amountDaylyAvg,
+                            amountPerMonth = amountPerMonth,
+                            amountDaylyByAppAvg = amountDaylyByAppAvg
                         )
-
                     }
 
-                    is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
+                    is LoadingResult.Error -> ErrorTextView(exception = loadingResult.exception)
                 }
             }
         }
@@ -82,9 +87,10 @@ fun PurchasesScreen(
 @Composable
 private fun PurchaseListView(
     purchases: PurchaseMap,
-    amountSums: AmountSumPerMonth,
-    avgDaylyAmmount: Int,
-    modifier: Modifier = Modifier
+    amountPerMonth: AmountPerMonth,
+    amountDaylyAvg: Int,
+    modifier: Modifier = Modifier,
+    amountDaylyByAppAvg: Map<String, Int>,
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -92,15 +98,23 @@ private fun PurchaseListView(
         modifier = modifier
     ) {
         item {
-            TitledCard(title = "Прогноз") {
-                PredictionItem(avgDaylyAmmount, modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp))
+            TitledCard(title = "Фактические суммы") {
+                amountPerMonth.forEach {
+                    AmountPerMonthItem(it)
+                }
             }
             Spacer(Modifier.size(8.dp))
         }
         item {
-            TitledCard(title = "Фактические суммы") {
-                amountSums.forEach {
-                    AmountPerMonthItem(it, modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp))
+            TitledCard(title = "Прогноз на основе средн. за 28 д.") {
+                PredictionItem(amountDaylyAvg)
+            }
+            Spacer(Modifier.size(8.dp))
+        }
+        item {
+            TitledCard(title = "Средн.cут. сумма за 28 д.") {
+                amountDaylyByAppAvg.forEach {
+                    AmountPerMonthItem(it.toPair())
                 }
             }
         }
@@ -150,30 +164,23 @@ private fun PredictionItem(
 ) {
     val calendar = Calendar.getInstance()
     val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-    Column(modifier = modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(text = "Средн.cут. сумма (28 д.)", modifier = Modifier.weight(1f))
-            Text(text = String.format("%,d", avgDaylyAmmount) + "р")
-        }
-        Spacer(modifier = Modifier.size(8.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            val predictionAmount = avgDaylyAmmount * daysInMonth
-            val mName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG_STANDALONE, Locale.getDefault())
-            Text(text = "Прогноз на $mName", modifier = Modifier.weight(1f))
-            Text(text = String.format("%,d", predictionAmount) + "р")
-        }
-    }
+    val predictionAmount = avgDaylyAmmount * daysInMonth
+    val mName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG_STANDALONE, LocalLocale.current.platformLocale)
 
+    Column(modifier = modifier.fillMaxWidth()) {
+        AmountPerMonthItem(Pair("Среднесуточная сумма", avgDaylyAmmount))
+        AmountPerMonthItem(Pair("Прогноз на $mName", predictionAmount))
+    }
 }
 
 @Composable
 private fun AmountPerMonthItem(
     amountPerMonth: Pair<String, Int>,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp).fillMaxWidth()
 ) {
-    Row(modifier = modifier.fillMaxWidth()) {
-        Text(text = amountPerMonth.first, modifier = Modifier.weight(1f))
-        Text(text = String.format("%,d", amountPerMonth.second) + "р")
+    Row(modifier = modifier) {
+        Text(text = amountPerMonth.first, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text = String.format("%,d", amountPerMonth.second) + "р", modifier = Modifier.padding(start = 8.dp))
     }
 }
 
@@ -210,5 +217,10 @@ private fun Preview() {
     }.groupBy {
         it.invoiceDate.toMediumDateString()
     }
-    PurchaseListView(purchases = data, amountSums = emptyList(), avgDaylyAmmount = 100)
+    PurchaseListView(
+        purchases = data,
+        amountPerMonth = emptyList(),
+        amountDaylyAvg = 100,
+        amountDaylyByAppAvg = emptyMap(),
+    )
 }

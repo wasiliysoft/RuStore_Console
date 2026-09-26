@@ -2,7 +2,7 @@ package ru.wasiliysoft.rustoreconsole.utils
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import ru.wasiliysoft.rustoreconsole.screen.purchases.AmountSumPerMonth
+import ru.wasiliysoft.rustoreconsole.screen.purchases.AmountPerMonth
 import ru.wasiliysoft.rustoreconsole.screen.purchases.PurchaseMap
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -13,7 +13,10 @@ import java.time.temporal.ChronoUnit
  * @param dayCount количество дней для расчета, по умочанию 28
  * @return средняя сумма по полю amountCurrent за день
  */
-fun PurchaseMap.calculateAverageDailyAmmount(dayCount: Int = 28): Int {
+fun PurchaseMap.calculateAverageDailyAmmount(
+    dayCount: Int = 28,
+    appCode: Long? = null
+): Int {
     if (dayCount <= 0 || isEmpty()) return 0
 
     // Получаем текущую дату в формате yyyy-MM-dd
@@ -31,15 +34,17 @@ fun PurchaseMap.calculateAverageDailyAmmount(dayCount: Int = 28): Int {
             try {
                 val date = purchase.invoiceDate.toLocalDate()
                 if (date in dateRange) {
-                    totalAmount += purchase.amountCurrent
-                    daysWithInvoices.add(date)
+                    if (appCode == null || purchase.applicationCode == appCode) {
+                        totalAmount += purchase.amountCurrent
+                        daysWithInvoices.add(date)
+                    }
                 }
             } catch (e: Exception) {
 
             }
         }
     }
-
+    if (daysWithInvoices.isEmpty()) return 0
     val upperDate = daysWithInvoices.max()
     val lowerDate = daysWithInvoices.min()
     val daysInnerSet = (ChronoUnit.DAYS.between(lowerDate, upperDate) + 1).toInt()
@@ -47,7 +52,7 @@ fun PurchaseMap.calculateAverageDailyAmmount(dayCount: Int = 28): Int {
     return totalAmount / 100 / daysInnerSet
 }
 
-suspend fun PurchaseMap.toAmountSumPerMonth(): AmountSumPerMonth {
+suspend fun PurchaseMap.toAmountSumPerMonth(): AmountPerMonth {
     return withContext(Dispatchers.Default) {
         return@withContext values.flatten()
             .groupBy { it.invoiceDate.toYearAndMonthString() }
