@@ -48,51 +48,50 @@ class PurchaseViewModel : ViewModel() {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _purchasesByDays: StateFlow<LoadingResult<PurchaseMap>> = refreshTrigger
-        .transformLatest {
-            val appIds = repo.fromStorage() ?: emptyList()
-            if (appIds.isEmpty()) {
-                emit(LoadingResult.Error(Exception("Список приложений пуст")))
-                return@transformLatest
-            }
-            val list = ConcurrentLinkedDeque<Invoice>()
-            val progress = AtomicInteger(0)
+    private val _purchasesByDays: StateFlow<LoadingResult<PurchaseMap>> = refreshTrigger.transformLatest {
+        val appIds = repo.fromStorage() ?: emptyList()
+        if (appIds.isEmpty()) {
+            emit(LoadingResult.Error(Exception("Список приложений пуст")))
+            return@transformLatest
+        }
+        val list = ConcurrentLinkedDeque<Invoice>()
+        val progress = AtomicInteger(0)
 
-            emit(LoadingResult.Loading("Загружаем..."))
+        emit(LoadingResult.Loading("Загружаем..."))
 
-            try {
-                appIds.chunked(3).forEach { idList ->
-                    coroutineScope {
-                        idList.forEach { appInfo ->
-                            launch(Dispatchers.IO) {
-                                val purchases = query(appInfo)
-                                list.addAll(purchases)
-                                val msg = "Загружено ${progress.incrementAndGet()} из ${appIds.size}..."
-                                val state = LoadingResult.Loading(msg)
-                                emit(state)
-                            }
+        try {
+            appIds.chunked(3).forEach { idList ->
+                coroutineScope {
+                    idList.forEach { appInfo ->
+                        launch {
+                            val purchases = query(appInfo)
+                            list.addAll(purchases)
+                            val msg = "Загружено ${progress.incrementAndGet()} из ${appIds.size}..."
+                            val state = LoadingResult.Loading(msg)
+                            emit(state)
                         }
-                        delay(1000.milliseconds)
                     }
+                    delay(1000.milliseconds)
                 }
-                val purchaseMap = list.toList().toPurchaseMap()
-                emit(LoadingResult.Success(purchaseMap))
-            } catch (e: Exception) {
-                emit(LoadingResult.Error(Exception(e.message, e)))
-                Log.e(LOG_TAG, e.message.toString())
-                e.printStackTrace()
             }
-        }.stateIn(
+            val purchaseMap = list.toList().toPurchaseMap()
+            emit(LoadingResult.Success(purchaseMap))
+        } catch (e: Exception) {
+            emit(LoadingResult.Error(Exception(e.message, e)))
+            Log.e(LOG_TAG, e.message.toString())
+            e.printStackTrace()
+        }
+    }
+        .flowOn(Dispatchers.IO)
+        .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = LoadingResult.Loading("Загружаем...")
         )
 
     val purchasesByDays: StateFlow<LoadingResult<PurchaseMap>> = combine(
-        _purchasesByDays,
-        repo.selectedApp // Слушаем триггер выбранного приложения из репозитория
+        _purchasesByDays, repo.selectedApp // Слушаем триггер выбранного приложения из репозитория
     ) { loadingResult, selectedApp ->
-
         // Фильтруем только если сеть успешно вернула данные (Success)
         if (loadingResult is LoadingResult.Success) {
             val fullMap = loadingResult.data
@@ -122,45 +121,31 @@ class PurchaseViewModel : ViewModel() {
         )
 
 
-    val amountSumPerMonth: StateFlow<AmountSumPerMonth> = purchasesByDays
-        .map { result ->
-            if (result is LoadingResult.Success) result.data.toAmountSumPerMonth() else emptyList()
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+    val amountSumPerMonth: StateFlow<AmountSumPerMonth> = purchasesByDays.map { result ->
+        if (result is LoadingResult.Success) result.data.toAmountSumPerMonth() else emptyList()
+    }
+        .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
+        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
 
-    val avgSumm: StateFlow<Int> = purchasesByDays
-        .map { result ->
-            if (result is LoadingResult.Success) result.data.calculateAverageDailyAmmount() else 0
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = 0
-        )
+    val avgSumm: StateFlow<Int> = purchasesByDays.map { result ->
+        if (result is LoadingResult.Success) result.data.calculateAverageDailyAmmount() else 0
+    }
+        .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
+        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = 0)
 
 
     /**
      * Рекурсивная постраничкая загрузка платежей
      */
     private suspend fun query(appInfo: AppInfo, page: Int = 0): List<Invoice> = withContext(Dispatchers.IO) {
-        val dateFrom = LocalDate.now()
-            .minusMonths(3) // TODO настройка количества загружаемых месяцев
-            .withDayOfMonth(1)
-            .format(DateTimeFormatter.ISO_DATE)
+        val dateFrom = LocalDate.now().minusMonths(3) // TODO настройка количества загружаемых месяцев
+            .withDayOfMonth(1).format(DateTimeFormatter.ISO_DATE)
 
-        val dateTo = LocalDate.now()
-            .plusDays(1)
-            .format(DateTimeFormatter.ISO_DATE)
+        val dateTo = LocalDate.now().plusDays(1).format(DateTimeFormatter.ISO_DATE)
 
         val querySize = 250
         val result = api.getInvoices(
-            appId = "${appInfo.appId}",
-            page = page,
-            dateFrom = dateFrom,
-            dateTo = dateTo,
-            size = querySize
+            appId = "${appInfo.appId}", page = page, dateFrom = dateFrom, dateTo = dateTo, size = querySize
         ).body.invoices.map { it.enrich(appInfo) }.toList()
 
         if (result.size < querySize) {

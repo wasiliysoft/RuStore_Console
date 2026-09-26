@@ -46,7 +46,6 @@ class ReviewViewModel : ViewModel() {
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _reviews: StateFlow<LoadingResult<List<Review>>> = refreshTrigger
         .transformLatest {
-
             val appIds = repo.fromStorage() ?: emptyList()
             if (appIds.isEmpty()) {
                 emit(LoadingResult.Error(Exception("Empty app id list")))
@@ -73,8 +72,9 @@ class ReviewViewModel : ViewModel() {
                 Log.e(LOG_TAG, e.message.toString())
                 e.printStackTrace()
             }
-
-        }.stateIn(
+        }
+        .flowOn(Dispatchers.IO)
+        .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = LoadingResult.Loading("Загружаем...")
