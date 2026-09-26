@@ -10,6 +10,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
@@ -46,11 +48,11 @@ class PurchaseViewModel : ViewModel() {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val purchasesByDays: StateFlow<LoadingResult<PurchaseMap>> = refreshTrigger
+    private val _purchasesByDays: StateFlow<LoadingResult<PurchaseMap>> = refreshTrigger
         .transformLatest {
             val appIds = repo.fromStorage() ?: emptyList()
             if (appIds.isEmpty()) {
-                emit(LoadingResult.Error(Exception("Empty app id list")))
+                emit(LoadingResult.Error(Exception("Список приложений пуст")))
                 return@transformLatest
             }
             val list = ConcurrentLinkedDeque<Invoice>()
@@ -81,6 +83,39 @@ class PurchaseViewModel : ViewModel() {
                 e.printStackTrace()
             }
         }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = LoadingResult.Loading("Загружаем...")
+        )
+
+    val purchasesByDays: StateFlow<LoadingResult<PurchaseMap>> = combine(
+        _purchasesByDays,
+        repo.selectedApp // Слушаем триггер выбранного приложения из репозитория
+    ) { loadingResult, selectedApp ->
+
+        // Фильтруем только если сеть успешно вернула данные (Success)
+        if (loadingResult is LoadingResult.Success) {
+            val fullMap = loadingResult.data
+
+            if (selectedApp == null) {
+                // Если приложение не выбрано, отдаем всё как есть
+                LoadingResult.Success(fullMap)
+            } else {
+                // Фильтруем карту: внутри списков Invoice оставляем только те,
+                // которые принадлежат выбранному appId
+                val filteredMap = fullMap.mapValues { (_, invoices) ->
+                    invoices.filter { it.applicationCode == selectedApp.appId }
+                }.filterValues { it.isNotEmpty() } // Опционально: убираем дни, где не осталось покупок
+
+                LoadingResult.Success(filteredMap)
+            }
+        } else {
+            // Если там Loading или Error — просто пробрасываем их наружу в UI без изменений
+            loadingResult
+        }
+    }
+        .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
+        .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = LoadingResult.Loading("Загружаем...")
