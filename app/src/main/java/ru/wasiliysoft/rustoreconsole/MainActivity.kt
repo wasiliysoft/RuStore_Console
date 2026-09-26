@@ -21,8 +21,8 @@ import kotlinx.coroutines.launch
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
-import ru.wasiliysoft.rustoreconsole.screen.HomeScreen
 import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListViewModel
+import ru.wasiliysoft.rustoreconsole.screen.main.HomeScreen
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     NavHost(navController = navController, startDestination = NavGraph.Home.name) {
                         composable(NavGraph.Home.name) {
-                            HomeScreen(appListViewMOdel = appListVM)
+                            HomeScreen(appListViewModel = appListVM)
                         }
                     }
                 }

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
@@ -28,10 +28,7 @@ import kotlinx.coroutines.withContext
 import ru.wasiliysoft.rustoreconsole.BuildConfig
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
-import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.AppList
-import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.PaymentStats
-import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.Purchases
-import ru.wasiliysoft.rustoreconsole.screen.BottomBarScreen.Revews
+import ru.wasiliysoft.rustoreconsole.screen.main.BottomBarItem
 import ru.wasiliysoft.rustoreconsole.ui.view.preference.PreferenceCategoryView
 import ru.wasiliysoft.rustoreconsole.ui.view.preference.PreferenceView
 
@@ -57,10 +54,10 @@ fun SettingsScreen(
 private fun SelectStartScreenPrefView() {
     val screenOptions = remember {
         listOf(
-            Pair(Purchases.route, Purchases.title),
-            Pair(Revews.route, Revews.title),
-            Pair(AppList.route, AppList.title),
-            Pair(PaymentStats.route, PaymentStats.title),
+            Pair(BottomBarItem.Purchases.route, BottomBarItem.Purchases.title),
+            Pair(BottomBarItem.Revews.route, BottomBarItem.Revews.title),
+            Pair(BottomBarItem.AppList.route, BottomBarItem.AppList.title),
+            Pair(BottomBarItem.PaymentStats.route, BottomBarItem.PaymentStats.title),
         )
     }
     ListPreferenceView(
@@ -72,7 +69,7 @@ private fun SelectStartScreenPrefView() {
 
 @Composable
 fun CheckUpdates() {
-    val context = LocalContext.current as ComponentActivity
+    val context = LocalActivity.current as ComponentActivity
     PreferenceView(
         title = "Проверить обновление",
         summary = "Текущая версия: ${BuildConfig.VERSION_NAME}"
@@ -85,7 +82,7 @@ fun CheckUpdates() {
 
 @Composable
 fun Logout() {
-    val context = LocalContext.current as ComponentActivity
+    val context = LocalActivity.current as ComponentActivity
     var isShow by remember { mutableStateOf(false) }
     PreferenceView(
         title = "Выйти из аккаунта",
