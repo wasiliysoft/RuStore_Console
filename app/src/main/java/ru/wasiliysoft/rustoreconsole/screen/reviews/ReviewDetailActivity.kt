@@ -20,12 +20,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
@@ -39,9 +39,7 @@ fun ReviewDetailActivity(
     modifier: Modifier = Modifier
 ) {
     Surface(modifier.background(MaterialTheme.colorScheme.background)) {
-        val uiSate = viewModel.reviews
-            .observeAsState(Loading(""))
-            .value
+        val uiSate = viewModel.reviews.collectAsStateWithLifecycle().value
         when (uiSate) {
             is Loading -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = uiSate.description)
@@ -65,7 +63,8 @@ fun ReviewDetailActivity(
 fun ReviewDetailScreen(review: Review, onSend: (comment: String) -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         val (devCommnet, onChange) = remember { mutableStateOf("") }
-        ReviewDetailItem(review = review, modifier = Modifier.weight(1f),
+        ReviewDetailItem(
+            review = review, modifier = Modifier.weight(1f),
             onEnterEditComment = { onChange(it) })
         Surface(
             tonalElevation = 4.dp,

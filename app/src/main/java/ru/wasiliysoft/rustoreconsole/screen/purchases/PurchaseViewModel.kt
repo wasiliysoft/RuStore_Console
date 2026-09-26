@@ -78,7 +78,7 @@ class PurchaseViewModel : ViewModel() {
                 val purchaseMap = list.toList().toPurchaseMap()
                 emit(LoadingResult.Success(purchaseMap))
             } catch (e: Exception) {
-                emit(LoadingResult.Error(e))
+                emit(LoadingResult.Error(Exception(e.message, e)))
                 Log.e(LOG_TAG, e.message.toString())
                 e.printStackTrace()
             }
