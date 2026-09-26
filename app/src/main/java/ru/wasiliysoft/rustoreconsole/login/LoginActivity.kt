@@ -40,8 +40,7 @@ class LoginActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Column {
-
-                        LoginScreen(onTokedReceived = ::onTokenReceived, modefier = Modifier.weight(1f))
+                        LoginScreen(onTokedReceived = ::onTokenReceived, modifier = Modifier.weight(1f))
                         Button(
                             onClick = { onAuthTokenReceived("demo") }, modifier = Modifier.fillMaxWidth().padding(16.dp)
                         ) { Text("ENTER DEMO MODE") }
