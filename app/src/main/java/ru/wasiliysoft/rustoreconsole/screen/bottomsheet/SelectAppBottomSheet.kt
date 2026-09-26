@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -90,7 +91,7 @@ private fun AppRowItem(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
-            Text(text = app.appName, style = MaterialTheme.typography.bodyLarge)
+            Text(text = app.appName, style = MaterialTheme.typography.bodyLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(
                 text = app.packageName,
                 style = MaterialTheme.typography.bodySmall,
