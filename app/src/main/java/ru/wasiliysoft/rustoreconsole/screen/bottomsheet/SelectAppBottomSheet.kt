@@ -1,8 +1,10 @@
 package ru.wasiliysoft.rustoreconsole.screen.bottomsheet
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -45,12 +47,14 @@ fun SelectAppBottomSheet(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = false)
+                    .weight(1f, fill = false),
+                contentPadding = PaddingValues(vertical = 32.dp)
             ) {
                 // 1. Добавляем элемент "Все приложения" на самый верх списка
                 item(key = "all_apps") {
                     AppRowItem(
                         app = AppInfo.demo().copy(appName = "Все приложения", packageName = ""),
+                        isSelected = viewModel.isSelected(null),
                         onClickItem = {
                             viewModel.selectApp(null) // Сбрасываем фильтр (null означает "Все")
                             coroutineScope.launch {
@@ -63,6 +67,7 @@ fun SelectAppBottomSheet(
                 items(appList, key = { item -> item.packageName }) { app ->
                     AppRowItem(
                         app = app,
+                        isSelected = viewModel.isSelected(app),
                         onClickItem = {
                             viewModel.selectApp(app)
                             coroutineScope.launch {
@@ -77,15 +82,21 @@ fun SelectAppBottomSheet(
     }
 }
 
+
 @Composable
 private fun AppRowItem(
     app: AppInfo,
+    isSelected: Boolean,
     onClickItem: () -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClickItem)
+            .background(
+                color = if (isSelected) MaterialTheme.colorScheme.surfaceContainerHighest
+                else MaterialTheme.colorScheme.surfaceContainerLow
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

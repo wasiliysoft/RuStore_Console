@@ -24,4 +24,9 @@ class SelectAppBottomSheetViewModel : ViewModel() {
     fun selectApp(app: AppInfo?) {
         repo.selectApp(app)
     }
+
+    fun isSelected(app: AppInfo?): Boolean {
+        if (repo.selectedApp.value == null && app == null) return true
+        return repo.selectedApp.value?.appId == app?.appId
+    }
 }
