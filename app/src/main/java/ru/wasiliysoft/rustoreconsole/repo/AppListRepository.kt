@@ -45,7 +45,7 @@ object AppListRepository {
         try {
             // Отправляем то что в кеше
             fromStorage()?.let { list ->
-                emit(LoadingResult.Success(list.sortedByDescending { it.appName }))
+                emit(LoadingResult.Success(list))
             }
 
             val url = "https://backapi.rustore.ru/applicationData/retrieveUserApps"
@@ -55,7 +55,7 @@ object AppListRepository {
 
             // Отправляем свежие данные из кеша, оибо пустой лист
             val list = fromStorage() ?: emptyList()
-            emit(LoadingResult.Success(list.sortedByDescending { it.appName }))
+            emit(LoadingResult.Success(list))
         } catch (e: Exception) {
             e.printStackTrace()
             emit(LoadingResult.Error(e))
@@ -67,7 +67,7 @@ object AppListRepository {
         val json = ph.jsonAppListResp
         if (json.isEmpty()) return null
         try {
-            return gson.fromJson(json, AppListResp::class.java)?.body?.list
+            return gson.fromJson(json, AppListResp::class.java)?.body?.list?.sortedBy { it.appName }
         } catch (e: Exception) {
             e.printStackTrace()
         }
