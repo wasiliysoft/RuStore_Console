@@ -2,7 +2,6 @@ package ru.wasiliysoft.rustoreconsole.screen.apps
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,13 +45,13 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 @Composable
 fun ApplicationListScreen(
     modifier: Modifier = Modifier,
-    viewModel: ApplicationListViewModel = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity),
+    viewModel: ApplicationListViewModel = viewModel(),
 ) {
     Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val uiSate = viewModel.appsState.collectAsStateWithLifecycle().value
+            val uiSate = viewModel.appListResultState.collectAsStateWithLifecycle().value
             val state = rememberPullToRefreshState()
             PullToRefreshBox(
                 state = state,

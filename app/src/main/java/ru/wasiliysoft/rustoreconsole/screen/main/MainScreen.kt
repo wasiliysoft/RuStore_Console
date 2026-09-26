@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -26,7 +27,6 @@ import androidx.navigation.compose.rememberNavController
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.data.prefs.StringPreferencesImpl
 import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListScreen
-import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListViewModel
 import ru.wasiliysoft.rustoreconsole.screen.bottomsheet.SelectAppBottomSheet
 import ru.wasiliysoft.rustoreconsole.screen.paymentstats.PaymentStatScreen
 import ru.wasiliysoft.rustoreconsole.screen.purchases.PurchasesScreen
@@ -37,13 +37,15 @@ import ru.wasiliysoft.rustoreconsole.screen.settings.SettingsScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(appListViewModel: ApplicationListViewModel) {
+fun HomeScreen(
+    viewModel: MainScreenViewModel = viewModel()
+) {
     val navController: NavHostController = rememberNavController()
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
     Scaffold(
         topBar = {
-            val selectedApp = appListViewModel.selectedAppState.collectAsStateWithLifecycle().value
+            val selectedApp = viewModel.selectedApp.collectAsStateWithLifecycle().value
             TopAppBar(
                 title = { Text(selectedApp?.appName ?: "Все приложения") },
                 actions = {
@@ -87,9 +89,9 @@ fun HomeScreen(appListViewModel: ApplicationListViewModel) {
                 )
             }
         }
+
         if (showBottomSheet) {
             SelectAppBottomSheet(
-                appListViewModel = appListViewModel,
                 onDismissRequest = { showBottomSheet = false },
                 sheetState = sheetState
             )

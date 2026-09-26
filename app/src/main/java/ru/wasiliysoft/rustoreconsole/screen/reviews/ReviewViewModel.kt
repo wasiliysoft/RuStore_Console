@@ -32,7 +32,7 @@ data class Review(
 class ReviewViewModel : ViewModel() {
     private val LOG_TAG = "ReviewViewModel"
     private val api = RetrofitClient.api
-    private val appListRepo = AppListRepository
+    private val repo = AppListRepository
 
     private val mutex = Mutex()
 
@@ -52,13 +52,14 @@ class ReviewViewModel : ViewModel() {
     }
 
     fun loadReviews() {
+        val appIds = repo.fromStorage() ?: emptyList()
+        if (appIds.isEmpty()) {
+            _reviews.postValue(LoadingResult.Error(Exception("Empty app id list")))
+            return
+        }
+
         viewModelScope.launch(errorHandler) {
             _reviews.postValue(LoadingResult.Loading("Загружаем..."))
-            val appIds = appListRepo.getApps() ?: emptyList()
-            if (appIds.isEmpty()) {
-                _reviews.postValue(LoadingResult.Error(Exception("Empty app id list")))
-                return@launch
-            }
             val list = mutableListOf<Review>()
             appIds.chunked(3).forEach { idList ->
                 idList.map { appInfo ->

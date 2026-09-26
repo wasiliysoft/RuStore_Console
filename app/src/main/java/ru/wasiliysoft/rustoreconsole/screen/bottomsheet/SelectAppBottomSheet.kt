@@ -22,15 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
-import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectAppBottomSheet(
     onDismissRequest: () -> Unit = {},
-    appListViewModel: ApplicationListViewModel,
+    viewModel: SelectAppBottomSheetViewModel = viewModel(),
     sheetState: SheetState
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -43,7 +43,7 @@ fun SelectAppBottomSheet(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            val appList = appListViewModel.appsList.collectAsStateWithLifecycle().value
+            val appList = viewModel.appsList.collectAsStateWithLifecycle().value
             if (appList.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -63,7 +63,7 @@ fun SelectAppBottomSheet(
                         AppRowItem(
                             app = app,
                             onClickItem = {
-                                appListViewModel.selectApp(app)
+                                viewModel.selectApp(app)
                                 coroutineScope.launch {
                                     sheetState.hide() // Анимированно прячем шторку
                                     onDismissRequest() // Полностью закрываем (убираем из UI) после анимации

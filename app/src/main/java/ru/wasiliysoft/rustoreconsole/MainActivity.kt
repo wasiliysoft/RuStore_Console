@@ -6,7 +6,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,7 +20,7 @@ import kotlinx.coroutines.launch
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
-import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListViewModel
+import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.screen.main.HomeScreen
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
@@ -43,7 +42,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private val appListVM by viewModels<ApplicationListViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,16 +56,14 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     NavHost(navController = navController, startDestination = NavGraph.Home.name) {
-                        composable(NavGraph.Home.name) {
-                            HomeScreen(appListViewModel = appListVM)
-                        }
+                        composable(NavGraph.Home.name) { HomeScreen() }
                     }
                 }
             }
         }
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                appListVM.appsState.collect { result ->
+                AppListRepository.appListResultFlow.collect { result ->
                     Log.d(LOG_TAG, result.toString())
                     //FIXME работает не стабильно (issue #6)
                     if (result is LoadingResult.Error

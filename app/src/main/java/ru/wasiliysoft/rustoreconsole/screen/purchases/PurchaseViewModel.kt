@@ -35,7 +35,7 @@ typealias AmountSumPerMonth = List<Pair<String, Int>>
 
 class PurchaseViewModel : ViewModel() {
     private val LOG_TAG = "PurchaseViewModel"
-    private val appListRepo = AppListRepository
+    private val repo = AppListRepository
     private val api = RetrofitClient.api
     private val mutex = Mutex()
 
@@ -59,7 +59,7 @@ class PurchaseViewModel : ViewModel() {
     }
 
     fun load() {
-        val appIds = appListRepo.getApps() ?: emptyList()
+        val appIds = repo.fromStorage() ?: emptyList()
         if (appIds.isEmpty()) {
             _purchasesByDays.value = LoadingResult.Error(Exception("Empty app id list"))
             return
