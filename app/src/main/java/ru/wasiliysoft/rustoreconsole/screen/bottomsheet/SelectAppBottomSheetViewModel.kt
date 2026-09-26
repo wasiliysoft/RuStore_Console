@@ -21,7 +21,7 @@ class SelectAppBottomSheetViewModel : ViewModel() {
             initialValue = emptyList()
         )
 
-    fun selectApp(app: AppInfo) {
+    fun selectApp(app: AppInfo?) {
         repo.selectApp(app)
     }
 }

@@ -2,12 +2,9 @@ package ru.wasiliysoft.rustoreconsole.screen.bottomsheet
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -41,40 +38,40 @@ fun SelectAppBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+//                .padding(16.dp)
         ) {
             val appList = viewModel.appsList.collectAsStateWithLifecycle().value
-            if (appList.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("Список приложений пуст")
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false)
+            ) {
+                // 1. Добавляем элемент "Все приложения" на самый верх списка
+                item(key = "all_apps") {
+                    AppRowItem(
+                        app = AppInfo.demo().copy(appName = "Все приложения", packageName = ""),
+                        onClickItem = {
+                            viewModel.selectApp(null) // Сбрасываем фильтр (null означает "Все")
+                            coroutineScope.launch {
+                                sheetState.hide() // Анимированно прячем шторку
+                                onDismissRequest() // Полностью закрываем (убираем из UI) после анимации
+                            }
+                        }
+                    )
                 }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = false)
-                ) {
-                    items(appList, key = { item -> item.packageName }) { app ->
-                        AppRowItem(
-                            app = app,
-                            onClickItem = {
-                                viewModel.selectApp(app)
-                                coroutineScope.launch {
-                                    sheetState.hide() // Анимированно прячем шторку
-                                    onDismissRequest() // Полностью закрываем (убираем из UI) после анимации
-                                }
-                            },
-                        )
-                    }
+                items(appList, key = { item -> item.packageName }) { app ->
+                    AppRowItem(
+                        app = app,
+                        onClickItem = {
+                            viewModel.selectApp(app)
+                            coroutineScope.launch {
+                                sheetState.hide() // Анимированно прячем шторку
+                                onDismissRequest() // Полностью закрываем (убираем из UI) после анимации
+                            }
+                        },
+                    )
                 }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
