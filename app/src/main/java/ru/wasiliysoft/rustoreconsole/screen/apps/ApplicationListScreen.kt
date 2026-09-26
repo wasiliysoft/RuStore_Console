@@ -2,7 +2,6 @@ package ru.wasiliysoft.rustoreconsole.screen.apps
 
 import android.content.Intent
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
@@ -46,18 +45,18 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 @Composable
 fun ApplicationListScreen(
     modifier: Modifier = Modifier,
-    viewModel: ApplicationListViewModel = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity),
+    viewModel: ApplicationListViewModel = viewModel(),
 ) {
     Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val uiSate = viewModel.list.observeAsState(Loading("")).value
+            val uiSate = viewModel.appListResultState.collectAsStateWithLifecycle().value
             val state = rememberPullToRefreshState()
             PullToRefreshBox(
                 state = state,
                 isRefreshing = uiSate is Loading,
-                onRefresh = viewModel::load
+                onRefresh = viewModel::refreshData
             ) {
                 when (uiSate) {
                     is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

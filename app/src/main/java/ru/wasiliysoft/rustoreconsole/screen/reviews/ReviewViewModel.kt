@@ -1,16 +1,19 @@
 package ru.wasiliysoft.rustoreconsole.screen.reviews
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -20,6 +23,7 @@ import ru.wasiliysoft.rustoreconsole.data.UserReview
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import java.util.concurrent.ConcurrentLinkedDeque
 
 data class Review(
     val appInfo: AppInfo,
@@ -32,45 +36,83 @@ data class Review(
 class ReviewViewModel : ViewModel() {
     private val LOG_TAG = "ReviewViewModel"
     private val api = RetrofitClient.api
-    private val appListRepo = AppListRepository
+    private val repo = AppListRepository
 
-    private val mutex = Mutex()
-
-    private val _reviews =
-        MutableLiveData<LoadingResult<List<Review>>>(LoadingResult.Loading("Инициализация"))
-    val reviews: LiveData<LoadingResult<List<Review>>> = _reviews
-
-    private val errorHandler = CoroutineExceptionHandler { _, exception ->
-        _reviews.postValue(LoadingResult.Error(Exception(exception.message, exception)))
-        Log.e(LOG_TAG, exception.message.toString())
-        exception.printStackTrace()
+    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
+    fun load() {
+        refreshTrigger.tryEmit(Unit)
     }
 
-    init {
-        Log.d(LOG_TAG, "init")
-        loadReviews()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _reviews: StateFlow<LoadingResult<List<Review>>> = refreshTrigger
+        .transformLatest {
+            val appIds = repo.fromStorage() ?: emptyList()
+            if (appIds.isEmpty()) {
+                emit(LoadingResult.Error(Exception("Empty app id list")))
+                return@transformLatest
+            }
+
+            try {
+                emit(LoadingResult.Loading("Загружаем..."))
+                val list = ConcurrentLinkedDeque<Review>()
+                appIds.chunked(3).forEach { idList ->
+                    coroutineScope {
+                        idList.forEach { appInfo ->
+                            launch {
+                                val reviews = loadReviews(appInfo)
+                                list.addAll(reviews)
+                            }
+                        }
+                    }
+                }
+                val result: List<Review> = list.toList().sortedByDescending { it.userReview.commentId }
+                emit(LoadingResult.Success(result))
+            } catch (e: Exception) {
+                emit(LoadingResult.Error(Exception(e.message, e)))
+                Log.e(LOG_TAG, e.message.toString())
+                e.printStackTrace()
+            }
+        }
+        .flowOn(Dispatchers.IO)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = LoadingResult.Loading("Загружаем...")
+        )
+
+    val reviews: StateFlow<LoadingResult<List<Review>>> = combine(
+        _reviews,
+        repo.selectedApp // Слушаем триггер выбранного приложения из репозитория
+    ) { loadingResult, selectedApp ->
+
+        // Фильтруем только если сеть успешно вернула данные (Success)
+        if (loadingResult is LoadingResult.Success) {
+            val fullMap = loadingResult.data
+
+            if (selectedApp == null) {
+                // Если приложение не выбрано, отдаем всё как есть
+                LoadingResult.Success(fullMap)
+            } else {
+                // Фильтруем карту: внутри списков Invoice оставляем только те,
+                // которые принадлежат выбранному appId
+                val filteredMap = fullMap.filter { it.appInfo.appId == selectedApp.appId }
+                LoadingResult.Success(filteredMap)
+            }
+        } else {
+            // Если там Loading или Error — просто пробрасываем их наружу в UI без изменений
+            loadingResult
+        }
     }
+        .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = LoadingResult.Loading("Загружаем...")
+        )
+
 
     fun loadReviews() {
-        viewModelScope.launch(errorHandler) {
-            _reviews.postValue(LoadingResult.Loading("Загружаем..."))
-            val appIds = appListRepo.getApps() ?: emptyList()
-            if (appIds.isEmpty()) {
-                _reviews.postValue(LoadingResult.Error(Exception("Empty app id list")))
-                return@launch
-            }
-            val list = mutableListOf<Review>()
-            appIds.chunked(3).forEach { idList ->
-                idList.map { appInfo ->
-                    launch {
-                        val reviews = loadReviews(appInfo)
-                        mutex.withLock { list.addAll(reviews) }
-                    }
-                }.joinAll()
-            }
-            list.sortByDescending { it.userReview.commentId }
-            _reviews.postValue(LoadingResult.Success(list))
-        }
+        refreshTrigger.tryEmit(Unit)
     }
 
     private suspend fun loadReviews(appInfo: AppInfo): List<Review> = withContext(Dispatchers.IO) {

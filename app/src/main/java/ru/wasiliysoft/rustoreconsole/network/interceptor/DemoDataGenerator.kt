@@ -35,32 +35,21 @@ object DemoDataGenerator {
         val dailyWeight: Double             // вес для "сегодня"
     )
 
-    private val profiles = listOf(
+    private val profiles = List(6) {
+        val index = it + 1
         AppProfile(
-            appId = "201",
-            packageName = "ru.wasiliysoft.app1",
-            appName = "My first demo app name",
-            shortDescription = "My first demo app name - app small description",
+            appId = "20$index",
+            packageName = "ru.wasiliysoft.app$index",
+            appName = "My $index demo app name",
+            shortDescription = "My $index demo app name - app small description",
             companyName = "First name developer",
             companyId = 101,
-            basePriceKopecks = 14900,
-            totalPaidCount = 2813,
+            basePriceKopecks = 14900 + index * 100,
+            totalPaidCount = 2813 + index * 10,
             avgPerDay = 2.3,
             dailyWeight = 1.0
-        ),
-        AppProfile(
-            appId = "202",
-            packageName = "ru.wasiliysoft.app2",
-            appName = "My second app name PRO",
-            shortDescription = "My second app name PRO - app small description",
-            companyName = "First name developer",
-            companyId = 101,
-            basePriceKopecks = 14900,
-            totalPaidCount = 859,
-            avgPerDay = 0.7,
-            dailyWeight = 0.3
         )
-    )
+    }
 
     // ---------- Публичное API ----------
 

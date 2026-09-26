@@ -23,12 +23,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
@@ -49,8 +49,8 @@ fun PurchasesScreen(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val uiSate = viewModel.purchasesByDays.observeAsState(Loading("")).value
-            val amountSums = viewModel.amountSumPerMonth.observeAsState(emptyList()).value
+            val uiSate = viewModel.purchasesByDays.collectAsStateWithLifecycle(Loading("")).value
+            val amountSums = viewModel.amountSumPerMonth.collectAsStateWithLifecycle(emptyList()).value
             val state = rememberPullToRefreshState()
             PullToRefreshBox(
                 state = state,
@@ -66,7 +66,7 @@ fun PurchasesScreen(
                         PurchaseListView(
                             purchases = uiSate.data,
                             amountSums = amountSums,
-                            avgDaylyAmmount = viewModel.avgSumm.value
+                            avgDaylyAmmount = viewModel.avgSumm.collectAsStateWithLifecycle().value
                         )
 
                     }

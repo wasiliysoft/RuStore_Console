@@ -17,7 +17,7 @@ import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 
 class PaymentsViewModel : ViewModel() {
     private val LOG_TAG = "PaymentsViewModel"
-    private val appListRepo = AppListRepository
+    private val repo = AppListRepository
     private val api = RetrofitClient.api
     private val mutex = Mutex()
 
@@ -29,15 +29,14 @@ class PaymentsViewModel : ViewModel() {
     }
 
     fun load() {
+        val appIds = repo.fromStorage() ?: emptyList()
+        if (appIds.isEmpty()) {
+            _overallSum.postValue(LoadingResult.Error(Exception("Empty app id list")))
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             _overallSum.postValue(LoadingResult.Loading("Наберитесь терпения,\nсервер капризный..."))
             val list = mutableListOf<AppStats>()
-
-            val appIds = appListRepo.getApps() ?: emptyList()
-            if (appIds.isEmpty()) {
-                _overallSum.postValue(LoadingResult.Error(Exception("Empty app id list")))
-                return@launch
-            }
             appIds.forEach { appInfo ->
                 try {
                     val resp = api.getPaymentStats("${appInfo.appId}")
