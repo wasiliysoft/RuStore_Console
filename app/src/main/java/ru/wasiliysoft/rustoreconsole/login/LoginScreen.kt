@@ -5,17 +5,20 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,44 +72,35 @@ fun LoginScreen(
                 super.onPageFinished(view, url)
                 isLoading = false
             }
-
-            override fun onPageCommitVisible(view: WebView?, url: String?) {
-                super.onPageCommitVisible(view, url)
-                // Страница стала видимой - можно скрыть прогрессбар раньше onPageFinished
-                isLoading = false
-            }
         }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
-        AndroidView(
-            factory = {
-                WebView(it).apply {
-                    clearCache(true)
-                    layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT
-                    )
-                    settings.allowContentAccess = true
-                    settings.domStorageEnabled = true
-                    settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                    settings.javaScriptEnabled = true
-                    webViewClient = mWebViewClient
-                    loadUrl(mUrl)
-                    webViewRef = this
-                }
-            },
-            update = {
-                webViewRef = it
-            },
-            modifier = Modifier.fillMaxSize()
-        )
-
-        // Прогрессбар по центру, пока идёт загрузка
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
+        Column {
+            AndroidView(
+                factory = {
+                    WebView(it).apply {
+                        clearCache(true)
+                        layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                        settings.allowContentAccess = true
+                        settings.domStorageEnabled = true
+                        settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                        settings.javaScriptEnabled = true
+                        webViewClient = mWebViewClient
+                        loadUrl(mUrl)
+                        webViewRef = this
+                    }
+                },
+                update = {
+                    webViewRef = it
+                },
+                modifier = Modifier.fillMaxSize().weight(1f)
             )
+
+            // Прогрессбар пока идёт загрузка
+            if (isLoading) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+            }
         }
 
         // Кнопка обновления в правом нижнем углу
