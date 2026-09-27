@@ -19,6 +19,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,21 +43,29 @@ fun ReviewDetailScreen(
     viewModel: ReviewDetailViewModel = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
 ) {
     Surface(modifier = modifier) {
-        when (val uiSate = viewModel.reviews.collectAsStateWithLifecycle().value) {
-            is Loading -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(text = uiSate.description)
-            }
-
-            is LoadingResult.Success -> {
-                uiSate.data.find { it.userReview.commentId == commentId }?.let { review ->
-                    ReviewDetailView(review = review, onSend = {
-                        viewModel.sendDevResponse(review = review, devComment = it)
-                        onActivityResult(Activity.RESULT_OK)
-                    })
+        val uiSate = viewModel.reviews.collectAsStateWithLifecycle().value
+        val state = rememberPullToRefreshState()
+        PullToRefreshBox(
+            state = state,
+            isRefreshing = uiSate is Loading,
+            onRefresh = viewModel::load
+        ) {
+            when (uiSate) {
+                is Loading -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(text = uiSate.description)
                 }
-            }
 
-            is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
+                is LoadingResult.Success -> {
+                    uiSate.data.find { it.userReview.commentId == commentId }?.let { review ->
+                        ReviewDetailView(review = review, onSend = {
+                            viewModel.sendDevResponse(review = review, devComment = it)
+                            onActivityResult(Activity.RESULT_OK)
+                        })
+                    }
+                }
+
+                is LoadingResult.Error -> ErrorTextView(exception = uiSate.exception)
+            }
         }
     }
 }
