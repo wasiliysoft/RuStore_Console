@@ -1,5 +1,6 @@
 package ru.wasiliysoft.rustoreconsole.network
 
+import android.os.SystemClock
 import android.util.Log
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -25,7 +26,13 @@ object RetrofitClient {
         )
         val unauthorized: SharedFlow<Unit> = _unauthorized.asSharedFlow()
 
+        private var lastNotifyTime = 0L
+        private const val DEBOUNCE_MS = 3000L
+
         fun notifyUnauthorized() {
+            val now = SystemClock.elapsedRealtime()
+            if (now - lastNotifyTime < DEBOUNCE_MS) return
+            lastNotifyTime = now
             _unauthorized.tryEmit(Unit)
         }
     }
