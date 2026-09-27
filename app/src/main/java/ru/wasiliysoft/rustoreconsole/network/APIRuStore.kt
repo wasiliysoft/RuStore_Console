@@ -12,7 +12,6 @@ import retrofit2.http.Url
 import ru.wasiliysoft.rustoreconsole.data.AuthTokenResp
 import ru.wasiliysoft.rustoreconsole.data.InvoicesResp
 import ru.wasiliysoft.rustoreconsole.data.PaymentResp
-import ru.wasiliysoft.rustoreconsole.data.ReviewRequsetSortOrder
 import ru.wasiliysoft.rustoreconsole.data.ReviewsResp
 
 interface APIRuStore {
@@ -31,11 +30,9 @@ interface APIRuStore {
         @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
     ): InvoicesResp
 
-    @GET("/v2/dev-console/devs/apps/{appId}/feedbacks")
+    @GET("/v2/dev-console/devs/apps/{appId}/feedbacks?limit=40&sortBy=EDITED_FIRST")
     suspend fun getReviews(
-        @Path("appId") appId: String,
-        @Query("limit") limit: Int = 40,
-        @Query("sortBy") sortBy: ReviewRequsetSortOrder = ReviewRequsetSortOrder.EDITED_FIRST,
+        @Path("appId") appId: String
     ): ReviewsResp
 
     @GET("invoices-history/public/v1/apps/{appId}/invoice-payments/statistics")
