@@ -100,7 +100,7 @@ private fun ReviewItem(
     val userReview = review.userReview
     val appInfo = review.appInfo
 
-    val date = userReview.commentDate
+
     Card(
         modifier = modifier.fillMaxWidth(),
         onClick = onClick
@@ -117,7 +117,9 @@ private fun ReviewItem(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 RateStarView(rate = userReview.appRating, modifier = Modifier.weight(1f))
-                Text(text = date.toMediumDateString())
+                val dateStr = review.userReview.editedAt.toMediumDateString()
+                val isEditedStr = if (review.userReview.editedAtStr !== null) "*" else ""
+                Text(text = "$dateStr$isEditedStr")
             }
             Text(text = userReview.commentText, maxLines = 2, overflow = TextOverflow.Ellipsis)
             if (userReview.likeCounter != 0 || userReview.dislikeCounter != 0) {

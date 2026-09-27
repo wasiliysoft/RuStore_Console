@@ -20,6 +20,8 @@ data class UserReview(
     val firstName: String,
     @SerializedName("commentDate")
     private val commentDateStr: String,
+    @SerializedName("editedAt")
+    val editedAtStr: String?,
     @SerializedName("commentText")
     val commentText: String,
     @SerializedName("likeCounter")
@@ -37,12 +39,25 @@ data class UserReview(
             DateTimeFormatter.ISO_DATE_TIME
         )
 
+    /**
+     * Если в исходном ответе есть editedAt, то вернет дату проавки, иначе вернёт дату commentDate
+     */
+    val editedAt: LocalDateTime
+        get() {
+            val str = editedAtStr ?: commentDateStr
+            return LocalDateTime.parse(
+                str.take(19).replace(' ', 'T'),
+                DateTimeFormatter.ISO_DATE_TIME
+            )
+        }
+
     companion object {
         fun demo(commentId: Long = 5) = UserReview(
             commentId = commentId,
             appRating = 5,
             firstName = "firstName",
             commentDateStr = "2023-07-20 19:09:45.045",
+            editedAtStr = "2026-09-20 19:09:45.045",
             commentText = "commentTextcommentTextcommentText commentText",
             likeCounter = 8,
             dislikeCounter = 3,
@@ -87,4 +102,13 @@ data class DeveloperComment(
             text = "Dev comment Dev comment Dev comment",
         )
     }
+}
+
+enum class ReviewRequsetSortOrder(val value: String, val display: String) {
+    EDITED_FIRST("EDITED_FIRST", "Сначала изменённые"),
+    NEW_FIRST("NEW_FIRST", "Сначаа новые"),
+    POSITIVE_FIRST("POSITIVE_FIRST", "С оценкой по убыванию"),
+    NEGATIVE_FIRST("NEGATIVE_FIRST", "С оцекой по возрастанию");
+
+    override fun toString(): String = value
 }

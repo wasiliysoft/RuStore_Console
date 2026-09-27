@@ -65,7 +65,7 @@ class ReviewViewModel : ViewModel() {
                         }
                     }
                 }
-                val result: List<Review> = list.toList().sortedByDescending { it.userReview.commentId }
+                val result: List<Review> = list.toList().sortedByDescending { it.userReview.editedAt }
                 emit(LoadingResult.Success(result))
             } catch (e: Exception) {
                 emit(LoadingResult.Error(Exception(e.message, e)))

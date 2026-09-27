@@ -12,6 +12,7 @@ import retrofit2.http.Url
 import ru.wasiliysoft.rustoreconsole.data.AuthTokenResp
 import ru.wasiliysoft.rustoreconsole.data.InvoicesResp
 import ru.wasiliysoft.rustoreconsole.data.PaymentResp
+import ru.wasiliysoft.rustoreconsole.data.ReviewRequsetSortOrder
 import ru.wasiliysoft.rustoreconsole.data.ReviewsResp
 
 interface APIRuStore {
@@ -33,7 +34,8 @@ interface APIRuStore {
     @GET("/v2/dev-console/devs/apps/{appId}/feedbacks")
     suspend fun getReviews(
         @Path("appId") appId: String,
-        @Query("limit") limit: Int = 20,
+        @Query("limit") limit: Int = 40,
+        @Query("sortBy") sortBy: ReviewRequsetSortOrder = ReviewRequsetSortOrder.EDITED_FIRST,
     ): ReviewsResp
 
     @GET("invoices-history/public/v1/apps/{appId}/invoice-payments/statistics")
