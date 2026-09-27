@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.Stats
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
+import ru.wasiliysoft.rustoreconsole.ui.view.TitledCard
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 
@@ -85,9 +87,26 @@ private fun ListView(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
     ) {
+
         items(items = data, key = { it.appId }) {
             PaymentStatCard(it)
         }
+        item {
+            Spacer(Modifier.size(32.dp))
+            Disclaimer()
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun Disclaimer(modifier: Modifier = Modifier) {
+    TitledCard(title = "Предупреждение") {
+        Text(
+            "Данные на этой странице носят ознакомительный характер и не могут использоваться для предоставления отчетности." +
+                    "\nПодробнее  \"RuStore \\ Монетизация \\ Статистика по платежам\"",
+            modifier = Modifier.padding(8.dp)
+        )
     }
 }
 
