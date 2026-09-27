@@ -87,8 +87,7 @@ class PurchaseViewModel : ViewModel() {
     }
         .flowOn(Dispatchers.IO)
         .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            scope = viewModelScope, started = SharingStarted.Eagerly,
             initialValue = LoadingResult.Loading("Загружаем...")
         )
 
@@ -121,8 +120,7 @@ class PurchaseViewModel : ViewModel() {
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
         .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            scope = viewModelScope, started = SharingStarted.Eagerly,
             initialValue = LoadingResult.Loading("Загружаем...")
         )
 
@@ -134,7 +132,7 @@ class PurchaseViewModel : ViewModel() {
         if (result is LoadingResult.Success) result.data.toAmountSumPerMonth() else emptyList()
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
-        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
+        .stateIn(scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     /**
      * Среднесуточная сумма
@@ -143,7 +141,7 @@ class PurchaseViewModel : ViewModel() {
         if (result is LoadingResult.Success) result.data.calculateAverageDailyAmmount() else 0
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
-        .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = 0)
+        .stateIn(scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = 0)
 
     /**
      * Среднесуточная сумма по приложениям
@@ -156,11 +154,7 @@ class PurchaseViewModel : ViewModel() {
         return@map map
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyMap()
-        )
+        .stateIn(scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = emptyMap())
 
     /**
      * Рекурсивная постраничкая загрузка платежей

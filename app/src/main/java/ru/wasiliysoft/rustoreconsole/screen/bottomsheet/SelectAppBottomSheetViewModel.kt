@@ -15,11 +15,7 @@ class SelectAppBottomSheetViewModel : ViewModel() {
     // Трансформируем состояние в чистый список
     val appsList = repo.appListResultFlow
         .map { result -> if (result is LoadingResult.Success) result.data else emptyList() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+        .stateIn(scope = viewModelScope, started = SharingStarted.Eagerly, initialValue = emptyList())
 
     fun selectApp(app: AppInfo?) {
         repo.selectApp(app)

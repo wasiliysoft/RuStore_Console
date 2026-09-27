@@ -75,8 +75,7 @@ class ReviewViewModel : ViewModel() {
         }
         .flowOn(Dispatchers.IO)
         .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            scope = viewModelScope, started = SharingStarted.Eagerly,
             initialValue = LoadingResult.Loading("Загружаем...")
         )
 
@@ -105,8 +104,7 @@ class ReviewViewModel : ViewModel() {
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
         .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
+            scope = viewModelScope, started = SharingStarted.Eagerly,
             initialValue = LoadingResult.Loading("Загружаем...")
         )
 

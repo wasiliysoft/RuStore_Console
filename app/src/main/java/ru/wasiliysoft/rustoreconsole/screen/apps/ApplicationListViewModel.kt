@@ -12,7 +12,7 @@ class ApplicationListViewModel : ViewModel() {
 
     val appListResultState = repo.appListResultFlow.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
+        started = SharingStarted.Eagerly,
         initialValue = LoadingResult.Loading("Загружаем...")
     )
 
