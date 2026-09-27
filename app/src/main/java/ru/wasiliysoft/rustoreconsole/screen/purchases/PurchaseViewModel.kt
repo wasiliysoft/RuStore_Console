@@ -47,8 +47,11 @@ class PurchaseViewModel : ViewModel() {
         refreshTrigger.tryEmit(Unit)
     }
 
+    /**
+     * Все платеэи, без фильтрации
+     */
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val _purchasesByDays: StateFlow<LoadingResult<PurchaseMap>> = refreshTrigger.transformLatest {
+    private val purchasesByDaysAll: StateFlow<LoadingResult<PurchaseMap>> = refreshTrigger.transformLatest {
         val appIds = repo.fromStorage() ?: emptyList()
         if (appIds.isEmpty()) {
             emit(LoadingResult.Error(Exception("Список приложений пуст")))
@@ -89,8 +92,11 @@ class PurchaseViewModel : ViewModel() {
             initialValue = LoadingResult.Loading("Загружаем...")
         )
 
-    val purchasesByDays: StateFlow<LoadingResult<PurchaseMap>> = combine(
-        _purchasesByDays, repo.selectedApp // Слушаем триггер выбранного приложения из репозитория
+    /**
+     * Платеэи отфильтрованные по приложению
+     */
+    val purchasesByDaysFiltered: StateFlow<LoadingResult<PurchaseMap>> = combine(
+        purchasesByDaysAll, repo.selectedApp // Слушаем триггер выбранного приложения из репозитория
     ) { loadingResult, selectedApp ->
         // Фильтруем только если сеть успешно вернула данные (Success)
         if (loadingResult is LoadingResult.Success) {
@@ -121,20 +127,28 @@ class PurchaseViewModel : ViewModel() {
         )
 
 
-    val amountPerMonth: StateFlow<AmountPerMonth> = _purchasesByDays.map { result ->
+    /**
+     * Фактические суммы по месяцам
+     */
+    val amountPerMonth: StateFlow<AmountPerMonth> = purchasesByDaysFiltered.map { result ->
         if (result is LoadingResult.Success) result.data.toAmountSumPerMonth() else emptyList()
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
         .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = emptyList())
 
-    val avgSumm: StateFlow<Int> = _purchasesByDays.map { result ->
+    /**
+     * Среднесуточная сумма
+     */
+    val avgSumm: StateFlow<Int> = purchasesByDaysFiltered.map { result ->
         if (result is LoadingResult.Success) result.data.calculateAverageDailyAmmount() else 0
     }
         .flowOn(Dispatchers.Default) // Тяжелую фильтрацию мапы делаем на Default потоке
         .stateIn(scope = viewModelScope, started = SharingStarted.WhileSubscribed(5000), initialValue = 0)
 
-
-    val avgSummByApp: StateFlow<Map<String, Int>> = _purchasesByDays.map { result ->
+    /**
+     * Среднесуточная сумма по приложениям
+     */
+    val avgSummByApp: StateFlow<Map<String, Int>> = purchasesByDaysAll.map { result ->
         val map: Map<String, Int> = repo.fromStorage()?.associate { appInfo ->
             val summ = if (result is LoadingResult.Success) result.data.calculateAverageDailyAmmount(appCode = appInfo.appId) else 0
             return@associate Pair(appInfo.appName, summ)

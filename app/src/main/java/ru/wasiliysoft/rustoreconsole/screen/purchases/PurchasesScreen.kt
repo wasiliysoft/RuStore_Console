@@ -50,7 +50,7 @@ fun PurchasesScreen(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val loadingResult = viewModel.purchasesByDays.collectAsStateWithLifecycle().value
+            val loadingResult = viewModel.purchasesByDaysFiltered.collectAsStateWithLifecycle().value
 
             val state = rememberPullToRefreshState()
             PullToRefreshBox(
@@ -98,6 +98,13 @@ private fun PurchaseListView(
         modifier = modifier
     ) {
         item {
+            TitledCard(title = "Прогноз на основе средн. за 28 д.") {
+                PredictionItem(amountDaylyAvg)
+            }
+            Spacer(Modifier.size(8.dp))
+        }
+
+        item {
             TitledCard(title = "Фактические суммы") {
                 amountPerMonth.forEach {
                     AmountPerMonthItem(it)
@@ -105,19 +112,16 @@ private fun PurchaseListView(
             }
             Spacer(Modifier.size(8.dp))
         }
-        item {
-            TitledCard(title = "Прогноз на основе средн. за 28 д.") {
-                PredictionItem(amountDaylyAvg)
-            }
-            Spacer(Modifier.size(8.dp))
-        }
-        item {
-            TitledCard(title = "Средн.cут. сумма за 28 д.") {
-                amountDaylyByAppAvg.forEach {
-                    AmountPerMonthItem(it.toPair())
-                }
-            }
-        }
+
+        /** Плитка со среднесуточной суммой по кажому приложению **/
+//        item {
+//            TitledCard(title = "Средн.cут. сумма за 28 д.") {
+//                amountDaylyByAppAvg.forEach {
+//                    AmountPerMonthItem(it.toPair())
+//                }
+//            }
+//        }
+
 
         purchases.forEach { purchasesPerDay ->
             itemsIndexed(
