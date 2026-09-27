@@ -1,8 +1,9 @@
-package ru.wasiliysoft.rustoreconsole.screen.reviews
+package ru.wasiliysoft.rustoreconsole.screen.reviews.detail
 
+import android.app.Activity
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,28 +27,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ru.wasiliysoft.rustoreconsole.repo.ReviewRepository.Review
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
 
 
 @Composable
-fun ReviewDetailActivity(
+fun ReviewDetailScreen(
     commentId: Long,
-    viewModel: ReviewViewModel = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onActivityResult: (result: Int) -> Unit,
+    viewModel: ReviewDetailViewModel = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity)
 ) {
-    Surface(modifier.background(MaterialTheme.colorScheme.background)) {
-        val uiSate = viewModel.reviews.collectAsStateWithLifecycle().value
-        when (uiSate) {
+    Surface(modifier = modifier) {
+        when (val uiSate = viewModel.reviews.collectAsStateWithLifecycle().value) {
             is Loading -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = uiSate.description)
             }
 
             is LoadingResult.Success -> {
-                uiSate.data.find { it.userReview.commentId == commentId }?.let { review: Review ->
-                    ReviewDetailScreen(review = review, onSend = {
+                uiSate.data.find { it.userReview.commentId == commentId }?.let { review ->
+                    ReviewDetailView(review = review, onSend = {
                         viewModel.sendDevResponse(review = review, devComment = it)
+                        onActivityResult(Activity.RESULT_OK)
                     })
                 }
             }
@@ -58,9 +60,8 @@ fun ReviewDetailActivity(
     }
 }
 
-
 @Composable
-fun ReviewDetailScreen(review: Review, onSend: (comment: String) -> Unit) {
+fun ReviewDetailView(review: Review, onSend: (comment: String) -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
         val (devCommnet, onChange) = remember { mutableStateOf("") }
         ReviewDetailItem(
@@ -88,6 +89,5 @@ fun ReviewDetailScreen(review: Review, onSend: (comment: String) -> Unit) {
                 }
             }
         }
-
     }
 }

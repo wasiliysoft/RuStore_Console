@@ -1,6 +1,5 @@
 package ru.wasiliysoft.rustoreconsole.screen.main
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
@@ -33,7 +32,6 @@ import ru.wasiliysoft.rustoreconsole.screen.apps.ApplicationListScreen
 import ru.wasiliysoft.rustoreconsole.screen.bottomsheet.SelectAppBottomSheet
 import ru.wasiliysoft.rustoreconsole.screen.paymentstats.PaymentStatScreen
 import ru.wasiliysoft.rustoreconsole.screen.purchases.PurchasesScreen
-import ru.wasiliysoft.rustoreconsole.screen.reviews.ReviewDetailActivity
 import ru.wasiliysoft.rustoreconsole.screen.reviews.ReviewsScreen
 import ru.wasiliysoft.rustoreconsole.screen.settings.SettingsScreen
 
@@ -85,23 +83,7 @@ fun HomeScreen(
             composable(route = BottomBarItem.Purchases.route) { PurchasesScreen() }
             composable(route = BottomBarItem.PaymentStats.route) { PaymentStatScreen() }
             composable(route = BottomBarItem.Settings.route) { SettingsScreen() }
-            composable(route = BottomBarItem.Revews.route) {
-                ReviewsScreen(
-                    onClickItem = { id ->
-                        navController.navigate(
-                            route = "${BottomBarItem.Revews.route}/$id"
-                        )
-                    })
-            }
-            composable(
-                route = "${BottomBarItem.Revews.route}/{commnetId}",
-                enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up) },
-                exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down) },
-            ) {
-                ReviewDetailActivity(
-                    commentId = it.arguments?.getString("commnetId")?.toLong() ?: 0
-                )
-            }
+            composable(route = BottomBarItem.Revews.route) { ReviewsScreen() }
         }
 
         if (showBottomSheet) {

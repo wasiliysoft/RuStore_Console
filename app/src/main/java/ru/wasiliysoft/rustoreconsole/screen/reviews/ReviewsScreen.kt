@@ -1,7 +1,11 @@
 package ru.wasiliysoft.rustoreconsole.screen.reviews
 
+import android.app.Activity
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +27,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,6 +37,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.UserReview
+import ru.wasiliysoft.rustoreconsole.repo.ReviewRepository.Review
+import ru.wasiliysoft.rustoreconsole.screen.reviews.detail.ReviewDetailActivity
 import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.RateStarView
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Error
@@ -44,26 +51,41 @@ import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 fun ReviewsScreen(
     modifier: Modifier = Modifier,
     viewModel: ReviewViewModel = viewModel(viewModelStoreOwner = LocalActivity.current as ComponentActivity),
-    onClickItem: (commentId: Long) -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.load()
+        }
+    }
+
     Surface(Modifier.background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val uiSate = viewModel.reviews.collectAsStateWithLifecycle().value
+            val uiSate = viewModel.reviewsFiltered.collectAsStateWithLifecycle().value
             val state = rememberPullToRefreshState()
             PullToRefreshBox(
                 state = state,
                 isRefreshing = uiSate is Loading,
-                onRefresh = viewModel::loadReviews
+                onRefresh = viewModel::load
             ) {
                 when (uiSate) {
                     is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(text = uiSate.description)
                     }
 
-                    is Success -> ReviewListView(reviews = uiSate.data, onClickItem = onClickItem)
+                    is Success -> ReviewListView(reviews = uiSate.data, onClick = { review ->
+                        viewModel.selectReview(review)
+                        val intent = Intent(context, ReviewDetailActivity::class.java).apply {
+                            putExtra("EXTRA_COMMENT_ID", review.userReview.commentId)
+                        }
+                        launcher.launch(intent)
+                    })
+
                     is Error -> ErrorTextView(exception = uiSate.exception)
                 }
             }
@@ -75,7 +97,7 @@ fun ReviewsScreen(
 private fun ReviewListView(
     reviews: List<Review>,
     modifier: Modifier = Modifier,
-    onClickItem: (commentId: Long) -> Unit = {}
+    onClick: (review: Review) -> Unit
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -83,7 +105,7 @@ private fun ReviewListView(
         modifier = modifier
     ) {
         items(items = reviews, key = { it.userReview.commentId }) { review ->
-            ReviewItem(review, onClick = { onClickItem(review.userReview.commentId) })
+            ReviewItem(review, onClick = { onClick(review) })
         }
     }
 }

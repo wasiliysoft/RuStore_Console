@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.screen.reviews
+package ru.wasiliysoft.rustoreconsole.screen.reviews.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.DeveloperComment
 import ru.wasiliysoft.rustoreconsole.data.UserReview
+import ru.wasiliysoft.rustoreconsole.repo.ReviewRepository.Review
 import ru.wasiliysoft.rustoreconsole.ui.view.RateStarView
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 
