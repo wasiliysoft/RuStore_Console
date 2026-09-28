@@ -62,7 +62,7 @@ fun LoginScreen(
                     regexToken.find(payload)?.let { result -> token = result.value }
                     regexUuid.find(payload)?.let { result -> uuid = result.value }
                     if (token != "" || uuid != "") {
-                        Log.d(TAG, "$uuid, $token")
+                        Log.d(TAG, "uuid and token extract success")
                         onTokedReceived(uuid, token)
                     }
                 }
