@@ -13,8 +13,8 @@ android {
     defaultConfig {
         applicationId = "ru.wasiliysoft.rustoreconsole"
         minSdk = 26
-        versionCode = 29
-        versionName = "2.7.1"
+        versionCode = 30
+        versionName = "2.7.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
