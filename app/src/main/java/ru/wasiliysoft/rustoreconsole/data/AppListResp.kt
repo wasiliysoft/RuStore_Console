@@ -28,7 +28,7 @@ data class AppInfo(
     @SerializedName("appStatus")
     val appStatus: String,
     @SerializedName("versionName")
-    val versionName: String,
+    private val versionNameNullable: String?,
     @SerializedName("versionCode")
     val versionCode: Int,
     @SerializedName("appVerUpdatedAt")
@@ -38,6 +38,8 @@ data class AppInfo(
     @SerializedName("activePrice")
     val activePrice: Int
 ) {
+    val versionName get() = versionNameNullable ?: "-"
+
     companion object {
         fun demo(appId: Long = 1) = AppInfo(
             appId = appId,
@@ -45,7 +47,7 @@ data class AppInfo(
             appName = "Preview Application name",
             iconUrl = "iconUrl",
             appStatus = "PUBLISHED",
-            versionName = "v44.4.56",
+            versionNameNullable = "v44.4.56",
             versionCode = 4,
             appVerUpdatedAt = "appVerUpdatedAt",
             paid = true,
