@@ -31,7 +31,7 @@ class PaymentsViewModel : ViewModel() {
     fun load() {
         val appIds = repo.fromStorage() ?: emptyList()
         if (appIds.isEmpty()) {
-            _overallSum.postValue(LoadingResult.Error(Exception("Empty app id list")))
+            _overallSum.postValue(LoadingResult.Error(Exception("Список приложений пуст")))
             return
         }
         viewModelScope.launch(Dispatchers.IO) {

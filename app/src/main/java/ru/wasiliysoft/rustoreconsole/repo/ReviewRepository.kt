@@ -47,6 +47,10 @@ object ReviewRepository {
         try {
             emit(LoadingResult.Loading("Загружаем..."))
             val apps = AppListRepository.fromStorage() ?: emptyList()
+            if (apps.isEmpty()) {
+                emit(LoadingResult.Error(Exception("Список приложений пуст")))
+                return@transformLatest
+            }
             val reviews = loadReviews(apps)
             emit(LoadingResult.Success(reviews))
         } catch (e: Exception) {
