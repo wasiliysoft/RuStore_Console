@@ -3,16 +3,20 @@ package ru.wasiliysoft.rustoreconsole.data.prefs
 import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
+import androidx.core.content.edit
+import ru.wasiliysoft.rustoreconsole.utils.CryptoManager
 
 class PrefHelper private constructor(context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREF_APP_FILE_NAME, Context.MODE_PRIVATE)
+    private val cryptoManager = CryptoManager()
 
     companion object {
         private const val LOG_TAG = "PrefHelper"
         private const val PREF_APP_FILE_NAME = "prefs"
         private const val PREF_TOKEN = "PREF_TOKEN"
+        private const val PREF_TOKEN_ENCRYPTED = "PREF_TOKEN_ENCRYPTED"
         private const val PREF_JSON_APP_LIST = "PREF_JSON_APP_LIST"
 
         /**
@@ -40,12 +44,46 @@ class PrefHelper private constructor(context: Context) {
         }
     }
 
-    //Стоит рассмотреть вариант prefManager -> prefsRepo -> VM
-    //Сейчас можно в любом месте изменить переменную в итоге мы можем ожидать не тот результат, который нам нужен
     var token: String
-        get() = prefs.getString(PREF_TOKEN, "") ?: ""
-        // get() = "" // for manual test on empty value
-        set(value) = prefs.edit().putString(PREF_TOKEN, value).apply()
+        get() {
+            val stored = prefs.getString(PREF_TOKEN, "") ?: ""
+            if (stored.isEmpty()) return ""
+
+            val isEncrypted = prefs.getBoolean(PREF_TOKEN_ENCRYPTED, false)
+            if (!isEncrypted) {
+                // Явная миграция старого формата — один раз
+                token = stored // пройдёт через setter → зашифрует и выставит флаг
+                return stored
+            }
+
+            return try {
+                cryptoManager.decrypt(stored)
+            } catch (e: Exception) {
+                // Данные повреждены/подменены/устарели из-за нового отпечатка и т.п.
+                // НЕ пытаемся расшифровать
+                Log.e(LOG_TAG, "Token decryption failed", e)
+                clearToken()
+                ""
+            }
+        }
+        set(value) {
+            if (value.isEmpty()) {
+                clearToken()
+                return
+            }
+            val encrypted = cryptoManager.encrypt(value)
+            prefs.edit {
+                putString(PREF_TOKEN, encrypted)
+                putBoolean(PREF_TOKEN_ENCRYPTED, true)
+            }
+        }
+
+    private fun clearToken() {
+        prefs.edit {
+            remove(PREF_TOKEN)
+            remove(PREF_TOKEN_ENCRYPTED)
+        }
+    }
 
     var jsonAppListResp: String
         get() = prefs.getString(PREF_JSON_APP_LIST, "") ?: ""
