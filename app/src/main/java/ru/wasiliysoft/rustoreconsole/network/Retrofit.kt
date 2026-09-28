@@ -39,7 +39,11 @@ object RetrofitClient {
 
     private val authInterceptor = Interceptor { chain ->
         val token = ph.token
-        if (token.isEmpty()) Log.e(LOG_TAG, "token not set or empty")
+        if (token.isEmpty()) {
+            Log.e(LOG_TAG, "token not set or empty")
+            AuthEvents.notifyUnauthorized()
+            throw okio.IOException("Необходима авторизация") // прерываем запрос
+        }
 
         val request = chain.request()
             .newBuilder()
