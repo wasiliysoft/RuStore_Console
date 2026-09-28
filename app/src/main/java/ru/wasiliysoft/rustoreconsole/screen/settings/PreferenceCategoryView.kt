@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.ui.view.preference
+package ru.wasiliysoft.rustoreconsole.screen.settings
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme

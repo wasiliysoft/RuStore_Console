@@ -56,11 +56,11 @@ class MainActivity : ComponentActivity() {
 
         RetrofitClient.AuthEvents.unauthorized.asLiveData().observe(this) {
             Log.d(LOG_TAG, "on trigger need auth")
-            onFailureAuth()
+            launchLoginFlow()
         }
     }
 
-    private fun onFailureAuth() {
+    fun launchLoginFlow() {
         launcherLoginActivity.launch(null)
     }
 }

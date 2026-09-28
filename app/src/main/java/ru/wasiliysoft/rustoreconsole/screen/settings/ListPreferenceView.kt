@@ -1,16 +1,17 @@
 package ru.wasiliysoft.rustoreconsole.screen.settings
 
-import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -18,74 +19,102 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.prefs.StringPreferencesImpl
 
-@OptIn(ExperimentalMaterial3Api::class)
+data class ListPreferenceItem(
+    val value: String,
+    val label: String,
+)
+
 @Composable
 fun ListPreferenceView(
     title: String,
-    summary: String? = null,
     sharedPrefKey: String,
-    items: List<Pair<String, String>>,
+    items: List<ListPreferenceItem>,
+    summary: String? = null,
+    preferences: StringPreferencesImpl = remember { StringPreferencesImpl() },
 ) {
-    var openDialog by remember { mutableStateOf(false) }
-    Surface(
-        onClick = { openDialog = true },
-        modifier = Modifier
-            .fillMaxWidth()
-            .defaultMinSize(64.dp)
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.Center) {
-            Text(
-                text = title,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis
-            )
-            summary?.let {
-                Text(
-                    text = summary,
-                    fontWeight = FontWeight.Light,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
-    if (openDialog) {
-        val selectedItem = remember {
-            mutableStateOf(items.find {
-                it.first == StringPreferencesImpl().getData(sharedPrefKey, null)
-            } ?: items[0])
-        }
+    if (items.isEmpty()) return
 
+    var openDialog by remember { mutableStateOf(false) }
+
+    // Текущее сохранённое значение — перечитываем при каждом открытии диалога
+    val savedValue = remember(openDialog, sharedPrefKey) {
+        preferences.getData(sharedPrefKey, null)
+    }
+
+    val selectedItem = remember(items, savedValue) {
+        items.find { it.value == savedValue }
+    }
+
+    // Локальный выбор внутри диалога (до нажатия OK)
+    var pendingSelection by remember(openDialog) {
+        mutableStateOf(selectedItem)
+    }
+
+    PreferenceView(
+        onClick = { openDialog = true },
+        title = title,
+        summary = summary ?: selectedItem?.label
+    )
+
+    if (openDialog) {
         AlertDialog(
-            title = { Text(text = title) },
             onDismissRequest = { openDialog = false },
+            title = { Text(text = title) },
             text = {
-                StringRadioGroup(
-                    radioOptions = items,
-                    selectedOption = selectedItem,
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                )
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxWidth(),
+                ) {
+                    items.forEach { item ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = item == pendingSelection,
+                                    onClick = { pendingSelection = item },
+                                    role = Role.RadioButton,
+                                )
+                                .padding(vertical = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = item == pendingSelection,
+                                onClick = null, // клик обрабатывает Row
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Text(
+                                text = item.label,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        }
+                    }
+                }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        Log.d("ListPreferenceView", "Selected confirm")
+                        pendingSelection?.let {
+                            preferences.setData(sharedPrefKey, it.value)
+                        }
                         openDialog = false
-                        StringPreferencesImpl().setData(sharedPrefKey, selectedItem.value.first)
                     },
-                    modifier = Modifier.padding(8.dp),
                 ) {
-                    Text(stringResource(id = android.R.string.ok))
+                    Text(stringResource(android.R.string.ok).uppercase())
                 }
             },
-            modifier = Modifier.padding(vertical = 48.dp)
+            dismissButton = {
+                TextButton(onClick = { openDialog = false }) {
+                    Text(stringResource(android.R.string.cancel).uppercase())
+                }
+            },
         )
     }
 }

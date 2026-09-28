@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
@@ -26,11 +27,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.wasiliysoft.rustoreconsole.BuildConfig
+import ru.wasiliysoft.rustoreconsole.MainActivity
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.screen.main.BottomBarItem
-import ru.wasiliysoft.rustoreconsole.ui.view.preference.PreferenceCategoryView
-import ru.wasiliysoft.rustoreconsole.ui.view.preference.PreferenceView
 
 internal const val LOG_TAG = "SettingsScreen"
 
@@ -44,8 +44,11 @@ fun SettingsScreen(
         ) {
             PreferenceCategoryView("Общие")
             SelectStartScreenPrefView()
-            CheckUpdates()
+            PreferenceCategoryView("Аккаунт")
+            LogIn()
             Logout()
+            PreferenceCategoryView("Приложение")
+            CheckUpdates()
         }
     }
 }
@@ -54,10 +57,10 @@ fun SettingsScreen(
 private fun SelectStartScreenPrefView() {
     val screenOptions = remember {
         listOf(
-            Pair(BottomBarItem.Purchases.route, BottomBarItem.Purchases.title),
-            Pair(BottomBarItem.Revews.route, BottomBarItem.Revews.title),
-            Pair(BottomBarItem.AppList.route, BottomBarItem.AppList.title),
-            Pair(BottomBarItem.PaymentStats.route, BottomBarItem.PaymentStats.title),
+            ListPreferenceItem(BottomBarItem.Purchases.route, BottomBarItem.Purchases.title),
+            ListPreferenceItem(BottomBarItem.Revews.route, BottomBarItem.Revews.title),
+            ListPreferenceItem(BottomBarItem.AppList.route, BottomBarItem.AppList.title),
+            ListPreferenceItem(BottomBarItem.PaymentStats.route, BottomBarItem.PaymentStats.title),
         )
     }
     ListPreferenceView(
@@ -68,11 +71,11 @@ private fun SelectStartScreenPrefView() {
 }
 
 @Composable
-fun CheckUpdates() {
+private fun CheckUpdates() {
     val context = LocalActivity.current as ComponentActivity
     PreferenceView(
-        title = "Проверить обновление",
-        summary = "Текущая версия: ${BuildConfig.VERSION_NAME}"
+        title = "Исходный код на GitHub",
+        summary = "Версия: ${BuildConfig.VERSION_NAME}"
     ) {
         val uri = "https://github.com/wasiliysoft/RuStore_Console/releases".toUri()
         val intent = Intent(Intent.ACTION_VIEW, uri)
@@ -81,7 +84,22 @@ fun CheckUpdates() {
 }
 
 @Composable
-fun Logout() {
+private fun LogIn() {
+    val activity = LocalActivity.current as ComponentActivity
+    PreferenceView(
+        title = "Войти в аккаунт",
+        onClick = {
+            if (activity is MainActivity) {
+                activity.launchLoginFlow()
+            } else {
+                Toast.makeText(activity, "Что-то пошло не так", Toast.LENGTH_LONG).show()
+            }
+        }
+    )
+}
+
+@Composable
+private fun Logout() {
     val context = LocalActivity.current as ComponentActivity
     var isShow by remember { mutableStateOf(false) }
     PreferenceView(
@@ -112,9 +130,9 @@ fun Logout() {
                             Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                         }
                     }
-                }) { Text("ДА") }
+                }) { Text(stringResource(android.R.string.ok).uppercase()) }
             },
-            dismissButton = { TextButton({ isShow = false }) { Text("ОТМЕНА") } },
+            dismissButton = { TextButton({ isShow = false }) { Text(stringResource(android.R.string.cancel).uppercase()) } },
             text = { Text("Выйти из аккаунта?") })
     }
 }
