@@ -1,14 +1,17 @@
 package ru.wasiliysoft.rustoreconsole.repo
 
 import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.transformLatest
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.AppListResp
@@ -22,6 +25,7 @@ object AppListRepository {
     private val gson by lazy { Gson() }
     private val api by lazy { RetrofitClient.api }
     private val ph by lazy { PrefHelper.getInstance() }
+    private val coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private val _selectedApp = MutableStateFlow<AppInfo?>(null)
     val selectedApp: StateFlow<AppInfo?> = _selectedApp.asStateFlow()
@@ -29,18 +33,14 @@ object AppListRepository {
         _selectedApp.value = app
     }
 
-    // Внутренний триггер обновлений списка приложений
-    // первая сработка сразу при инициализации
-    private val refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply {
-        tryEmit(Unit)
+    private val refreshTrigger = MutableStateFlow(0)
+    fun refreshData() {
+        refreshTrigger.value += 1
     }
 
-    fun refreshData() {
-        refreshTrigger.tryEmit(Unit)
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val appListResultFlow: Flow<LoadingResult<List<AppInfo>>> = refreshTrigger.transformLatest {
+    val appListResultFlow: SharedFlow<LoadingResult<List<AppInfo>>> = refreshTrigger.transformLatest {
         emit(LoadingResult.Loading("Загружаем..."))
         try {
             // Отправляем то что в кеше
@@ -62,6 +62,11 @@ object AppListRepository {
         }
     }
         .flowOn(Dispatchers.IO)
+        .shareIn(
+            scope = coroutineScope,
+            started = SharingStarted.Eagerly,   // ← стартует сразу, без подписчиков
+            replay = 1                          // ← новые подписчики получают последнее значение
+        )
 
     fun fromStorage(): List<AppInfo>? {
         val json = ph.jsonAppListResp
