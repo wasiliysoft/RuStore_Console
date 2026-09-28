@@ -10,7 +10,7 @@ class PrefHelper private constructor(context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREF_APP_FILE_NAME, Context.MODE_PRIVATE)
-    private val cryptoManager = CryptoManager()
+    private val cryptoManager = CryptoManager
 
     companion object {
         private const val LOG_TAG = "PrefHelper"
@@ -57,7 +57,7 @@ class PrefHelper private constructor(context: Context) {
             }
 
             return try {
-                cryptoManager.decrypt(stored)
+                cryptoManager.decrypt(stored) ?: ""
             } catch (e: Exception) {
                 // Данные повреждены/подменены/устарели из-за нового отпечатка и т.п.
                 // НЕ пытаемся расшифровать
