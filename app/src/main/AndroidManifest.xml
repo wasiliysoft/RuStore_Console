@@ -23,7 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="ru.wasiliysoft.rustoreconsole.login.LoginActivity" />
+        <activity android:name="ru.wasiliysoft.rustoreconsole.screen.login.LoginActivity" />
         <activity
             android:name="ru.wasiliysoft.rustoreconsole.screen.reviews.detail.ReviewDetailActivity"
             android:windowSoftInputMode="adjustResize" />

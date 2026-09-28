@@ -15,8 +15,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
-import ru.wasiliysoft.rustoreconsole.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
+import ru.wasiliysoft.rustoreconsole.screen.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.screen.main.HomeScreen
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 

@@ -1,20 +1,19 @@
-package ru.wasiliysoft.rustoreconsole.login
+package ru.wasiliysoft.rustoreconsole.screen.login
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,15 +30,12 @@ import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
             RuStoreConsoleTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Column {
+                Scaffold { innerPadding ->
+                    Column(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
                         LoginScreen(onTokedReceived = ::onTokenReceived, modifier = Modifier.weight(1f))
                         Button(
                             onClick = { onAuthTokenReceived("demo") }, modifier = Modifier.fillMaxWidth().padding(16.dp)
@@ -53,7 +49,7 @@ class LoginActivity : ComponentActivity() {
     private fun onAuthTokenReceived(token: String) {
         intent?.let {
             it.putExtra(EXTRA_TOKEN, token)
-            setResult(Activity.RESULT_OK, it)
+            setResult(RESULT_OK, it)
             finish()
         }
     }

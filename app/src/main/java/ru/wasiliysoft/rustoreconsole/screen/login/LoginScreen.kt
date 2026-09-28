@@ -1,4 +1,4 @@
-package ru.wasiliysoft.rustoreconsole.login
+package ru.wasiliysoft.rustoreconsole.screen.login
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
