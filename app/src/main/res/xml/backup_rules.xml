@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Исключаем конкретный файл SharedPreferences по его имени -->
+    <exclude
+        domain="sharedpref"
+        path="prefs.xml" />
+</full-backup-content>
