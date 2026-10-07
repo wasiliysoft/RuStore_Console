@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
+import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.screen.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.screen.main.HomeScreen
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
@@ -27,11 +28,12 @@ class MainActivity : ComponentActivity() {
     private val launcherLoginActivity = registerForActivityResult(LoginActivity.Contract()) {
         if (it.isNotEmpty()) {
             ph.token = it
+            AppListRepository.refreshData()
+
             Toast.makeText(this, "Success", Toast.LENGTH_LONG).show()
             // Полный перезапуск текущей активити с очисткой стека
             val intent = intent // Получаем интент, которым была открыта ТЕКУЩАЯ активити
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-
             startActivity(intent)
             finish()
         }
