@@ -13,6 +13,8 @@ import kotlinx.coroutines.sync.withLock
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class PaymentsViewModel : ViewModel() {
@@ -37,10 +39,15 @@ class PaymentsViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             _overallSum.postValue(LoadingResult.Loading("Наберитесь терпения,\nсервер капризный..."))
             val list = mutableListOf<AppStats>()
-            appIds.forEach { appInfo ->
+            val progress = AtomicInteger(0)
+
+            appIds.forEachIndexed { index, appInfo ->
                 try {
+                    // Сервер чувствителен к частоте запросов
+                    if (index != 0) delay(1000.milliseconds)
+
                     val resp = api.getPaymentStats("${appInfo.appId}")
-                    resp.body["income"]
+                    resp["income"]
                         ?.get("sum")
                         ?.get("overallSum")
                         ?.let {
@@ -52,9 +59,8 @@ class PaymentsViewModel : ViewModel() {
                             mutex.withLock { list.add(appStats) }
                             Log.d(LOG_TAG, appStats.toString())
                         }
-                    //TODO Сервер чувствителен к частоте запросов, было бы хорошо блокировать кнопку
-                    // "обновить" на 10-15 секунд в случае кода HTTP 429
-                    delay(1000)
+                    val msg = "Наберитесь терпения,\nсервер капризный... \nЗагружено ${progress.incrementAndGet()} из ${appIds.size}..."
+                    _overallSum.postValue(LoadingResult.Loading(msg))
                 } catch (e: Exception) {
                     _overallSum.postValue(LoadingResult.Error(e))
                     e.printStackTrace()

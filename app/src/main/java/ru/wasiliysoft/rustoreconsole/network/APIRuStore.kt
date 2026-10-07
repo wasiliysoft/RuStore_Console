@@ -35,7 +35,7 @@ interface APIRuStore {
         @Path("appId") appId: String
     ): ReviewsResp
 
-    @GET("invoices-history/public/v1/apps/{appId}/invoice-payments/statistics")
+    @GET("/v1/monetization/invoices-history/apps/{appId}/invoice-payments/statistics")
     suspend fun getPaymentStats(@Path("appId") appId: String): PaymentResp
 
     @GET

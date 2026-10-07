@@ -161,12 +161,7 @@ object DemoDataGenerator {
             })
         }
 
-        return JSONObject().apply {
-            put("code", "OK")
-            put("message", JSONObject.NULL)
-            put("body", JSONObject().apply { put("income", income) })
-            put("timestamp", isoFormat.format(Date()))
-        }.toString()
+        return JSONObject().apply { put("income", income) }.toString()
     }
 
     fun feedbacks(appId: String): String {
