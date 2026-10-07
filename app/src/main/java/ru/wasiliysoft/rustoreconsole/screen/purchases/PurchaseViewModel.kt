@@ -168,7 +168,7 @@ class PurchaseViewModel : ViewModel() {
         val querySize = 250
         val result = api.getInvoices(
             appId = "${appInfo.appId}", page = page, dateFrom = dateFrom, dateTo = dateTo, size = querySize
-        ).body.invoices.map { it.enrich(appInfo) }.toList()
+        ).invoices.map { it.enrich(appInfo) }.toList()
 
         if (result.size < querySize) {
             Log.i(LOG_TAG, "${appInfo.appName} loaded all available InApp purchases")

@@ -103,17 +103,13 @@ object DemoDataGenerator {
         }
 
         return JSONObject().apply {
-            put("code", "OK")
-            put("message", JSONObject.NULL)
-            put("body", JSONObject().apply {
-                put("invoices", invoices)
-                put("pageNumber", 0)
-                put("pageSize", 250)
-                put("totalElements", invoices.length())
-                put("totalPages", 1)
-            })
-            put("timestamp", isoFormat.format(Date()))
-        }.toString()
+            put("invoices", invoices)
+            put("pageNumber", 0)
+            put("pageSize", 250)
+            put("totalElements", invoices.length())
+            put("totalPages", 1)
+        }
+            .toString()
     }
 
     fun stats(appId: String): String {

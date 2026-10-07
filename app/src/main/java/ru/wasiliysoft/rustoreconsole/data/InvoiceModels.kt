@@ -3,11 +3,6 @@ package ru.wasiliysoft.rustoreconsole.data
 import com.google.gson.annotations.SerializedName
 
 class InvoicesResp(
-    @SerializedName("message") val message: String,
-    @SerializedName("body") val body: Invoices,
-)
-
-class Invoices(
     @SerializedName("invoices") val invoices: List<Invoice>
 )
 

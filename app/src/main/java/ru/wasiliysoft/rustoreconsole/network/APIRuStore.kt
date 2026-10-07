@@ -20,14 +20,14 @@ interface APIRuStore {
      * @param dateTo формат YYYY-MM-DD
      */
 
-    @GET("invoices-history/public/v1/apps/{appId}/invoice-payments")
+    @GET("/v1/monetization/invoices-history/apps/{appId}/invoice-payments?invoiceStatuses=CONFIRMED&invoiceStatuses=REFUNDED")
     suspend fun getInvoices(
         @Path("appId") appId: String,
         @Query("page") page: Int,
         @Query("size") size: Int,
         @Query("dateFrom") dateFrom: String,
         @Query("dateTo") dateTo: String,
-        @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
+//        @Query("invoiceStatuses") invoiceStatuses: String = "confirmed,refunded",
     ): InvoicesResp
 
     @GET("/v2/dev-console/devs/apps/{appId}/feedbacks?limit=40&sortBy=EDITED_FIRST")
