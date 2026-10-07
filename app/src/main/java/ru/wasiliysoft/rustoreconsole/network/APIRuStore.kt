@@ -41,6 +41,9 @@ interface APIRuStore {
     @GET
     suspend fun getRetrieveUserApps(@Url url: String): ResponseBody
 
+    @GET
+    suspend fun getLastVersionStatus(@Url url: String): Response<ResponseBody>
+
     @POST("feedbacks/devs/app/{appId}/comment/{commentId}/devresponse")
     suspend fun sendDevResponse(
         @Path("appId") appId: String,

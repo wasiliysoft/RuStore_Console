@@ -33,6 +33,11 @@ class DemoMockInterceptor : Interceptor {
                 DemoDataGenerator.feedbacks(appId)
             }
 
+            path.matches(Regex(".*/app/v2/(\\d+)/version$")) -> {
+                val appId = Regex(".*/app/v2/(\\d+)/version$").find(path)!!.groupValues[1]
+                DemoDataGenerator.version(appId)
+            }
+
             else -> return chain.proceed(request)
         }
 

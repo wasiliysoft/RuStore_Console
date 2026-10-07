@@ -36,9 +36,17 @@ data class AppInfo(
     @SerializedName("paid")
     val paid: Boolean,
     @SerializedName("activePrice")
-    val activePrice: Int
+    val activePrice: Int,
+    val lastVersion: AppVersionShort? = null
 ) {
     val versionName get() = versionNameNullable ?: "-"
+
+    /**
+     * Обогащение модели информацией о статусе последней версии
+     */
+    fun withLastVersionInfo(lastVersion: AppVersionShort): AppInfo {
+        return copy(lastVersion = lastVersion)
+    }
 
     companion object {
         fun demo(appId: Long = 1) = AppInfo(

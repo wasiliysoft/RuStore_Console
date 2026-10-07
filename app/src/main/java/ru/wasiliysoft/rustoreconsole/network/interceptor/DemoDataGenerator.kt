@@ -112,6 +112,24 @@ object DemoDataGenerator {
             .toString()
     }
 
+    fun version(appId: String): String {
+        val profile = profiles.firstOrNull { it.appId == appId } ?: return emptyInvoices()
+        val rnd = Random(appId.hashCode() + dayIndex())
+        val versions = JSONArray()
+
+        for (i in 0 until 5) {
+            versions.put(JSONObject().apply {
+                put("versionId", i)
+                put("appVersionStatus", if (profile.appId.toLong() * rnd.nextLong() % 2L == 0L) "ACTIVE" else "MODERATION")
+            })
+        }
+
+        return JSONObject().apply {
+            put("body", JSONObject().apply { put("content", versions) })
+        }.toString()
+    }
+
+
     fun stats(appId: String): String {
         val profile = profiles.firstOrNull { it.appId == appId }
             ?: return emptyStats()

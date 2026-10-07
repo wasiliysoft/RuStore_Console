@@ -5,6 +5,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,11 +17,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.transformLatest
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.AppListResp
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
+import ru.wasiliysoft.rustoreconsole.data.unwrapLastVersion
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
+import kotlin.time.Duration.Companion.milliseconds
 
 
 object AppListRepository {
@@ -53,9 +62,39 @@ object AppListRepository {
             // Обновляем кеш
             toStorage(rawBody)
 
-            // Отправляем свежие данные из кеша, оибо пустой лист
+            // Отправляем свежие данные из кеша, либо пустой лист
             val list = fromStorage() ?: emptyList()
             emit(LoadingResult.Success(list))
+
+            /**
+             * Обогащение списка приложений информацией о статусе последней версии
+             */
+            if (list.isNotEmpty()) {
+                val semaphore = Semaphore(permits = 3)
+                val results = MutableStateFlow(list)   // текущее состояние, что эмитим
+
+                coroutineScope {
+                    list.mapIndexed { index, appInfo ->
+                        async {
+                            semaphore.withPermit {
+                                delay(200.milliseconds)
+                                val url = "https://backapi.rustore.ru/devs/app/v2/${appInfo.appId}/version?pageSize=20"
+                                val lastVersion = api.getLastVersionStatus(url).unwrapLastVersion()
+                                val enriched = if (lastVersion != null)
+                                    appInfo.withLastVersionInfo(lastVersion) else appInfo
+
+                                // атомарно обновляем элемент и эмитим новый снапшот
+                                results.update { current ->
+                                    current.toMutableList().also { it[index] = enriched }
+                                }
+                                emit(LoadingResult.Success(results.value))
+                            }
+                        }
+                    }.awaitAll()
+                }
+            }
+
+
         } catch (e: Exception) {
             e.printStackTrace()
             emit(LoadingResult.Error(e))
