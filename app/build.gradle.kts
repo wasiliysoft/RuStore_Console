@@ -31,6 +31,7 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.getByName("release")
+            resValue("string", "app_name", "RuStore Console")
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -38,6 +39,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            resValue("string", "app_name", "RuStore Console debug")
         }
     }
     compileOptions {
@@ -48,6 +50,7 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+        resValues = true
     }
     packaging {
         resources {
