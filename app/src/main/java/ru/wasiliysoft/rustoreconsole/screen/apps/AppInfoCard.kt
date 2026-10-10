@@ -104,7 +104,7 @@ fun AppInfoCard(
 }
 
 @Composable
-private fun StatusChip(
+fun StatusChip(
     label: String,
     status: String,
     modifier: Modifier = Modifier

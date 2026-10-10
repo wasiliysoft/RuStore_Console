@@ -69,8 +69,11 @@ private fun ListView(
         contentPadding = PaddingValues(16.dp),
         modifier = modifier
     ) {
-        items(items = data, key = { it.packageName }) {
-            AppInfoCard(it)
+        item(key = "version_statuses_block") {
+            VersionStatusesCard(data, modifier)
+        }
+        items(items = data, key = { it.packageName }) { appInfo ->
+            AppInfoCard(appInfo)
         }
     }
 }
