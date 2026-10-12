@@ -1,5 +1,5 @@
 # RuStore Console
-Приложение для простого мониторинга платежей и отзывов.
+Приложение для простого мониторинга платежей и отзывов. Доступно на [Google Play](https://play.google.com/store/apps/details?id=ru.wasiliysoft.rustoreconsole)  
 
 🧡 **Поддержать проект:** Вы можете отправить донат на моем [Boosty](https://boosty.to/wasiliysoft_apps).
 
