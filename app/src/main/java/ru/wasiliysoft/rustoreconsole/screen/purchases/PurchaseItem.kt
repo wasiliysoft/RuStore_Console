@@ -65,27 +65,42 @@ fun PurchaseItem(
                     text = purchase.applicationName,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 8.dp)
                 )
-                Text(text = (purchase.amountCurrent / 100).toString() + "p")
+                Text(
+                    text = (purchase.amountCurrent / 100).toString() + "p",
+                    style = MaterialTheme.typography.labelLarge
+                )
 
             }
-            purchase.productName?.let { name ->
-                Text(text = name, fontWeight = FontWeight.Light)
+            Row {
+                purchase.productName?.let { name ->
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Light,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
             Row {
                 Text(
-                    text = "invoiceId: " + purchase.invoiceId.toString(),
+                    text = "Счёт №:" + purchase.invoiceId.toString(),
+                    style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Light,
+
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 8.dp)
                 )
                 Text(
                     text = date.toMediumTimeString(),
-                    fontWeight = FontWeight.Light
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Light,
                 )
             }
         }
