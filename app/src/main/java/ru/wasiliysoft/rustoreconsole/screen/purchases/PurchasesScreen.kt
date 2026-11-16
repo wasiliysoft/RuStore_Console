@@ -120,17 +120,15 @@ private fun PurchaseListView(
 //            }
 //        }
 
-
         purchases.forEach { purchasesPerDay ->
-            itemsIndexed(
-                items = purchasesPerDay.value,
-                key = { _, p -> p.invoiceId }) { index, purchase ->
-                if (index == 0) {
-                    PurchaseDayHeader(
-                        dateStr = purchasesPerDay.key,
-                        list = purchasesPerDay.value
-                    )
-                }
+            stickyHeader(key = purchasesPerDay.key) {
+                PurchaseDayHeader(
+                    dateStr = purchasesPerDay.key,
+                    list = purchasesPerDay.value,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.background)
+                )
+            }
+            itemsIndexed(items = purchasesPerDay.value, key = { _, p -> p.invoiceId }) { index, purchase ->
                 PurchaseItem(purchase)
             }
         }
