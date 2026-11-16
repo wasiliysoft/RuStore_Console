@@ -27,6 +27,7 @@
         <activity
             android:name="ru.wasiliysoft.rustoreconsole.screen.reviews.detail.ReviewDetailActivity"
             android:windowSoftInputMode="adjustResize" />
+        <activity android:name="ru.wasiliysoft.rustoreconsole.screen.whatsnew.WhatsNewActivity" />
     </application>
 
 </manifest>

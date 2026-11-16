@@ -18,6 +18,7 @@ class PrefHelper private constructor(context: Context) {
         private const val PREF_TOKEN = "PREF_TOKEN"
         private const val PREF_TOKEN_ENCRYPTED = "PREF_TOKEN_ENCRYPTED"
         private const val PREF_JSON_APP_LIST = "PREF_JSON_APP_LIST"
+        private const val KEY_LAST_SEEN_VERSION = "LAST_SEEN_VERSION"
 
         /**
          * Хранит имя маршрута для стартовой вкладки на домашнем экране
@@ -96,4 +97,13 @@ class PrefHelper private constructor(context: Context) {
     fun getPrefs(): SharedPreferences = prefs
 
     fun editPrefs(): SharedPreferences.Editor = prefs.edit()
+
+    /**
+     * -1 означает, что пользователь ещё никогда не видел экран (первая установка)
+     */
+    var lastSeenVersion: Int
+        get() = prefs.getInt(KEY_LAST_SEEN_VERSION, -1)
+        set(versionCode: Int) {
+            prefs.edit { putInt(KEY_LAST_SEEN_VERSION, versionCode) }
+        }
 }

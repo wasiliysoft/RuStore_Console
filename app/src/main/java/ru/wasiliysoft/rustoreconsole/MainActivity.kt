@@ -19,6 +19,7 @@ import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.screen.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.screen.main.HomeScreen
+import ru.wasiliysoft.rustoreconsole.screen.whatsnew.WhatsNewActivity
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 
 class MainActivity : ComponentActivity() {
@@ -60,10 +61,26 @@ class MainActivity : ComponentActivity() {
             Log.d(LOG_TAG, "on trigger need auth")
             launchLoginFlow()
         }
+        showWhatsNew()
     }
 
     fun launchLoginFlow() {
         launcherLoginActivity.launch(null)
+    }
+
+    private fun showWhatsNew() {
+        val lastSeen = ph.lastSeenVersion
+        // Первая установка — ничего не показываем, просто запоминаем версию
+        if (lastSeen == -1) {
+            ph.lastSeenVersion = BuildConfig.VERSION_CODE
+            return
+        }
+        // Если версия не изменилась — ничего не показываем
+        if (lastSeen >= BuildConfig.VERSION_CODE) {
+            return
+        }
+
+        startActivity(Intent(this, WhatsNewActivity::class.java))
     }
 }
 
