@@ -49,6 +49,9 @@ class PurchaseViewModel : ViewModel() {
 
     /**
      * Все платеэи, без фильтрации
+     *
+     *  Есть соблазн загружать платежи только для платных приложений,
+     *  но тогда мы теряем приложения с InApp платежами
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     private val purchasesByDaysAll: StateFlow<LoadingResult<PurchaseMap>> = refreshTrigger.transformLatest {
@@ -63,7 +66,7 @@ class PurchaseViewModel : ViewModel() {
         emit(LoadingResult.Loading("Загружаем..."))
 
         try {
-            appIds.chunked(3).forEach { idList ->
+            appIds.chunked(1).forEach { idList ->
                 coroutineScope {
                     idList.forEach { appInfo ->
                         launch {
