@@ -8,15 +8,22 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -26,13 +33,18 @@ import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import ru.wasiliysoft.rustoreconsole.utils.toMediumTimeString
 
-
 private fun copyKeyToClipBoard(activity: Activity, str: String) {
     val clipboardManager = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     val clipData = ClipData.newPlainText("invoiceId", str)
     clipboardManager.setPrimaryClip(clipData)
     Toast.makeText(activity, "copy: $str", Toast.LENGTH_SHORT).show()
 }
+
+private fun openInBrowser(context: Context, app: Long) {
+    val url = "https://console.rustore.ru/apps/$app/payments/"
+    context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+}
+
 
 @Composable
 fun PurchaseItem(
@@ -42,22 +54,28 @@ fun PurchaseItem(
     val date = purchase.invoiceDate
     val context = LocalContext.current
     val activity = LocalActivity.current
+
+    var menuExpanded by remember { mutableStateOf(false) }
+
     val cardColors =
         if (purchase.amountCurrent == 0) CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer
         ) else CardDefaults.cardColors()
+
     Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = cardColors,
-        onClick = {
-            val app = purchase.applicationCode
-            val invoceId = purchase.invoiceId
-            activity?.let {
-                copyKeyToClipBoard(activity = it, invoceId.toString())
-            }
-            val url = "https://console.rustore.ru/apps/$app/payments/"
-            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-        }
+        modifier = modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = {
+                    // основной тап
+                    activity?.let {
+                        copyKeyToClipBoard(it, purchase.invoiceId.toString())
+                    }
+                    openInBrowser(context, purchase.applicationCode)
+                },
+                onLongClick = { menuExpanded = true }
+            ),
+        colors = cardColors
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row {
@@ -74,7 +92,6 @@ fun PurchaseItem(
                     text = (purchase.amountCurrent / 100).toString() + "p",
                     style = MaterialTheme.typography.labelLarge
                 )
-
             }
             Row {
                 purchase.productName?.let { name ->
@@ -92,7 +109,6 @@ fun PurchaseItem(
                     text = "Счёт №:" + purchase.invoiceId.toString(),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Light,
-
                     modifier = Modifier
                         .weight(1f)
                         .padding(end = 8.dp)
@@ -101,6 +117,29 @@ fun PurchaseItem(
                     text = date.toMediumTimeString(),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Light,
+                )
+            }
+
+            // Контекстное меню
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Скопировать номер счёта") },
+                    onClick = {
+                        menuExpanded = false
+                        activity?.let {
+                            copyKeyToClipBoard(it, purchase.invoiceId.toString())
+                        }
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Открыть в браузере") },
+                    onClick = {
+                        menuExpanded = false
+                        openInBrowser(context, purchase.applicationCode)
+                    }
                 )
             }
         }
