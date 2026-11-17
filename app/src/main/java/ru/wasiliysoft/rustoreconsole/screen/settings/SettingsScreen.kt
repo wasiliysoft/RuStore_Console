@@ -50,7 +50,7 @@ fun SettingsScreen(
             Logout()
             PreferenceCategoryView("Приложение")
             WhatsNew()
-            CheckUpdates()
+            SourceCodePage()
         }
     }
 }
@@ -73,13 +73,13 @@ private fun SelectStartScreenPrefView() {
 }
 
 @Composable
-private fun CheckUpdates() {
+private fun SourceCodePage() {
     val context = LocalActivity.current as ComponentActivity
     PreferenceView(
         title = "Исходный код на GitHub",
         summary = "Версия: ${BuildConfig.VERSION_NAME}"
     ) {
-        val uri = "https://github.com/wasiliysoft/RuStore_Console/releases".toUri()
+        val uri = "https://github.com/wasiliysoft/RuStore_Console".toUri()
         val intent = Intent(Intent.ACTION_VIEW, uri)
         context.startActivity(intent)
     }
