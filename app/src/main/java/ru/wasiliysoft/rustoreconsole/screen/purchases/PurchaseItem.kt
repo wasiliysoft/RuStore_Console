@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
+import ru.wasiliysoft.rustoreconsole.utils.formatAsAmmountSumm
 import ru.wasiliysoft.rustoreconsole.utils.toMediumTimeString
 
 private fun copyKeyToClipBoard(activity: Activity, str: String) {
@@ -89,7 +90,7 @@ fun PurchaseItem(
                         .padding(end = 8.dp)
                 )
                 Text(
-                    text = (purchase.amountCurrent / 100).toString() + " ₽",
+                    text = (purchase.amountCurrent / 100).formatAsAmmountSumm(),
                     fontWeight = FontWeight.Bold,
 
                     )

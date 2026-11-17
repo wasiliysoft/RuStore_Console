@@ -34,6 +34,7 @@ import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.TitledCard
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
+import ru.wasiliysoft.rustoreconsole.utils.formatAsAmmountSumm
 
 data class AppStats(
     val appName: String,
@@ -59,7 +60,10 @@ fun PaymentStatScreen(
                 onRefresh = viewModel::load
             ) {
                 when (uiSate) {
-                    is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    is Loading -> Box(
+                        modifier = modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(text = uiSate.description)
                     }
 
@@ -128,10 +132,10 @@ private fun PaymentStatCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 appStats.overallSum.let {
-                    Text(text = "Вчера\n${it.dailyStats} р.")
-                    Text(text = "7 дней\n${it.weeklyStats} р.")
-                    Text(text = "30 дней\n${it.monthlyStats} р.")
-                    Text(text = "Всё время\n${it.totalStats} р.")
+                    Text(text = "Вчера\n${it.dailyStats.formatAsAmmountSumm()}")
+                    Text(text = "7 дней\n${it.weeklyStats.formatAsAmmountSumm()}")
+                    Text(text = "30 дней\n${it.monthlyStats.formatAsAmmountSumm()}")
+                    Text(text = "Всё время\n${it.totalStats.formatAsAmmountSumm()}")
                 }
             }
         }

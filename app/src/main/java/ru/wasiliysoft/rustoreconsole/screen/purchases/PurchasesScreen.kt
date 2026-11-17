@@ -34,6 +34,7 @@ import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.TitledCard
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
+import ru.wasiliysoft.rustoreconsole.utils.formatAsAmmountSumm
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 import java.util.Calendar
 
@@ -48,7 +49,8 @@ fun PurchasesScreen(
             modifier = modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val loadingResult = viewModel.purchasesByDaysFiltered.collectAsStateWithLifecycle().value
+            val loadingResult =
+                viewModel.purchasesByDaysFiltered.collectAsStateWithLifecycle().value
 
             val state = rememberPullToRefreshState()
             PullToRefreshBox(
@@ -57,15 +59,20 @@ fun PurchasesScreen(
                 onRefresh = viewModel::load
             ) {
                 when (loadingResult) {
-                    is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    is Loading -> Box(
+                        modifier = modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(text = loadingResult.description)
                     }
 
                     is LoadingResult.Success -> {
                         val purchases = loadingResult.data
                         val amountDaylyAvg = viewModel.avgSumm.collectAsStateWithLifecycle().value
-                        val amountPerMonth = viewModel.amountPerMonth.collectAsStateWithLifecycle().value
-                        val amountDaylyByAppAvg = viewModel.avgSummByApp.collectAsStateWithLifecycle().value
+                        val amountPerMonth =
+                            viewModel.amountPerMonth.collectAsStateWithLifecycle().value
+                        val amountDaylyByAppAvg =
+                            viewModel.avgSummByApp.collectAsStateWithLifecycle().value
                         PurchaseListView(
                             purchases = purchases,
                             amountDaylyAvg = amountDaylyAvg,
@@ -128,7 +135,9 @@ private fun PurchaseListView(
                     modifier = Modifier.background(MaterialTheme.colorScheme.background)
                 )
             }
-            itemsIndexed(items = purchasesPerDay.value, key = { _, p -> p.invoiceId }) { index, purchase ->
+            itemsIndexed(
+                items = purchasesPerDay.value,
+                key = { _, p -> p.invoiceId }) { index, purchase ->
                 PurchaseItem(purchase)
             }
         }
@@ -143,7 +152,11 @@ private fun PredictionItem(
     val calendar = Calendar.getInstance()
     val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
     val predictionAmount = avgDaylyAmmount * daysInMonth
-    val mName = calendar.getDisplayName(Calendar.MONTH, Calendar.LONG_STANDALONE, LocalLocale.current.platformLocale)
+    val mName = calendar.getDisplayName(
+        Calendar.MONTH,
+        Calendar.LONG_STANDALONE,
+        LocalLocale.current.platformLocale
+    )
 
     Column(modifier = modifier.fillMaxWidth()) {
         AmountPerMonthItem(Pair("Среднесуточная сумма", avgDaylyAmmount))
@@ -154,11 +167,21 @@ private fun PredictionItem(
 @Composable
 private fun AmountPerMonthItem(
     amountPerMonth: Pair<String, Int>,
-    modifier: Modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp).fillMaxWidth()
+    modifier: Modifier = Modifier
+        .padding(vertical = 4.dp, horizontal = 8.dp)
+        .fillMaxWidth()
 ) {
     Row(modifier = modifier) {
-        Text(text = amountPerMonth.first, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(text = String.format("%,d", amountPerMonth.second) + " ₽", modifier = Modifier.padding(start = 8.dp))
+        Text(
+            text = amountPerMonth.first,
+            modifier = Modifier.weight(1f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = amountPerMonth.second.formatAsAmmountSumm(),
+            modifier = Modifier.padding(start = 8.dp)
+        )
     }
 }
 
@@ -180,7 +203,7 @@ fun PurchaseDayHeader(
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Сумма: " + list.sumOf { it.amountCurrent / 100 }.toString() + "p",
+            text = "Сумма: " + list.sumOf { it.amountCurrent / 100 }.formatAsAmmountSumm(),
             fontWeight = FontWeight.Bold
         )
     }
