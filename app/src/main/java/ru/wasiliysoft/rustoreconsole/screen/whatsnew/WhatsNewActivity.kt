@@ -27,6 +27,8 @@ import ru.wasiliysoft.rustoreconsole.ui.view.TitledCard
 class WhatsNewActivity : ComponentActivity() {
     private val ph by lazy { PrefHelper.getInstance() }
 
+    private val isAll by lazy { intent.getBooleanExtra("EXTRA_ALL", false) }
+
     companion object {
         fun getList(currentVersion: Int, lastSeenVersion: Int) =
             WhatsNewRegistry.ALL_NOTES
@@ -42,7 +44,7 @@ class WhatsNewActivity : ComponentActivity() {
                 WhatsNewScreen(
                     notes = getList(
                         currentVersion = BuildConfig.VERSION_CODE,
-                        lastSeenVersion = ph.lastSeenVersion
+                        lastSeenVersion = if (isAll) 0 else ph.lastSeenVersion
                     ),
                     onConfirm = {
                         ph.lastSeenVersion = BuildConfig.VERSION_CODE
@@ -95,7 +97,8 @@ private fun WhatsNewFragment(
         }
         Button(
             onClick = onConfirm,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(16.dp)
         ) {
             Text("Понятно")
@@ -108,13 +111,41 @@ private fun WhatsNewFragment(
 private fun Preview() {
     val previewNotes = listOf(
         ReleaseNote(versionCode = 1, title = "Версия 1.0", items = listOf("Первый релиз")),
-        ReleaseNote(versionCode = 2, title = "Версия 1.1", items = listOf("Исправлены ошибки", "Новая тема")),
-        ReleaseNote(versionCode = 3, title = "Версия 1.2", items = listOf("Исправлены ошибки", "Новая тема")),
-        ReleaseNote(versionCode = 4, title = "Версия 1.3", items = listOf("Исправлены ошибки", "Новая тема")),
-        ReleaseNote(versionCode = 5, title = "Версия 1.4", items = listOf("Исправлены ошибки", "Новая тема")),
-        ReleaseNote(versionCode = 6, title = "Версия 1.5", items = listOf("Исправлены ошибки", "Новая тема")),
-        ReleaseNote(versionCode = 7, title = "Версия 1.6", items = listOf("Исправлены ошибки", "Новая тема")),
-        ReleaseNote(versionCode = 8, title = "Версия 1.7", items = listOf("Исправлены ошибки", "Новая тема")),
+        ReleaseNote(
+            versionCode = 2,
+            title = "Версия 1.1",
+            items = listOf("Исправлены ошибки", "Новая тема")
+        ),
+        ReleaseNote(
+            versionCode = 3,
+            title = "Версия 1.2",
+            items = listOf("Исправлены ошибки", "Новая тема")
+        ),
+        ReleaseNote(
+            versionCode = 4,
+            title = "Версия 1.3",
+            items = listOf("Исправлены ошибки", "Новая тема")
+        ),
+        ReleaseNote(
+            versionCode = 5,
+            title = "Версия 1.4",
+            items = listOf("Исправлены ошибки", "Новая тема")
+        ),
+        ReleaseNote(
+            versionCode = 6,
+            title = "Версия 1.5",
+            items = listOf("Исправлены ошибки", "Новая тема")
+        ),
+        ReleaseNote(
+            versionCode = 7,
+            title = "Версия 1.6",
+            items = listOf("Исправлены ошибки", "Новая тема")
+        ),
+        ReleaseNote(
+            versionCode = 8,
+            title = "Версия 1.7",
+            items = listOf("Исправлены ошибки", "Новая тема")
+        ),
     ).sortedByDescending { it.versionCode }
 
     RuStoreConsoleTheme {

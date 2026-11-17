@@ -31,6 +31,7 @@ import ru.wasiliysoft.rustoreconsole.MainActivity
 import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.screen.main.BottomBarItem
+import ru.wasiliysoft.rustoreconsole.screen.whatsnew.WhatsNewActivity
 
 internal const val LOG_TAG = "SettingsScreen"
 
@@ -48,6 +49,7 @@ fun SettingsScreen(
             LogIn()
             Logout()
             PreferenceCategoryView("Приложение")
+            WhatsNew()
             CheckUpdates()
         }
     }
@@ -79,6 +81,18 @@ private fun CheckUpdates() {
     ) {
         val uri = "https://github.com/wasiliysoft/RuStore_Console/releases".toUri()
         val intent = Intent(Intent.ACTION_VIEW, uri)
+        context.startActivity(intent)
+    }
+}
+
+@Composable
+private fun WhatsNew() {
+    val context = LocalActivity.current as ComponentActivity
+    PreferenceView(
+        title = "Что нового",
+    ) {
+        val intent = Intent(context, WhatsNewActivity::class.java)
+        intent.putExtra("EXTRA_ALL", true)
         context.startActivity(intent)
     }
 }
