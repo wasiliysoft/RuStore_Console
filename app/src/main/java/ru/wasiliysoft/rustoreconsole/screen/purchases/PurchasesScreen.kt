@@ -158,7 +158,7 @@ private fun AmountPerMonthItem(
 ) {
     Row(modifier = modifier) {
         Text(text = amountPerMonth.first, modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
-        Text(text = String.format("%,d", amountPerMonth.second) + "р", modifier = Modifier.padding(start = 8.dp))
+        Text(text = String.format("%,d", amountPerMonth.second) + " ₽", modifier = Modifier.padding(start = 8.dp))
     }
 }
 

@@ -29,12 +29,6 @@ class WhatsNewActivity : ComponentActivity() {
 
     private val isAll by lazy { intent.getBooleanExtra("EXTRA_ALL", false) }
 
-    companion object {
-        fun getList(currentVersion: Int, lastSeenVersion: Int) =
-            WhatsNewRegistry.ALL_NOTES
-                .filter { it.versionCode in (lastSeenVersion + 1)..currentVersion }
-                .sortedByDescending { it.versionCode }
-    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,7 +36,7 @@ class WhatsNewActivity : ComponentActivity() {
         setContent {
             RuStoreConsoleTheme {
                 WhatsNewScreen(
-                    notes = getList(
+                    notes = WhatsNewRegistry.getList(
                         currentVersion = BuildConfig.VERSION_CODE,
                         lastSeenVersion = if (isAll) 0 else ph.lastSeenVersion
                     ),

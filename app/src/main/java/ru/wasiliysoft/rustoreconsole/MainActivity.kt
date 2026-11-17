@@ -20,6 +20,7 @@ import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
 import ru.wasiliysoft.rustoreconsole.screen.login.LoginActivity
 import ru.wasiliysoft.rustoreconsole.screen.main.HomeScreen
 import ru.wasiliysoft.rustoreconsole.screen.whatsnew.WhatsNewActivity
+import ru.wasiliysoft.rustoreconsole.screen.whatsnew.WhatsNewRegistry
 import ru.wasiliysoft.rustoreconsole.ui.theme.RuStoreConsoleTheme
 
 class MainActivity : ComponentActivity() {
@@ -70,17 +71,15 @@ class MainActivity : ComponentActivity() {
 
     private fun showWhatsNew() {
         val lastSeen = ph.lastSeenVersion
-        // Первая установка — ничего не показываем, просто запоминаем версию
-        if (lastSeen == -1) {
-            ph.lastSeenVersion = BuildConfig.VERSION_CODE
-            return
-        }
-        // Если версия не изменилась — ничего не показываем
-        if (lastSeen >= BuildConfig.VERSION_CODE) {
-            return
-        }
+        val currentVersion = BuildConfig.VERSION_CODE
 
-        startActivity(Intent(this, WhatsNewActivity::class.java))
+        if (ph.token.isNotEmpty()) {
+            if (currentVersion <= WhatsNewRegistry.maxVersionCode) {
+                if (currentVersion > lastSeen) {
+                    startActivity(Intent(this, WhatsNewActivity::class.java))
+                }
+            }
+        }
     }
 }
 
