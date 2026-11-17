@@ -41,7 +41,10 @@ fun ApplicationListScreen(
                 onRefresh = viewModel::refreshData
             ) {
                 when (uiSate) {
-                    is Loading -> Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    is Loading -> Box(
+                        modifier = modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Text(text = uiSate.description)
                     }
 
@@ -70,7 +73,7 @@ private fun ListView(
         modifier = modifier
     ) {
         item(key = "version_statuses_block") {
-            VersionStatusesCard(data, modifier)
+            VersionStatusesCard(data)
         }
         items(items = data, key = { it.packageName }) { appInfo ->
             AppInfoCard(appInfo)
