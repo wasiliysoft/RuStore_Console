@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.wasiliysoft.rustoreconsole.data.AppInfo
 import ru.wasiliysoft.rustoreconsole.data.Invoice
+import ru.wasiliysoft.rustoreconsole.data.prefs.PrefHelper
 import ru.wasiliysoft.rustoreconsole.data.ui.PurchaseListItem
 import ru.wasiliysoft.rustoreconsole.network.RetrofitClient
 import ru.wasiliysoft.rustoreconsole.repo.AppListRepository
@@ -66,7 +67,8 @@ class PurchaseViewModel : ViewModel() {
         emit(LoadingResult.Loading("Загружаем..."))
 
         try {
-            appIds.chunked(1).forEach { idList ->
+            val purchasesRequestChunkSize = PrefHelper.getInstance().purchasesRequestChunkSize
+            appIds.chunked(purchasesRequestChunkSize).forEach { idList ->
                 coroutineScope {
                     idList.forEach { appInfo ->
                         launch {

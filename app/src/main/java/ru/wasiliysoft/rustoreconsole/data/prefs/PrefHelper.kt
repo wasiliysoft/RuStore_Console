@@ -19,6 +19,7 @@ class PrefHelper private constructor(context: Context) {
         private const val PREF_TOKEN_ENCRYPTED = "PREF_TOKEN_ENCRYPTED"
         private const val PREF_JSON_APP_LIST = "PREF_JSON_APP_LIST"
         private const val KEY_LAST_SEEN_VERSION = "LAST_SEEN_VERSION"
+        private const val KEY_PURCHASE_CHUNK_SIZE = "KEY_PURCHASE_CHUNK_SIZE"
 
         /**
          * Хранит имя маршрута для стартовой вкладки на домашнем экране
@@ -106,4 +107,15 @@ class PrefHelper private constructor(context: Context) {
         set(versionCode: Int) {
             prefs.edit { putInt(KEY_LAST_SEEN_VERSION, versionCode) }
         }
+
+
+    /**
+     * Количесвто паралельных запросов истории платежей
+     */
+    var purchasesRequestChunkSize: Int
+        get() = prefs.getInt(KEY_PURCHASE_CHUNK_SIZE, 3)
+        set(value) {
+            prefs.edit { putInt(KEY_PURCHASE_CHUNK_SIZE, value) }
+        }
+
 }
