@@ -34,7 +34,7 @@ import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.TitledCard
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
-import ru.wasiliysoft.rustoreconsole.utils.formatAsAmmountSumm
+import ru.wasiliysoft.rustoreconsole.utils.formatAsAmountSum
 import ru.wasiliysoft.rustoreconsole.utils.toMediumDateString
 import java.util.Calendar
 
@@ -179,7 +179,7 @@ private fun AmountPerMonthItem(
             overflow = TextOverflow.Ellipsis
         )
         Text(
-            text = amountPerMonth.second.formatAsAmmountSumm(),
+            text = amountPerMonth.second.formatAsAmountSum(),
             modifier = Modifier.padding(start = 8.dp)
         )
     }
@@ -203,7 +203,7 @@ fun PurchaseDayHeader(
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Сумма: " + list.sumOf { it.amountCurrent / 100 }.formatAsAmmountSumm(),
+            text = "Сумма: " + list.sumOf { it.amountCurrent / 100 }.formatAsAmountSum(),
             fontWeight = FontWeight.Bold
         )
     }

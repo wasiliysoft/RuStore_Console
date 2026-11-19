@@ -34,7 +34,7 @@ import ru.wasiliysoft.rustoreconsole.ui.view.ErrorTextView
 import ru.wasiliysoft.rustoreconsole.ui.view.TitledCard
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult
 import ru.wasiliysoft.rustoreconsole.utils.LoadingResult.Loading
-import ru.wasiliysoft.rustoreconsole.utils.formatAsAmmountSumm
+import ru.wasiliysoft.rustoreconsole.utils.formatAsAmountSum
 
 data class AppStats(
     val appName: String,
@@ -132,10 +132,10 @@ private fun PaymentStatCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 appStats.overallSum.let {
-                    Text(text = "Вчера\n${it.dailyStats.formatAsAmmountSumm()}")
-                    Text(text = "7 дней\n${it.weeklyStats.formatAsAmmountSumm()}")
-                    Text(text = "30 дней\n${it.monthlyStats.formatAsAmmountSumm()}")
-                    Text(text = "Всё время\n${it.totalStats.formatAsAmmountSumm()}")
+                    Text(text = "Вчера\n${it.dailyStats.formatAsAmountSum()}")
+                    Text(text = "7 дней\n${it.weeklyStats.formatAsAmountSum()}")
+                    Text(text = "30 дней\n${it.monthlyStats.formatAsAmountSum()}")
+                    Text(text = "Всё время\n${it.totalStats.formatAsAmountSum()}")
                 }
             }
         }
