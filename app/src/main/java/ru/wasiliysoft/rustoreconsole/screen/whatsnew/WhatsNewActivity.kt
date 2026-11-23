@@ -27,19 +27,11 @@ import ru.wasiliysoft.rustoreconsole.ui.view.TitledCard
 class WhatsNewActivity : ComponentActivity() {
     private val ph by lazy { PrefHelper.getInstance() }
 
-    private val isAll by lazy { intent.getBooleanExtra("EXTRA_ALL", false) }
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             RuStoreConsoleTheme {
-                WhatsNewScreen(
-                    notes = WhatsNewRegistry.getList(
-                        currentVersion = BuildConfig.VERSION_CODE,
-                        lastSeenVersion = if (isAll) 0 else ph.lastSeenVersion
-                    ),
+                WhatsNewScreen(notes = WhatsNewRegistry.ALL_NOTES,
                     onConfirm = {
                         ph.lastSeenVersion = BuildConfig.VERSION_CODE
                         finish()

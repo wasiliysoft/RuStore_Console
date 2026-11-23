@@ -15,16 +15,12 @@ object WhatsNewRegistry {
             listOf("Удержание на плитке платежа открывает контекстное меню.")
         ),
         ReleaseNote(
-            38,
+            37,
             "Версия 2.11.0",
             listOf("Добавлена настройка количества одновременных потоков загрузки платежей.")
         ),
-    )
+    ).sortedByDescending { it.versionCode }
 
     val maxVersionCode = ALL_NOTES.maxBy { it.versionCode }.versionCode
 
-    fun getList(currentVersion: Int, lastSeenVersion: Int) =
-        WhatsNewRegistry.ALL_NOTES
-            .filter { it.versionCode in (lastSeenVersion + 1)..currentVersion }
-            .sortedByDescending { it.versionCode }
 }
